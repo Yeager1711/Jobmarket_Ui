@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import styles from './SalaryGrossNet.module.scss';
 import { calculateInsurance } from '../Criteria/utils';
-import { calculatePersonalTax } from '../Criteria/personalTax';
+import { calculateIncomeTax } from '../Criteria/taxRules';
 import Region_Details from '../../../pages/DefaultLayouts/Popup/Region_Details/page';
 
 import { INSURANCE_RATES, PERSONAL_DEDUCTION, DEPENDENT_DEDUCTION } from '../Criteria/constants';
@@ -16,8 +16,6 @@ interface CalculationResult {
     incomeTax: number;
     netIncome: number;
     dependentReduction: number;
-    InsuranceDisplay: number;
-    taxableIncome: number;
 }
 
 function SalaryGrossNet() {
@@ -28,86 +26,68 @@ function SalaryGrossNet() {
     const [dependents, setDependents] = useState<string>('');
 
     // Kết quả
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<CalculationResult | null>(null);
 
     const [isDetailsVisible, setIsDetailsVisible] = useState(false);
 
-    const [region, setRegion] = useState<'Region_one' | 'Region_two' | 'Region_three' | 'Region_four'>('Region_one');
-
-    // Handle GROSS - NET Calculation
     const calculateGrossToNet = () => {
         const grossIncome = parseFloat(income.replaceAll('.', '').replace('đ', '')) || 0;
-        const dependentsCount = parseInt(dependents) || 0;
+        const dependentReduction = parseInt(dependents) * DEPENDENT_DEDUCTION || 0;
 
-        if (grossIncome <= 0) {
-            alert('Vui lòng nhập thu nhập hợp lệ.');
-            return;
-        }
+        // Tính bảo hiểm
+        const { socialInsurance, healthInsurance, unemploymentInsurance } = calculateInsurance(grossIncome);
 
-        // Sử dụng hàm tính thuế thu nhập cá nhân và bảo hiểm
-        const personalTaxResult = calculatePersonalTax({
-            grossIncome,
-            dependents: dependentsCount,
-            region,
-        });
+        const preTaxIncome = grossIncome - socialInsurance - healthInsurance - unemploymentInsurance;
+        const taxableIncome = Math.max(preTaxIncome - PERSONAL_DEDUCTION - dependentReduction, 0);
 
-        const { socialInsurance, healthInsurance, unemploymentInsurance, incomeTax, preTaxIncome, taxableIncome } =
-            personalTaxResult;
+        // Thuế thu nhập cá nhân bậc 1 (giả định)
+        const incomeTax = calculateIncomeTax(taxableIncome);
 
-        const InsuranceDisplay = socialInsurance + healthInsurance + unemploymentInsurance;
-        // Lương Net = Thu nhập trước thuế - Thuế TNCN
         const netIncome = preTaxIncome - incomeTax;
 
         setResult({
-            grossIncome: grossIncome.toLocaleString('vi-VN'),
-            socialInsurance: socialInsurance.toLocaleString('vi-VN'),
-            healthInsurance: healthInsurance.toLocaleString('vi-VN'),
-            unemploymentInsurance: unemploymentInsurance.toLocaleString('vi-VN'),
-            incomeTax: incomeTax.toLocaleString('vi-VN'),
-            netIncome: netIncome.toLocaleString('vi-VN'),
-            dependentReduction: (dependentsCount * DEPENDENT_DEDUCTION).toLocaleString('vi-VN'),
-            InsuranceDisplay: InsuranceDisplay.toLocaleString('vi-VN'),
-            preTaxIncome: preTaxIncome.toLocaleString('vi-VN'),
-            taxableIncome: taxableIncome.toLocaleString('vi-VN'),
+            grossIncome,
+            socialInsurance,
+            healthInsurance,
+            unemploymentInsurance,
+            preTaxIncome,
+            incomeTax,
+            netIncome,
+            dependentReduction,
         });
     };
 
-    // Handle NET - GROSS Calculation
     const calculateNetToGross = () => {
         const netIncome = parseFloat(income.replaceAll('.', '').replace('đ', '')) || 0;
 
-        if (netIncome <= 0) {
-            alert('Vui lòng nhập thu nhập hợp lệ.');
-            return;
-        }
+        // Ước tính lương Gross
+        let estimatedGross =
+            netIncome /
+            (1 -
+                INSURANCE_RATES.socialInsurance -
+                INSURANCE_RATES.healthInsurance -
+                INSURANCE_RATES.unemploymentInsurance);
 
-        // Use your custom logic or function to calculate gross from net
-        // Here you would reverse-engineer the gross income
-        const grossIncome = netIncome * 1.3; // Placeholder multiplier for demo purposes
-        const dependentsCount = parseInt(dependents) || 0;
+        // Tính bảo hiểm
+        const { socialInsurance, healthInsurance, unemploymentInsurance } = calculateInsurance(estimatedGross);
 
-        const personalTaxResult = calculatePersonalTax({
-            grossIncome,
-            dependents: dependentsCount,
-            region,
-        });
+        const dependentReduction = (parseInt(dependents, 10) || 0) * DEPENDENT_DEDUCTION;
 
-        const { socialInsurance, healthInsurance, unemploymentInsurance, incomeTax, preTaxIncome, taxableIncome } =
-            personalTaxResult;
-        const InsuranceDisplay = socialInsurance + healthInsurance + unemploymentInsurance;
+        const preTaxIncome = estimatedGross - socialInsurance - healthInsurance - unemploymentInsurance;
+        const taxableIncome = Math.max(preTaxIncome - PERSONAL_DEDUCTION - dependentReduction, 0);
 
-        // Update results
+        const incomeTax = calculateIncomeTax(taxableIncome);
+        const grossIncome = estimatedGross;
+
         setResult({
-            grossIncome: grossIncome.toLocaleString('vi-VN'),
-            socialInsurance: socialInsurance.toLocaleString('vi-VN'),
-            healthInsurance: healthInsurance.toLocaleString('vi-VN'),
-            unemploymentInsurance: unemploymentInsurance.toLocaleString('vi-VN'),
-            incomeTax: incomeTax.toLocaleString('vi-VN'),
-            netIncome: netIncome.toLocaleString('vi-VN'),
-            dependentReduction: (dependentsCount * DEPENDENT_DEDUCTION).toLocaleString('vi-VN'),
-            InsuranceDisplay: InsuranceDisplay.toLocaleString('vi-VN'),
-            preTaxIncome: preTaxIncome.toLocaleString('vi-VN'),
-            taxableIncome: taxableIncome.toLocaleString('vi-VN'),
+            grossIncome: parseFloat(grossIncome.toFixed(0)),
+            socialInsurance: parseFloat(socialInsurance.toFixed(0)),
+            healthInsurance: parseFloat(healthInsurance.toFixed(0)),
+            unemploymentInsurance: parseFloat(unemploymentInsurance.toFixed(0)),
+            preTaxIncome: parseFloat(preTaxIncome.toFixed(0)),
+            incomeTax: parseFloat(incomeTax.toFixed(0)),
+            netIncome: parseFloat(netIncome.toFixed(0)),
+            dependentReduction: parseFloat(dependentReduction.toFixed(0)),
         });
     };
 
@@ -174,18 +154,7 @@ function SalaryGrossNet() {
                                 <span>
                                     Vùng: <p onClick={() => setIsDetailsVisible(true)}>(Tìm hiểu thêm)</p>
                                 </span>
-                                <select
-                                    value={region}
-                                    onChange={(e) =>
-                                        setRegion(
-                                            e.target.value as
-                                                | 'Region_one'
-                                                | 'Region_two'
-                                                | 'Region_three'
-                                                | 'Region_four'
-                                        )
-                                    }
-                                >
+                                <select name="" id="">
                                     <option value="Region_one">Vùng 1</option>
                                     <option value="Region_two">Vùng 2</option>
                                     <option value="Region_three">Vùng 3</option>
@@ -209,6 +178,7 @@ function SalaryGrossNet() {
                         <>
                             <div className={styles.result}>
                                 <h3>Kết quả</h3>
+
                                 <table className={styles.table}>
                                     <thead>
                                         <tr>
@@ -220,10 +190,17 @@ function SalaryGrossNet() {
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{result.grossIncome}</td>
-                                            <td>- {result.InsuranceDisplay}</td>
-                                            <td>- {result.incomeTax}</td>
-                                            <td className={styles.text_green}>{result.netIncome}</td>
+                                            <td>{result.grossIncome.toLocaleString()}</td>
+                                            <td>
+                                                -{' '}
+                                                {(
+                                                    result.socialInsurance +
+                                                    result.healthInsurance +
+                                                    result.unemploymentInsurance
+                                                ).toLocaleString()}{' '}
+                                            </td>
+                                            <td> - {result.incomeTax.toLocaleString()}</td>
+                                            <td>{result.netIncome.toLocaleString()}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -244,7 +221,6 @@ function SalaryGrossNet() {
                                                 - {result.socialInsurance.toLocaleString()}
                                             </td>
                                         </tr>
-
                                         <tr>
                                             <td>Bảo hiểm y tế</td>
                                             <td className={styles.netIncome}>
@@ -252,7 +228,6 @@ function SalaryGrossNet() {
                                                 - {result.healthInsurance.toLocaleString()}
                                             </td>
                                         </tr>
-
                                         <tr>
                                             <td>Bảo hiểm thất nghiệp</td>
                                             <td className={styles.netIncome}>
@@ -280,12 +255,7 @@ function SalaryGrossNet() {
                                                 - {result.dependentReduction.toLocaleString()}{' '}
                                             </td>
                                         </tr>
-                                        <tr>
-                                            <td>Thu nhập chịu thuế </td>
-                                            <td className={styles.netIncome}>
-                                                {result.taxableIncome.toLocaleString()}{' '}
-                                            </td>
-                                        </tr>
+
                                         <tr>
                                             <td>Thuế thu nhập cá nhân</td>
                                             <td className={styles.netIncome}>{result.incomeTax.toLocaleString()} </td>
@@ -294,40 +264,6 @@ function SalaryGrossNet() {
                                             <td>Lương NET</td>
                                             <td className={styles.netIncome}>{result.netIncome.toLocaleString()} </td>
                                         </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div className={styles.Calculate_detailsOfPersonal__income__tax}>
-                                <h3>Chi tiết tính toán thuế thu nhập cá nhân</h3>
-                                <table className={styles.table}>
-                                    <thead>
-                                        <tr>
-                                            <th>Mức chịu thuế</th>
-                                            <th>Thuế suất</th>
-                                            <th>Tiền nộp</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {/* Displaying tax details */}
-                                        {result.taxDetails &&
-                                            result.taxDetails.length > 0 &&
-                                            result.taxDetails.map((detail: any, index: any) => {
-                                                // Ensure each value is defined before calling toLocaleString()
-                                                const taxRange = detail.taxRange || 'N/A'; // Default to 'N/A' if undefined
-                                                const taxRate = detail.taxRate || '0'; // Default to '0%' if undefined
-                                                const taxAmount = detail.taxAmount
-                                                    ? detail.taxAmount.toLocaleString()
-                                                    : '0'; // Default to '0' if undefined
-
-                                                return (
-                                                    <tr key={index}>
-                                                        <td>{taxRange}</td>
-                                                        <td>{taxRate}%</td>
-                                                        <td>{taxAmount}</td>
-                                                    </tr>
-                                                );
-                                            })}
                                     </tbody>
                                 </table>
                             </div>
@@ -360,7 +296,7 @@ function SalaryGrossNet() {
                 </div>
             </div>
 
-            {isDetailsVisible && <Region_Details onClose={() => setIsDetailsVisible(false)} />}
+            {isDetailsVisible && <Region_Details onClose={() => setIsDetailsVisible(false)}/>}
         </section>
     );
 }

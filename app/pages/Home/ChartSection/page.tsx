@@ -230,26 +230,34 @@ const ChartSection = () => {
 
     const calculateJobTrend = () => {
         if (!dataChart) return null;
-
+    
         const today = new Date();
-
+        const todayCopy = new Date(today); // Lưu bản sao để không thay đổi today
+    
+        // Lấy công việc trong ngày hôm nay
+        const jobsToday = dataChart.jobsCreatedByDate.filter((job) => {
+            const jobDate = new Date(job.date);
+            return jobDate.toDateString() === today.toDateString(); // So sánh ngày, bỏ qua giờ
+        });
+    
         // Lấy 7 ngày trước
         const jobsLast7Days = dataChart.jobsCreatedByDate.filter((job) => {
             const jobDate = new Date(job.date);
-            return jobDate <= today && jobDate > new Date(today.setDate(today.getDate() - 7));
+            return jobDate <= today && jobDate > new Date(todayCopy.setDate(todayCopy.getDate() - 7));
         });
-
-        // Lấy 7  ngày sau
-        const jobsNext7Days = dataChart.jobsCreatedByDate.filter((job) => {
-            const jobDate = new Date(job.date);
-            return jobDate > today && jobDate <= new Date(today.setDate(today.getDate() + 7));
-        });
-
+    
+        // Lấy tổng số công việc trong 7 ngày trước
         const totalLast7Days = jobsLast7Days.reduce((sum, job) => sum + job.count, 0);
-        const totalNext7Days = jobsNext7Days.reduce((sum, job) => sum + job.count, 0);
-
-        return totalNext7Days > totalLast7Days ? 'up' : 'down';
+    
+        // Nếu có công việc trong ngày hôm nay, xu hướng sẽ là "tăng"
+        if (jobsToday.length > 0) {
+            return 'up';
+        }
+    
+        // Nếu không có công việc trong ngày hôm nay và tổng công việc trong 7 ngày trước giảm
+        return totalLast7Days > 0 ? 'down' : 'noData';
     };
+    
 
     return (
         <section ref={chartRef} className={styles.HomePage_chart}>

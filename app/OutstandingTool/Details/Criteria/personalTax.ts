@@ -4,18 +4,23 @@ import { REGION_MIN_SALARY } from './region';
 interface TaxInput {
     grossIncome: number;
     dependents: number;
+    region: keyof typeof REGION_MIN_SALARY;
 }
 
-export const calculatePersonalTax = ({ grossIncome, dependents }: TaxInput) => {
+export const calculatePersonalTax = ({ grossIncome, dependents, region }: TaxInput) => {
     let socialInsurance = 0;
     let healthInsurance = 0;
     let unemploymentInsurance = 0;
+    const regionSalaryCap = REGION_MIN_SALARY[region] * 20;
+    // const regionSalaryCap = REGION_MIN_SALARY[region as keyof typeof REGION_MIN_SALARY] * 20;
+
 
     // Nếu grossIncome > BASE_SALARY * MINIMUM, áp dụng mức lương trần để tính bảo hiểm
     if (grossIncome > BASE_SALARY * MINIMUM) {
         socialInsurance = BASE_SALARY * MINIMUM * INSURANCE_RATES.socialInsurance; // BHXH
         healthInsurance = BASE_SALARY * MINIMUM * INSURANCE_RATES.healthInsurance; // BHYT
-        unemploymentInsurance = REGION_MIN_SALARY.Region_one * 20 * INSURANCE_RATES.unemploymentInsurance; // BHTN
+        // BHTN giới hạn bởi trần vùng (20 lần mức lương tối thiểu vùng)
+        unemploymentInsurance = Math.min(grossIncome, regionSalaryCap) * INSURANCE_RATES.unemploymentInsurance;
     } else {
         socialInsurance = grossIncome * INSURANCE_RATES.socialInsurance;
         healthInsurance = grossIncome * INSURANCE_RATES.healthInsurance;
@@ -76,9 +81,10 @@ const calculateIncomeTax = (taxableIncome: number): { tax: number; taxDetails: a
 
         // Push structured data into taxDetails array
         taxDetails.push({
-            taxRange: bracket.threshold <= 5000000
-                ? `Đến ${bracket.threshold.toLocaleString()} VNĐ`
-                : `Trên ${lowerBound.toLocaleString()} VNĐ đến ${bracket.threshold.toLocaleString()} VNĐ`,
+            taxRange:
+                bracket.threshold <= 5000000
+                    ? `Đến ${bracket.threshold.toLocaleString()} VNĐ`
+                    : `Trên ${lowerBound.toLocaleString()} VNĐ đến ${bracket.threshold.toLocaleString()} VNĐ`,
             taxRate: (bracket.rate * 100).toFixed(0), // Percentage of the tax rate
             taxAmount: bracketTax,
         });
@@ -91,4 +97,3 @@ const calculateIncomeTax = (taxableIncome: number): { tax: number; taxDetails: a
         taxDetails,
     };
 };
-

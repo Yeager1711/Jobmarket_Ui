@@ -1,0 +1,69 @@
+.feedbackForm {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+    h3 {
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+  
+    .icons {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+  
+      label {
+        cursor: pointer;
+        text-align: center;
+  
+        input {
+          display: none;
+        }
+  
+        .icon {
+          display: block;
+          padding: 0.5rem;
+          background: #f5f5f5;
+          border-radius: 50%;
+          font-size: 0.9rem;
+  
+          &:hover {
+            background: #eaeaea;
+          }
+        }
+      }
+    }
+  
+    textarea {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: none;
+      font-size: 0.9rem;
+    }
+  
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      background: #0070f3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+  
+      &:hover {
+        background: #005bb5;
+      }
+    }
+  }
+  

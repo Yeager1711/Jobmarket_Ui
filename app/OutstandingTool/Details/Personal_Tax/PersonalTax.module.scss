@@ -412,6 +412,10 @@
                     .btn_PersonalTax {
                         background: none;
                         padding: 1rem 2rem;
+
+                        &:disabled {
+                            background: var(--disabled);
+                        }
                     }
 
                     .btn_PersonalTax {

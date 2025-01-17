@@ -3,14 +3,15 @@ import React, { useState } from 'react';
 import styles from './PersonalTax.module.scss';
 import Region_Details from '../../../pages/DefaultLayouts/Popup/Region_Details/page';
 import { calculatePersonalTax } from '../Criteria/personalTax';
-import { PERSONAL_DEDUCTION, DEPENDENT_DEDUCTION } from '../Criteria/constants';
+import { PERSONAL_DEDUCTION, DEPENDENT_DEDUCTION, BASE_SALARY } from '../Criteria/constants';
+import { INSURANCE_RATES } from '../Criteria/constants';
 
 function PersonalTax() {
     const [grossIncome, setGrossIncome] = useState<number>(0);
     const [grossIncomeDisplay, setGrossIncomeDisplay] = useState<string>('');
     const [dependents, setDependents] = useState<number>(0);
     const [isDetailsVisible, setIsDetailsVisible] = useState(false);
-    const [region, setRegion] = useState<string>('region_one');
+    const [region, setRegion] = useState<'Region_one' | 'Region_two' | 'Region_three' | 'Region_four'>('Region_one');
     const [result, setResult] = useState<any>(null);
 
     const personalDeduction = PERSONAL_DEDUCTION;
@@ -20,6 +21,7 @@ function PersonalTax() {
         const taxResult = calculatePersonalTax({
             grossIncome,
             dependents,
+            region,
         });
 
         setResult(taxResult);
@@ -65,17 +67,17 @@ function PersonalTax() {
                     <div className={styles.list_salary}>
                         <div>
                             <p>Lương cơ sở:</p>
-                            <span className={styles.text_orange}>2,340,000đ</span>
+                            <span className={styles.text_orange}>{BASE_SALARY.toLocaleString()}đ</span>
                         </div>
 
                         <div>
                             <p>Giảm trừ gia cảnh bản thân:</p>
-                            <span className={styles.text_orange}>11,000,000đ</span>
+                            <span className={styles.text_orange}>{PERSONAL_DEDUCTION.toLocaleString()}đ</span>
                         </div>
 
                         <div>
                             <p>Người phụ thuộc:</p>
-                            <span className={styles.text_orange}>4,400,000đ</span>
+                            <span className={styles.text_orange}>{DEPENDENT_DEDUCTION.toLocaleString()}đ</span>
                         </div>
                     </div>
 
@@ -95,8 +97,12 @@ function PersonalTax() {
                                 <span>Số người phụ thuộc:</span>
                                 <input
                                     type="text"
-                                    value={dependents}
-                                    onChange={(e) => setDependents(Number(e.target.value))}
+                                    value={dependents === 0 ? '' : dependents}
+                                    onFocus={(e) => e.target.value === '0' && setDependents(0)} // Xóa giá trị '0' khi focus
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(/[^0-9]/g, ''); // chỉ co phép người dùng nhập số
+                                        setDependents(value === '' ? 0 : Number(value));
+                                    }}
                                     placeholder="Người"
                                 />
                             </div>
@@ -105,7 +111,18 @@ function PersonalTax() {
                                 <span>
                                     Vùng: <p onClick={() => setIsDetailsVisible(true)}>(Tìm hiểu thêm)</p>
                                 </span>
-                                <select name="" id="">
+                                <select
+                                    value={region}
+                                    onChange={(e) =>
+                                        setRegion(
+                                            e.target.value as
+                                                | 'Region_one'
+                                                | 'Region_two'
+                                                | 'Region_three'
+                                                | 'Region_four'
+                                        )
+                                    }
+                                >
                                     <option value="Region_one">Vùng 1</option>
                                     <option value="Region_two">Vùng 2</option>
                                     <option value="Region_three">Vùng 3</option>
@@ -115,7 +132,11 @@ function PersonalTax() {
                         </div>
 
                         <div className={styles.convert}>
-                            <button className={styles.btn_PersonalTax} onClick={handleCalculate}>
+                            <button
+                                className={styles.btn_PersonalTax}
+                                onClick={handleCalculate}
+                                disabled={!grossIncome || grossIncome === 0}
+                            >
                                 Tính thuế TNCN
                             </button>
                         </div>
@@ -134,21 +155,21 @@ function PersonalTax() {
                                             <td className={styles.netIncome}>{result.grossIncome.toLocaleString()} </td>
                                         </tr>
                                         <tr>
-                                            <td>Bảo hiểm xã hội</td>
+                                            <td>Bảo hiểm xã hội </td>
                                             <td className={styles.netIncome}>
-                                                 {result.socialInsurance.toLocaleString()}{' '}
+                                                {result.socialInsurance.toLocaleString()}{' '}
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Bảo hiểm y tế</td>
                                             <td className={styles.netIncome}>
-                                                 {result.healthInsurance.toLocaleString()}{' '}
+                                                {result.healthInsurance.toLocaleString()}{' '}
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Bảo hiểm thất nghiệp</td>
                                             <td className={styles.netIncome}>
-                                                 {result.unemploymentInsurance.toLocaleString()}{' '}
+                                                {result.unemploymentInsurance.toLocaleString()}{' '}
                                             </td>
                                         </tr>
                                         <tr>
@@ -163,9 +184,7 @@ function PersonalTax() {
                                         </tr>
                                         <tr>
                                             <td>Giảm trừ gia cảnh người phụ thuộc</td>
-                                            <td className={styles.netIncome}>
-                                                 {dependentDeduction.toLocaleString()}
-                                            </td>
+                                            <td className={styles.netIncome}>{dependentDeduction.toLocaleString()}</td>
                                         </tr>
                                         <tr>
                                             <td>Thu nhập chịu thuế</td>

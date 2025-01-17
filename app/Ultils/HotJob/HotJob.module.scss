@@ -1,0 +1,87 @@
+.hot_job {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: .45rem solid red;
+  border-top-left-radius: 2rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+
+
+  p {
+    font-size: 1.1rem;
+    background: red;
+    color: var(--colorWhiteText);
+    margin-top: -0.8rem;
+    padding: .5rem 1rem;
+    border-bottom-right-radius: 5rem;
+    font-weight: var(--weight550);
+    text-transform: uppercase;
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 10rem;
+    display: flex;
+    text-align: center;
+
+    svg {
+      margin-top: -.5rem;
+    }
+
+  }
+}
+
+.Remarkable {
+  position: absolute;
+  top: -2rem;
+  right: -2rem;
+  content: '';
+  position: absolute;
+  width: 5rem;
+  height: 5rem;
+  background: red; // Màu bên trong
+  // clip-path: polygon(0 0, 100% 0, 50% 85%, 0 100%);
+  z-index: 2;
+
+  .on1 {
+      position: absolute;
+      top: 8px;
+      right: -24px;
+      width: 5rem;
+      height: 5rem;
+      background: #fff;
+      clip-path: polygon(0 100%, 0 58%, 100% 100%);
+      transform: rotate(-347deg);
+      z-index: 2;
+  }
+
+
+
+  .on2 {
+      position: absolute;
+      top: 10px;
+      left: -27px;
+      width: 5rem;
+      height: 5rem;
+      background: #fff;
+      transform: rotate(-377deg);
+      z-index: 2;
+      clip-path: polygon(0 100%, 100% 60%, 100% 100%);
+  }
+
+  p {
+      margin: 0;
+      padding: 0.5rem;
+      color: #fff;
+      z-index: 3;
+      position: absolute;
+      top: 1rem;
+      left: -.2rem;
+      width: 6rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      font-weight: var(--weight550);
+  }
+}

@@ -10,6 +10,7 @@ import { faCommentsDollar, faHourglassStart, faLocationDot, faIndustry } from '@
 const cx = classNames.bind(styles);
 import { formatSalary } from '../../../Ultils/formatSalary';
 import JobDetails_Skeleton from './jobDetail__Skeleton';
+import HotJob from 'app/Ultils/HotJob/HotJob';
 
 interface Job {
     success: boolean;
@@ -26,6 +27,7 @@ interface Job {
         work_time: string;
         created_at: string;
         updated_at: string;
+        Hot_Job: string;
         workLocation: {
             workLocationId: number;
             address_name: string;
@@ -193,7 +195,7 @@ function JobDetail() {
                     {jobDetails.company.name}
 
                     <span className={styles.basic_infomation_item__industry}>
-                    <FontAwesomeIcon icon={faIndustry} />
+                        <FontAwesomeIcon icon={faIndustry} />
                         Lĩnh vực:
                         <p>{jobDetails.jobIndustry.name}</p>
                     </span>
@@ -208,16 +210,24 @@ function JobDetail() {
                 <div className={styles.infomation}>
                     <div className={styles.wrapper_infomation}>
                         <div className={styles.basic_infomation}>
+                            {jobDetails.Hot_Job && jobDetails.Hot_Job !== 'Null' && (
+                                <div className={styles.Remarkable}>
+                                    <span className={styles.on1}></span>
+                                    <p>{jobDetails.Hot_Job}</p>
+                                    <span className={styles.on2}></span>
+                                </div>
+                            )}
+
                             <h4 className={styles.infomation_Content_Title_job}>{jobDetails.title}</h4>
                             <div className={styles.infomation_Content_section}>
                                 <span className={styles.basic_infomation_item}>
                                     <FontAwesomeIcon icon={faCommentsDollar} />
                                     Mức lương:
                                     <p>
-                                        {jobDetails.salary_from === 0 || jobDetails.salary_to === 0 ? (
+                                        {jobDetails.salary_from === 0 && jobDetails.salary_to === 0 ? (
                                             <>Thỏa thuận</>
                                         ) : (
-                                            <>{formatSalary(jobDetails.salary)}</>
+                                            <> {formatSalary(jobDetails.salary)}</>
                                         )}
                                     </p>
                                 </span>
@@ -365,6 +375,7 @@ function JobDetail() {
                                         key={job.jobId}
                                         className={styles.box_companyJob}
                                     >
+                                        <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
                                         <div className={styles.logo__company}>
                                             <img
                                                 src={job.company.images[0]?.image_company || 'default-image.png'}
@@ -382,9 +393,11 @@ function JobDetail() {
                                                 {job.jobLevel.name.join(' , ')} - {job.generalInformation.experience}
                                             </p>
                                             <p className={styles.company__salary}>
-                                                {job.salary_from === 0 || job.salary_to === 0
-                                                    ? 'Thỏa thuận'
-                                                    : `${formatSalary(job.salary)}`}
+                                                {job.salary_from === 0 && job.salary_to === 0 ? (
+                                                    <>Thỏa thuận</>
+                                                ) : (
+                                                    <> {formatSalary(job.salary)}</>
+                                                )}
                                             </p>
                                             <p className={styles.company__location}>{job.workLocation.district.name}</p>
                                         </div>

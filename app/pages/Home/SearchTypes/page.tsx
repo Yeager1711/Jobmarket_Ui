@@ -12,13 +12,21 @@ import styles from './SearchTypes.module.scss';
 import 'aos/dist/aos.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faChevronLeft, faChevronRight, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import {
+    faEye,
+    faChevronLeft,
+    faChevronRight,
+    faChevronDown,
+    faChevronUp,
+    faFire,
+} from '@fortawesome/free-solid-svg-icons';
 import { CiLocationOn } from 'react-icons/ci';
 
 import { formatSalary } from '../../../Ultils/formatSalary';
 
 import { Job } from '../../../interface/Job';
 import { toast } from 'react-toastify';
+import HotJob from 'app/Ultils/HotJob/HotJob';
 
 import { useHandleViewJob } from '../../../Ultils/hanle__viewJob';
 
@@ -68,7 +76,7 @@ const SearchTypes = () => {
         setPopupOpen(false);
     };
 
-    const itemsPerPage_Type = pathname === pathJobs ? 15 : 9;
+    const itemsPerPage_Type = pathname === pathJobs ? 21 : 12;
     // Cập nhật danh sách phân trang
     const jobsToDisplay =
         Array.isArray(filteredJobsType) && filteredJobsType.length > 0
@@ -167,6 +175,27 @@ const SearchTypes = () => {
         setTechStack([event.target.value]);
     };
 
+    const [mostPopularTechStacks, setMostPopularTechStacks] = useState<string[]>([]);
+    const [lessPopularTechStacks, setLessPopularTechStacks] = useState<string[]>([]);
+    const [ortherPopularTechStacks, setOrtherPopularTechStacks] = useState<string[]>([]);
+    const [showTechStackFilters, setShowTechStackFilters] = useState(false);
+
+    // Tạo ref cho `keyword_suggestions`
+    const keywordSuggestionsRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (keywordSuggestionsRef.current && !keywordSuggestionsRef.current.contains(event.target as Node)) {
+                setShowTechStackFilters(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     useEffect(() => {
         const fetchAllJobs = async () => {
             try {
@@ -186,6 +215,26 @@ const SearchTypes = () => {
                     setJobExperience(result.data.category.Experience || []);
                     setJobTypesWorkAt(result.data.category.jobTypesWorkAt || []);
                     setJobDistrict(result.data.category.jobDistrict || []);
+
+                    // Đếm số lượng công ty tuyển dụng theo tech_stack
+                    const techStackCount: Record<string, number> = {};
+
+                    sortedJobs.forEach((job: any) => {
+                        const techStack = job.generalInformation?.tech_stack || [];
+                        techStack.forEach((stack: string) => {
+                            techStackCount[stack] = (techStackCount[stack] || 0) + 1;
+                        });
+                    });
+
+                    // Sắp xếp tech_stack theo số lượng giảm dần
+                    const sortedTechStacks = Object.entries(techStackCount)
+                        .sort(([, countA], [, countB]) => countB - countA)
+                        .map(([stack]) => stack);
+
+                    // Lấy 10 phổ biến nhất và còn lại
+                    setMostPopularTechStacks(sortedTechStacks.slice(0, 25));
+                    setLessPopularTechStacks(sortedTechStacks.slice(25, 43));
+                    setOrtherPopularTechStacks(sortedTechStacks.slice(20));
                 } else {
                     setError('Failed to fetch job types');
                     console.error('Response not OK:', result);
@@ -260,9 +309,69 @@ const SearchTypes = () => {
                                     <div className={styles.input__TechStack}>
                                         <input
                                             type="text"
-                                            placeholder="Java, JavaScript, C#, PHP ..."
-                                            onChange={handleTechStackChange}
+                                            placeholder="Nhập hoặc Chọn các từ khóa: Java, JavaScript, C#, PHP ..."
+                                            onFocus={() => setShowTechStackFilters(true)}
+                                            onChange={() => {}}
                                         />
+                                        <div
+                                            className={`${styles.keyword_suggestions} ${
+                                                showTechStackFilters ? styles.visible : styles.hidden
+                                            }`}
+                                            ref={keywordSuggestionsRef}
+                                        >
+                                            <div className={styles.wrapper_keyword__suggestions}>
+                                                <div className={styles.Most_recruiting_keywords}>
+                                                    <h4>Từ khóa đang được tuyển dụng nổi trội</h4>
+                                                    <div className={styles.box__Most_recruiting_keywords}>
+                                                        {mostPopularTechStacks.map((stack, index) => (
+                                                            <a
+                                                                key={index}
+                                                                href={`/skill_tag/${stack}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={styles.popular}
+                                                            >
+                                                                <FontAwesomeIcon icon={faFire} />
+                                                                {stack}
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className={styles.Less_recruiting_keywords}>
+                                                    <h4>Từ khóa đang tuyển dụng nhiều </h4>
+                                                    <div className={styles.box__Less_recruiting_keywords}>
+                                                        {lessPopularTechStacks.map((stack, index) => (
+                                                            <a
+                                                                key={index}
+                                                                href={`/skill_tag/${stack}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={styles.lessPopular}
+                                                            >
+                                                                {stack}
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className={styles.orther_recruiting_keywords}>
+                                                    <h4>Khác: </h4>
+                                                    <div className={styles.box__orther_recruiting_keywords}>
+                                                        {ortherPopularTechStacks.map((stack, index) => (
+                                                            <a
+                                                                key={index}
+                                                                href={`/skill_tag/${stack}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className={styles.ortherPopular}
+                                                            >
+                                                                {stack}
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className={styles.btn__search} onClick={handleSearch}>
@@ -278,6 +387,7 @@ const SearchTypes = () => {
                                 </div>
                             </div>
                         </div>
+
                         {showAdvancedFilters && (
                             <div className={`${styles.advancedFilters} ${showAdvancedFilters ? styles.visible : ''}`}>
                                 <div className={styles.filterItem}>
@@ -410,12 +520,14 @@ const SearchTypes = () => {
                         ) : paginatedJobs.length > 0 ? (
                             paginatedJobs.map((job) => (
                                 <div onClick={() => handleViewJob(job.jobId)} className={styles.job} key={job.jobId}>
-                                    {pathname === `${pathJobs}` && (
-                                        <span className={styles.views}>
-                                            {' '}
-                                            <FontAwesomeIcon icon={faEye} /> {job.view}
-                                        </span>
-                                    )}
+                                    <span className={styles.views}>
+                                        {' '}
+                                        <FontAwesomeIcon icon={faEye} /> {job.view}
+                                    </span>
+
+                                    {/* sử dụng hot job khi có job mới cần tuyển dụng gấp */}
+                                    <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
+
                                     <div className={styles.image__logo}>
                                         <img src={job.company.images[0]?.image_company} alt={job.company.name} />
                                     </div>
@@ -427,7 +539,7 @@ const SearchTypes = () => {
                                         </span>
                                         <span className={styles.positon}>{job.jobLevel.name.join(' - ')}</span>
                                         <span className={styles.salary}>
-                                            {job.salary_from === 0 || job.salary_to === 0 ? (
+                                            {job.salary_to === 0 && job.salary_to === 0 ? (
                                                 <>Thỏa thuận</>
                                             ) : (
                                                 <>{formatSalary(job.salary)}</>

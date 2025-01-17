@@ -7,7 +7,7 @@ import styles from './styles/home.module.scss';
 const Home_Skeleton = () => {
     return (
         <>
-            {Array.from({ length: 9 }).map((_, index) => (
+            {Array.from({ length: 12 }).map((_, index) => (
                 <div className={styles['company']} key={index}>
                     <div className={styles['img-company']}>
                         <Skeleton height={80} width={80} borderRadius="8px" />

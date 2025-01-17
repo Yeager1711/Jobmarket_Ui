@@ -1,15 +1,19 @@
 .OutstandingCompany {
     background-color: #f8f9fa;
-    padding: 3rem 2rem;
+    padding: 3rem 5%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
 
     .OutstandingCompany__wrapper {
-        max-width: 120rem;
         margin: 0 auto;
+        flex: 1 1 80rem;
 
         .OutstandingCompany__container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+            gap: 1.5rem;
+            position: relative; // To make sure absolute positioning of elements works properly
 
             .title {
                 grid-column: span 2;
@@ -17,10 +21,18 @@
                 align-items: center;
 
                 h3 {
-                    font-size: 3.4rem;
+                    font-size: 2.4rem;
                     font-weight: 600;
-                    color: var(#212529);
+                    color: #212529;
                     margin-bottom: 1.5rem;
+
+                    p {
+                        margin-top: 1rem;
+                        a {
+                            font-weight: var(--weight400);
+                            color: var(--viewDetails);
+                        }
+                    }
                 }
             }
 
@@ -29,43 +41,66 @@
                 flex-direction: column;
                 justify-content: space-between;
                 align-items: center;
-                background-color: var(--bg-white);
+                background-color: #fff;
                 box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-                border-radius:1.5rem;
+                border-radius: 1.5rem;
                 padding: 2rem;
                 overflow: hidden;
-
+                transition: transform 0.3s ease, top 0.3s ease; /* Add transition for smooth animation */
+                cursor: pointer;
+                position: relative; /* To allow for animation of the position */
+                
                 &:hover {
                     transform: translateY(-0.5rem);
-                    transition: all 0.3s ease;
+                }
+
+                &.dragging {  /* When the element is being dragged */
+                    opacity: 0.5; /* Make the element semi-transparent */
+                    transform: translateY(2rem); /* Lift the dragged element slightly */
+                    z-index: 9999; /* Ensure it's above other elements */
                 }
 
                 .company__image {
-                    width: 10rem;
-                    height: 10rem;
-                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    max-width: 10rem;
+                    height: 8rem;
+                    border-radius: 1.5rem;
                     margin-bottom: 1.5rem;
+                    overflow: hidden;
+                    transform: scale(1.1);
 
                     img {
-                        width: 100%;
-                        height: 100%;
+                        width: 10rem;
+                        height: 5rem;
                         object-fit: contain;
                     }
                 }
 
                 .company_content {
-                    padding: 1rem;
-                    
+                    padding: 1.5rem;
+                    cursor: pointer;
+
                     h3 {
                         font-size: 1.2rem;
                         font-weight: 600;
-                        color: var(#212529);
+                        color: #212529;
                         margin-bottom: 0.5rem;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-width: 13rem;
+                        width: 100%;
                     }
 
                     .company_content__details {
                         font-size: 1.2rem;
-                        color: var(#6c757d);
+                        color: #6c757d;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        max-width: 15rem;
+                        margin-left: 1rem;
 
                         .total__job {
                             display: block;
@@ -77,30 +112,62 @@
                 }
             }
 
-            // Size variants based on job count
+            // Size variants for bento grid
             .size-5 {
                 grid-column: span 3;
-                height: 12rem;
+                grid-row: span 0;
+                height: 17rem;
             }
 
             .size-4 {
-                grid-column: span 2;
-                height: 12rem;
+                grid-column: span 3.5;
+                grid-row: span 0;
+                height: 17rem;
             }
 
             .size-3 {
-                grid-column: span 1;
-                height: 12rem;
+                grid-column: span 2;
+                grid-row: span 0;
+                height: 17rem;
             }
 
             .size-2 {
-                height: 15rem;
+                grid-row: span 1;
+                height: 17rem;
             }
 
             .size-1 {
-                height: 15rem;
+                grid-row: span 0;
+                height: 17rem;
+            }
+        }
+    }
+
+    .advertising_posters {
+        flex: 1 1 12rem;
+
+        .image_ads {
+            width: 100%;
+            height: 60rem;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: .1rem solid var(--viewDetails);
+            position: relative;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .content_ads {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.6);
             }
         }
     }
 }
-

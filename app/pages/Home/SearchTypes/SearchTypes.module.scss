@@ -48,12 +48,179 @@
             background: var(--bg-White);
 
             .input__TechStack {
+              position: relative;
+
               input {
                 width: 100%;
                 font-size: 16px;
 
                 &::placeholder {
                   font-size: 1.25rem;
+                }
+              }
+
+              .keyword_suggestions {
+                position: absolute;
+                top: 200%;
+                left: -3%;
+                right: -35%;
+                padding: 1.5rem;
+                background: var(--bg-White);
+                border-radius: 0.5rem;
+                z-index: 2 !important;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+                height: 0;
+                overflow: hidden;
+                opacity: 0;
+                display: block;
+                transition: opacity 0.3s ease, height 0.3s ease;
+
+                &.visible {
+                  animation: expandHeight 0.3s ease forwards;
+                }
+
+                &.hidden {
+                  animation: collapseHeight 0.3s ease forwards;
+                }
+
+                @keyframes expandHeight {
+                  from {
+                    height: 0;
+                    opacity: 0;
+                  }
+
+                  to {
+                    height: 50rem;
+                    opacity: 1;
+                    overflow: auto;
+                  }
+                }
+
+                @keyframes collapseHeight {
+                  from {
+                    height: 48.8rem;
+                    opacity: 1;
+                    overflow: auto;
+                  }
+
+                  to {
+                    height: 0;
+                    opacity: 0;
+                  }
+                }
+
+                &::-webkit-scrollbar {
+                  background: #dbdbdb;
+                  height: 1px;
+                  width: .5rem;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                  height: 1px;
+                  width: .3rem;
+                  background: #777;
+                  border-radius: 5rem;
+                  cursor: pointer;
+                }
+
+
+                .wrapper_keyword__suggestions {
+                  .Most_recruiting_keywords {
+                    h4 {
+                      font-size: 1.35rem;
+                    }
+
+                    .box__Most_recruiting_keywords {
+                      margin-top: 1rem;
+                      border-top: .1rem solid var(--border);
+                      padding-top: 1rem;
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: .7rem;
+
+                      .popular {
+                        margin-right: 0.5rem;
+                        padding: 0.5rem 1rem;
+                        background: rgb(225 235 249);
+                        border-radius: 1rem;
+                        cursor: pointer;
+                        font-size: 1.3rem;
+                        color: #4186ee;
+
+                        &:hover {
+                          border: .1rem solid #4186ee;
+                          transition: .3s linear;
+                        }
+
+                        svg {
+                          margin-right: .5rem;
+                        }
+                      }
+                    }
+                  }
+
+                  .Less_recruiting_keywords {
+                    margin-top: 2rem;
+
+                    h4 {
+                      font-size: 1.35rem;
+                    }
+
+                    .box__Less_recruiting_keywords {
+                      margin-top: 1rem;
+                      border-top: .1rem solid var(--border);
+                      padding-top: 1rem;
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: .7rem;
+
+
+
+                      .lessPopular {
+                        margin-right: .5rem;
+                        padding: .5rem 1rem;
+                        background: #f4eeee;
+                        border-radius: 1rem;
+                        cursor: pointer;
+                        font-size: 1.3rem;
+
+                        &:hover {
+                          background: #dbdbdb;
+                          transition: .3s linear;
+                        }
+                      }
+
+                    }
+                  }
+
+                  .orther_recruiting_keywords {
+                    margin-top: 2rem;
+
+                    h4 {
+                      font-size: 1.35rem;
+                    }
+
+                    .box__orther_recruiting_keywords {
+                      margin-top: 1rem;
+                      border-top: .1rem solid var(--border);
+                      padding-top: 1rem;
+                      display: flex;
+                      flex-wrap: wrap;
+                      gap: .7rem;
+
+
+
+                      .ortherPopular {
+                        margin-right: .5rem;
+                        padding: .5rem 1rem;
+                        background: #dbdbdb;
+                        border-radius: 1rem;
+                        cursor: pointer;
+                        font-size: 1.3rem;
+                      }
+
+                    }
+                  }
                 }
               }
             }
@@ -78,7 +245,7 @@
           }
 
           .btn__advanced {
-            flex: 1 1 19.5rem;
+            flex: 1 1 22rem;
             width: 100%;
             padding: 1.3rem 3rem;
             border-radius: .5rem;
@@ -127,7 +294,7 @@
           gap: 1.5rem;
           margin-top: 1rem;
           opacity: 0;
-         
+
 
           &.visible {
             opacity: 1;
@@ -328,21 +495,24 @@
             border-bottom-left-radius: 1rem;
             color: var(--colorWhiteText);
             font-size: 1.1rem;
+            z-index: 1;
 
             svg {
               margin-right: .5rem;
             }
           }
 
+         
+
           .image__logo {
-            width: 10rem;
+            width: 12rem;
             display: flex;
             margin: auto;
 
             img {
               margin: auto;
-              width: 10rem;
-              height: 10rem;
+              width: 7.5rem;
+              height: 7.5rem;
               object-fit: contain;
             }
           }

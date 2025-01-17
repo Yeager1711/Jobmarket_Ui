@@ -1,37 +1,13 @@
 .jobTag {
     margin-top: 4.2rem;
-    padding: 3rem auto;
+    padding: 3rem 7%;
+    // background: #f3f5f7;
+    background: var(--bg-white);
+    min-height: 100vh;
+    overflow: auto;
 
     .wrapper__jobTag {
-        margin-top: 2rem;
-
-        .filter__work {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-            justify-content: space-between;
-            padding: 2rem;
-            border: .1rem solid var(--border);
-            border-radius: .3rem;
-
-            .filter_work__location,
-            .filter_work__level,
-            .filter_work__types,
-            .filter_work__ContractTypes {
-                flex: 1 1 15rem;
-
-                select {
-                    width: 100%;
-                    font-size: 1.3rem;
-                    cursor: pointer;
-
-                    option {
-                        font-size: 1.4rem;
-                    }
-                }
-
-            }
-        }
+        margin-top: 0;
 
         .wrapper_jobs {
             h2 {
@@ -39,8 +15,7 @@
                 align-items: center;
                 gap: 1rem;
                 padding: 2rem;
-                background: var(--bg-White);
-                border-bottom: .1rem solid var(--border);
+                font-size: 1.8rem;
 
                 .tag {
                     padding: .5rem 1rem;
@@ -49,120 +24,350 @@
                 }
             }
 
-            .wrapper_jobsContainer {
-                overflow: hidden;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(70rem, 1fr));
-                margin-top: 4rem;
+            .wrapper_container {
+                display: flex;
+                flex-wrap: wrap;
                 gap: 2rem;
-                background: var(--bg-White);
-                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-                padding: 2rem;
-                width: 100%;
 
-                .box_jobs {
-                    position: relative;
-                    display: flex;
-                    flex-wrap: wrap;
-                    width: 100%;
-                    gap: 2rem;
-                    border: .1rem solid var(--border);
-                    border-radius: .1rem;
-                    padding: 2rem 1rem 1rem 1rem;
-                    border-radius: .5rem;
-                    background: var(--hoverBox);
-                    cursor: pointer;
-                    max-width: 80rem;
+                .Find_advanced__jobs {
+                    flex: 1 1 20rem;
+                    padding: 2rem;
 
-                    .image_company {
-                        flex: 1 1 40rem;
-                        max-width: 15rem;
-                        width: 100%;
+                    .header_advanced__jobs {
                         display: flex;
-                        object-fit: contain;
+                        align-items: center;
+                        justify-content: space-between;
 
-                        img,
-                        .skeleton__img {
-                            width: 9rem;
-                            height: 100%;
-                            object-fit: contain;
-                            margin: auto;
+                        .btn_clear__filter {
+                            padding: .8rem 2rem;
+                            margin-top: -1rem;
+                            border-radius: 5rem;
+                            font-size: 1.3rem;
+                            font-weight: var(--weight550);
+                            color: #bf2a1d;
+
+                            &:disabled {
+                                color: #999;
+                            }
                         }
                     }
 
-                    .content {
-                        flex: 1 1 60rem;
+                    h3 {
+                        font-size: 1.6rem;
+                        margin-bottom: 2rem;
 
-                        h3 {
-                            font-size: 1.5rem;
-                            margin-bottom: 0;
-                            overflow: hidden;
-                            width: 60rem;
-                            max-width: 100%;
+                    }
+
+                    .experience,
+                    .salary,
+                    .jobType {
+                        margin-left: 2.3rem;
+                        border-top: .1rem solid var(--border);
+                        padding-top: 2rem;
+                        margin-bottom: 2rem;
+
+                        span {
+
+                            font-weight: var(--weight550);
+                            font-size: 1.4rem;
                         }
 
+                        .list_experience_item,
+                        .list_salary_item,
+                        .list_jobType_item {
+                            width: 100%;
+                            margin-top: 2rem;
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+                            gap: 2rem;
 
-                        .tag__job {
-                            display: flex;
-                            padding: 1rem 0;
-                            margin-left: 3rem;
-                            margin-top: 1.5rem;
-                            border-top: .1rem solid var(--border);
-                            display: flex;
-                            gap: 1.5rem;
+                            .experience_item,
+                            .salary_item,
+                            .jobType_item {
+                                display: flex;
+                                align-items: center;
+                                gap: .5rem;
 
+                                input {
+                                    width: 1.5rem;
+                                    cursor: pointer;
+                                    height: 1.5rem;
+                                }
 
-
-                            p {
-                                padding: .6rem 1.5rem;
-                                border-radius: .3rem;
-                                font-size: 1.3rem;
-                                border: .1rem solid var(--hoverBoxBd);
-                                transition: .3s linear;
-
-                                &:hover {
-                                    transition: .3s linear;
-                                    border: .1rem solid red;
-                                    font-weight: var(--weight550);
-
+                                label {
+                                    font-size: 1.3rem;
                                 }
                             }
                         }
 
-                        .company__name {
-                            white-space: nowrap;
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            padding: .7rem 1.5rem;
-                            display: flex;
-                            align-items: center;
-                            font-size: 1.3rem;
-                            gap: .5rem;
-                            font-size: 1.4rem;
-                            border-bottom-right-radius: .5rem;
-                            color: var(--textBlur);
-                            margin-left: 1.5rem;
+                        .box_field__salary {
+                            margin-top: 2rem;
+                            max-width: 35rem;
+                            width: 100%;
 
+                            .currency {
+                                padding: 1rem 1.5rem;
+                                width: 100%;
+                                border: .1rem solid var(--border);
+                                border-radius: .5rem;
+
+                                select {
+                                    width: 100%;
+                                    cursor: pointer;
+                                    font-size: 1.3rem;
+                                }
+                            }
+
+                            .flex_currency {
+                                margin-top: 1rem;
+                                display: flex;
+                                flex-wrap: wrap;
+                                align-items: center;
+                                gap: 1rem;
+
+                                .currency_input {
+                                    border: .1rem solid var(--border);
+                                    padding: 1rem 1.5rem;
+                                    width: 100%;
+                                    border-radius: 5rem;
+                                    flex: 1 1 8rem;
+
+                                    input {
+                                        width: 100%;
+                                        font-size: 1.4rem;
+                                    }
+                                }
+                            }
+
+                            .apply_currency {
+                                margin-top: 2rem;
+                                width: 100%;
+                                padding: 1rem 1.5rem;
+                                text-align: center;
+                                background: var(--viewDetails);
+                                color: var(--colorWhiteText);
+                                font-size: 1.4rem;
+                                border-radius: 5rem;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+
+                    .positions {
+                        margin-left: 2.3rem;
+                        border-top: .1rem solid var(--border);
+                        padding-top: 2rem;
+                        margin-bottom: 2rem;
+
+                        span {
+
+                            font-weight: var(--weight550);
+                            font-size: 1.4rem;
                         }
 
+                        .list_positions_item {
+                            width: 100%;
+                            margin-top: 2rem;
+                            display: grid;
+                            grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+                            gap: 2rem;
 
-                        .job_level {
+                            .positions_item {
+                                display: flex;
+                                align-items: center;
+                                gap: .5rem;
+
+                                input {
+                                    width: 1.5rem;
+                                    height: 1.5rem;
+                                    cursor: pointer;
+                                }
+
+                                label {
+                                    font-size: 1.3rem;
+                                }
+                            }
+                        }
+                    }
+
+                    .banner {
+                        overflow: hidden;
+                        border-radius: 1rem;
+                        position: relative;
+
+                        img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                        }
+
+                        .tech_position {
+                            position: absolute;
+                            top: 62%;
+                            left: 5%;
+
+                            .tag {
+                                font-size: 1.4rem;
+                                font-weight: var(--weight550);
+                            }
+                        }
+                    }
+                }
+
+                .wrapper_jobsContainer {
+                    flex: 1 1 60rem;
+
+                    gap: 2rem;
+                    padding: 2rem;
+                    width: 100%;
+
+                    .box_jobs {
+                        position: relative;
+                        display: flex;
+                        flex-wrap: wrap;
+                        width: 100%;
+                        gap: 2rem;
+                        border: .1rem solid var(--hoverBoxBd);
+                        background: #f5f7fc;
+                        border-radius: .1rem;
+                        padding: 1rem;
+                        border-radius: .5rem;
+                        cursor: pointer;
+                        margin-bottom: 1.5rem;
+                        overflow: hidden;
+
+                        .views_total {
+                            position: absolute;
+                            top: 0;
+                            right: 0;
                             display: flex;
                             align-items: center;
-                            font-size: 1.4rem;
-                            gap: .5rem;
-                            margin-left: 3rem;
+                            padding: 0.5rem 1rem;
+                            background: var(--globalColor);
+                            border-bottom-left-radius: 1rem;
+                            color: var(--colorWhiteText);
+                            font-size: 1.2rem;
+                            z-index: 1;
 
-                            p {
-                                border: .1rem solid var(--viewDetails);
-                                font-size: 1.2rem;
-                                padding: .5rem 1.5rem;
-                                border-radius: .5rem;
-                                font-weight: var(--weight550);
-                                color: var(--viewDetails);
+                            svg {
+                                font-size: 1.1rem;
+                                margin-right: .5rem;
                             }
                         }
 
+                        .btn_favorite__job {
+                            position: absolute;
+                            bottom: .5rem;
+                            right: 1rem;
+                            display: none;
+                            align-items: center;
+                            padding: .8rem;
+                            background: none;
+                            border-radius: 5rem;
+                            color: var(--globalColor);
+                            border: .1rem solid var(--globalColor);
+                            font-size: 1.4rem;
+
+                            &:hover {
+                                transition: .3s linear;
+                                background: var(--globalColor);
+                                color: var(--colorWhiteText);
+                            }
+                        }
+
+                        .image_company {
+                            flex: 1 1 40rem;
+                            max-width: 15rem;
+                            width: 100%;
+                            display: flex;
+                            object-fit: contain;
+
+                            img,
+                            .skeleton__img {
+                                width: 9rem;
+                                height: 100%;
+                                object-fit: contain;
+                                margin: auto;
+                            }
+                        }
+
+                        .content {
+                            flex: 1 1 30rem;
+
+                            h3 {
+                                font-size: 1.5rem;
+                                margin-bottom: 0;
+                                overflow: hidden;
+                                max-width: 49rem;
+                                width: 100%;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
+
+
+                            .tag__job {
+                                display: flex;
+                                padding: .5rem 0;
+                                margin-left: 3rem;
+                                margin-top: 1.5rem;
+                                border-top: .1rem solid var(--border);
+                                display: flex;
+                                gap: 1.5rem;
+                                flex-wrap: wrap;
+
+
+
+                                p {
+                                    padding: .3rem 1.5rem;
+                                    border-radius: .3rem;
+                                    font-size: 1.3rem;
+                                    transition: .3s linear;
+
+                                    &:hover {
+                                        transition: .3s linear;
+                                        border: .1rem solid red;
+                                        font-weight: var(--weight550);
+
+                                    }
+                                }
+                            }
+
+                            .company__name {
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                padding: .7rem 1.5rem;
+                                display: flex;
+                                align-items: center;
+                                font-size: 1.3rem;
+                                gap: .5rem;
+                                font-size: 1.4rem;
+                                border-bottom-right-radius: .5rem;
+                                color: var(--textBlur);
+                                margin-left: 1.5rem;
+
+                            }
+
+
+                            .job_level {
+                                display: flex;
+                                align-items: center;
+                                font-size: 1.4rem;
+                                gap: .5rem;
+                                margin-left: 3rem;
+
+                                p {
+                                    border: .1rem solid var(--viewDetails);
+                                    font-size: 1.2rem;
+                                    padding: .5rem 1.5rem;
+                                    border-radius: .5rem;
+                                    font-weight: var(--weight550);
+                                    color: var(--viewDetails);
+                                }
+                            }
+
+                        }
                     }
                 }
             }

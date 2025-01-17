@@ -11,7 +11,6 @@ function OutstandingTool() {
     const [activeBoxIndex, setActiveBoxIndex] = useState<number | null>(null);
     const [isCycling, setIsCycling] = useState(false);
     const [isDetailsVisible, setIsDetailsVisible] = useState(false);
-    
 
     useEffect(() => {
         const handleScroll = () => {
@@ -75,7 +74,7 @@ function OutstandingTool() {
                 <div className={boxClass(0)}>
                     <div className={styles.content}>
                         <h2>Tính lương GROSS - NET</h2>
-                        <Link href="OutstandingTool/Details/Salary_GrossNet">
+                        <Link href="OutstandingTool/Details/Salary_GrossNet" target="_blank" rel="noopener noreferrer">
                             Khám phá ngay <FontAwesomeIcon icon={faArrowRight} />
                         </Link>
                     </div>
@@ -83,7 +82,11 @@ function OutstandingTool() {
                 <div className={boxClass(1)}>
                     <div className={styles.content}>
                         <h2>Tính lãi suất kép</h2>
-                        <Link href="OutstandingTool/Details/Compound__Interest">
+                        <Link
+                            href="OutstandingTool/Details/Compound__Interest"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             Khám phá ngay <FontAwesomeIcon icon={faArrowRight} />
                         </Link>
                     </div>
@@ -91,7 +94,7 @@ function OutstandingTool() {
                 <div className={boxClass(2)}>
                     <div className={styles.content}>
                         <h2>Tính thuế thu nhập cá nhân</h2>
-                        <Link href="OutstandingTool/Details/Personal_Tax">
+                        <Link href="OutstandingTool/Details/Personal_Tax" target="_blank" rel="noopener noreferrer">
                             Khám phá ngay <FontAwesomeIcon icon={faArrowRight} />
                         </Link>
                     </div>
@@ -99,7 +102,11 @@ function OutstandingTool() {
                 <div className={boxClass(3)}>
                     <div className={styles.content}>
                         <h2>Tính Bảo Hiểm thất nghiệp</h2>
-                        <Link href="OutstandingTool/Details/Unemployment__Insurance">
+                        <Link
+                            href="OutstandingTool/Details/Unemployment__Insurance"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             Khám phá ngay <FontAwesomeIcon icon={faArrowRight} />
                         </Link>
                     </div>
@@ -107,7 +114,7 @@ function OutstandingTool() {
                 <div className={boxClass(4)}>
                     <div className={styles.content}>
                         <h2>Lập kế hoạch tiết kiệm</h2>
-                        <Link href="OutstandingTool/Details/Savings__Plan">
+                        <Link href="OutstandingTool/Details/Savings__Plan" target="_blank" rel="noopener noreferrer">
                             Khám phá ngay <FontAwesomeIcon icon={faArrowRight} />
                         </Link>
                     </div>
@@ -115,7 +122,11 @@ function OutstandingTool() {
                 <div className={boxClass(5)}>
                     <div className={styles.content}>
                         <h2>Tính Bảo Hiểm xã hội 1 lần</h2>
-                        <Link href="OutstandingTool/Details/Social__Insurance">
+                        <Link
+                            href="OutstandingTool/Details/Social__Insurance"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
                             Khám phá ngay <FontAwesomeIcon icon={faArrowRight} />
                         </Link>
                     </div>

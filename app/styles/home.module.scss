@@ -1,240 +1,6 @@
 .Home {
     margin: 0;
 
-    .banner-image {
-        max-width: 100%;
-        height: 93vh;
-        position: relative;
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .wrapper-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, .7);
-
-            .search-infoWork {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                max-width: 85rem;
-                width: 95%;
-
-
-                .content {
-                    text-align: center;
-
-                    h2 {
-                        // font-size: 5rem;
-                        font-size: 3vw;
-                        color: var(--colorWhiteText);
-
-                        span {
-                            color: var(--globalColor);
-                        }
-                    }
-
-                    p {
-                        // font-size: 1.7rem;
-                        font-size: 1.5vw;
-                        padding: 1rem 0;
-                        color: var(--colorWhiteText);
-                        margin-bottom: 1rem;
-
-                        span {
-                            color: var(--globalColor);
-                            font-weight: var(--weight550);
-                        }
-                    }
-                }
-
-                .find-work {
-                    border-radius: .5rem;
-                    min-height: 0;
-                    transition: min-height 0.5s ease-in-out !important;
-
-                    &.expand {
-                        min-height: 35rem !important;
-                        overflow: hidden;
-                        background: var(--bg-White);
-                        transition: min-height .5s ease-in-out !important;
-
-                        .flex-search {
-                            display: flex;
-                            flex-wrap: wrap;
-                            align-items: center;
-                            justify-content: space-between;
-                            transition: padding .5s ease-in-out !important;
-                            padding: 1rem;
-                            border-bottom: .1rem solid var(--border);
-
-                            .box-input {
-                                flex: 1 1;
-                                max-width: 40rem;
-                                width: 95%;
-                                border-right: .2em solid #333;
-
-                                input {
-                                    color: var(--colorBlackText) !important;
-
-                                    &::placeholder {
-                                        font-size: 1.4rem;
-                                        color: var(--colorBlackText) !important;
-                                    }
-                                }
-                            }
-
-                            .box-select {
-                                flex: 1 1;
-
-                                select {
-                                    color: var(--colorBlackText) !important;
-                                }
-                            }
-                        }
-
-                        .search-result__container {
-                            padding: 2rem;
-                            height: 35rem !important;
-                            transition: height .5s ease-in-out !important;
-                            overflow: auto;
-
-                            .search-result__total {
-                                font-size: 1.4rem;
-                                font-weight: var(--weight400);
-                            }
-
-                            .no-result {
-                                font-size: 1.4rem;
-                            }
-
-                            .search-result-item {
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 2rem;
-                                cursor: pointer;
-                                padding: 1.5rem;
-
-                                &:hover {
-                                    background: var(--background);
-                                }
-
-
-                                .image-company__result {
-                                    max-width: 4.5rem;
-                                    height: 4.5rem;
-                                    overflow: hidden;
-                                    border-radius: 50%;
-
-                                    img {
-                                        width: 100%;
-                                        object-fit: contain;
-                                        height: 100%;
-                                    }
-                                }
-
-                                .name-company__result,
-                                .position__result,
-                                .salary__result {
-                                    font-size: 1.4rem;
-                                    font-weight: var(--weight550);
-                                    text-transform: capitalize;
-                                }
-
-                                .position__result {
-                                    font-weight: var(--weight400);
-                                }
-
-                                .name-company__result {
-                                    float: left;
-                                    width: 35rem;
-                                    white-space: nowrap;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
-
-                                .salary__result {
-                                    width: 8.5rem;
-                                    float: right;
-                                    color: #ff842a;
-                                }
-
-                                .location__result {
-                                    width: 22.5rem;
-                                    font-size: 1.4rem;
-                                }
-                            }
-                        }
-                    }
-
-                    .flex-search {
-                        display: flex;
-                        align-items: center;
-                        gap: 2rem;
-                        // justify-content: space-between;
-                        padding: 1rem 0;
-                        border-bottom: .1rem solid var(--border);
-
-
-                        .box-input {
-                            max-width: 52.5rem;
-                            width: 90%;
-
-                            input {
-                                width: 100%;
-                                font-size: 16px;
-                                background: none;
-                                color: var(--colorWhiteText) !important;
-
-                                &::placeholder {
-                                    font-size: 1.4rem;
-                                    color: #999 !important;
-                                }
-                            }
-                        }
-
-                        .box-select {
-                            max-width: 15rem;
-                            width: 100%;
-
-                            select {
-                                background: none;
-                                width: 100%;
-                                font-size: 1.5rem;
-                                color: var(--colorWhiteText);
-                                cursor: pointer;
-
-                                option {
-                                    color: var(--colorBlackText);
-                                }
-                            }
-                        }
-
-                        .btn-find {
-                            padding: .8rem 2.5rem;
-                            background: var(--globalColor);
-                            color: var(--colorWhiteText);
-                            border-radius: .5rem;
-                            font-size: 1.6rem;
-                            height: 3.5rem;
-                            max-width: 12rem;
-                            width: 95%;
-                            cursor: pointer;
-                        }
-                    }
-                }
-
-            }
-        }
-    }
 
     .wrapper-home {
         .header-recruitment {}
@@ -280,12 +46,12 @@
                     width: 15rem;
                     height: 15rem;
                     padding: 2rem;
+                    
 
                     img {
                         width: 100%;
                         object-fit: contain;
                         transition: transform 0.3s ease;
-
                         &:hover {
                             transform: scale(1.05);
                         }
@@ -328,7 +94,7 @@
             gap: 1.5rem;
             padding: 1rem;
 
-            .company {
+            .job {
                 background: var(--bg-White);
                 border-radius: 1rem;
                 overflow: hidden;
@@ -337,6 +103,40 @@
                 cursor: pointer;
                 position: relative;
                 display: flex;
+
+                .hot_job {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    border-top: .45rem solid red;
+                    display: flex;
+                    align-items: center;
+                    gap: .5rem;
+        
+        
+                    p {
+                      font-size: 1.3rem;
+                      text-transform: capitalize;
+                      background: red;
+                      color: var(--colorWhiteText);
+                      margin-top: -.8rem;
+                      padding: .5rem 2rem .5rem 1rem;
+                      border-bottom-right-radius: 5rem;
+        
+                      svg {
+                        margin-bottom: -.3rem;
+                      }
+        
+                    }
+        
+                    &::before {
+                      content: '';
+                      position: absolute;
+                      background: red;
+                      width: 20rem;
+                    }
+                  }
 
                 &:hover {
                     background: var(--hoverBox);
@@ -371,7 +171,6 @@
                     img {
                         width: 7.5rem;
                         object-fit: cover;
-
                     }
                 }
 

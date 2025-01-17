@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './Region_Details.module.scss';
+import  {REGION_MIN_SALARY} from '../../../../OutstandingTool/Details/Criteria/region'
 
 interface RegionDetailsProps {
     onClose: () => void;
@@ -31,13 +32,13 @@ function Region_Details({ onClose }: RegionDetailsProps) {
                           
                             <div className={styles.content}>
                                 <span>
-                                    <p>Vùng I: 4,960,000 đồng/tháng</p>
+                                    <p>Vùng I: {REGION_MIN_SALARY.Region_one.toLocaleString()} đồng/tháng</p>
 
-                                    <p>Vùng II: 4,410,000 đồng/tháng</p>
+                                    <p>Vùng II: {REGION_MIN_SALARY.Region_two.toLocaleString()} đồng/tháng</p>
 
-                                    <p>Vùng III: 3,860,000 đồng/tháng</p>
+                                    <p>Vùng III: {REGION_MIN_SALARY.Region_three.toLocaleString()} đồng/tháng</p>
 
-                                    <p>Vùng IV: 3,450,000 đồng/tháng</p>
+                                    <p>Vùng IV: {REGION_MIN_SALARY.Region_four.toLocaleString()} đồng/tháng</p>
                                 </span>
                             </div>
                         </div>

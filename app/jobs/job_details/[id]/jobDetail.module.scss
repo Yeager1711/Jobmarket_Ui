@@ -57,13 +57,14 @@
             overflow: hidden;
             max-width: 10rem;
             height: 10rem;
+            padding: 1rem;
 
             img {
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
 
-                transform: scale(.6);
+                // transform: scale(.6);
 
             }
         }
@@ -76,9 +77,69 @@
         background: var(--bg-White);
         padding: 2rem;
         border-radius: .5rem;
+        overflow: hidden;
 
         .wrapper_infomation {
             .basic_infomation {
+                position: relative;
+
+
+                .Remarkable {
+                    position: absolute;
+                    top: -2rem;
+                    right: -2rem;
+                    content: '';
+                    position: absolute;
+                    width: 5rem;
+                    height: 5rem;
+                    background: red; // Màu bên trong
+                    // clip-path: polygon(0 0, 100% 0, 50% 85%, 0 100%);
+                    z-index: 2;
+
+                    .on1 {
+                        position: absolute;
+                        top: 8px;
+                        right: -25px;
+                        width: 5rem;
+                        height: 5rem;
+                        background: #fff;
+                        clip-path: polygon(0 100%, 0 58%, 100% 100%);
+                        transform: rotate(-347deg);
+                        z-index: 2;
+                    }
+
+
+
+                    .on2 {
+                        position: absolute;
+                        top: 8px;
+                        left: -25.5px;
+                        width: 5rem;
+                        height: 5rem;
+                        background: #fff;
+                        transform: rotate(-375deg);
+                        z-index: 2;
+
+                        clip-path: polygon(0 100%, 100% 60%, 100% 100%);
+                    }
+
+                    p {
+                        margin: 0;
+                        padding: 0.5rem;
+                        color: #fff;
+                        z-index: 3;
+                        position: absolute;
+                        top: 1rem;
+                        left: -.2rem;
+                        width: 6rem;
+                        font-size: 1rem;
+                        text-transform: uppercase;
+                        font-weight: var(--weight550);
+                    }
+                }
+
+
+
                 .infomation_Content_Title_job {
                     font-size: 1.9rem;
                 }
@@ -149,7 +210,7 @@
     }
 
     .wraper__generalInformation {
-        flex: 1 1 15rem;
+        flex: 1 1 20rem;
         width: 100%;
 
         .generalInformation {
@@ -157,7 +218,7 @@
             padding: 2rem;
             border-radius: .5rem;
             height: auto;
-           
+
 
             h3 {
                 font-size: 1.7rem;
@@ -226,7 +287,7 @@
             .companyJobs {
                 margin-top: 2rem;
                 overflow: auto;
-                max-height: 55rem;
+                max-height: 57rem;
                 height: auto;
 
                 &::-webkit-scrollbar {
@@ -246,13 +307,15 @@
 
                 .box_companyJob {
                     display: flex;
-                    gap: 1rem;
+                    gap: 2rem;
                     padding: 1.5rem;
                     border: .1rem solid var(--border);
                     margin-bottom: 1.5rem;
                     border-radius: 1rem;
                     cursor: pointer;
                     margin-right: 1rem;
+                    align-items: center;
+                    position: relative;
 
                     &:hover {
                         border: .1rem solid var(--hoverBoxBd);
@@ -264,17 +327,14 @@
                     }
 
                     .logo__company {
-                        max-width: 12rem;
-                        width: 100%;
+                        max-width: 8rem;
                         height: 100%;
                         align-items: center;
                         display: flex;
 
                         img {
-                            width: 8rem;
-                            height: 8rem;
-                            object-fit: contain;
-                            margin: auto;
+                            width: 100%;
+                            object-fit: cover;
                         }
                     }
 
@@ -283,7 +343,7 @@
                         width: 100%;
 
                         h2 {
-                            font-size: 1.5rem;
+                            width: 25rem;
                             font-size: 1.5rem;
                             white-space: nowrap;
                             overflow: hidden;

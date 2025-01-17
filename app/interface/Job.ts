@@ -11,6 +11,7 @@ export interface Job {
     benefits: string;
     work_time: string;
     view:number;
+    Hot_Job:string;
     created_at: string;
     updated_at: string;
     workLocation: {

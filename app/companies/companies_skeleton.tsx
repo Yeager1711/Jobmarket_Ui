@@ -7,7 +7,7 @@ import styles from './companies.module.scss';
 const Companies_Skeleton = () => {
     return (
         <div>
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 10 }).map((_, index) => (
                 <div className={styles['box-company']} key={index}>
                     <div className={styles['company-logo__wrapper']}>
                         <div className={styles['company-logo']}>

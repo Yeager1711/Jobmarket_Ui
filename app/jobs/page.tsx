@@ -15,6 +15,7 @@ import { Job } from '../interface/Job';
 import { toast } from 'react-toastify';
 import { showToastError, showToastSuccess } from '../Ultils/toast';
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+import FeedbackForm from '../pages/DefaultLayouts/FeedbackForm/FeedbackForm';
 
 import SearchTypes from '../pages/Home/SearchTypes/page';
 
@@ -24,6 +25,8 @@ function Jobs() {
     return (
         <section className={styles.job + ' marTop'}>
            <SearchTypes />
+
+           <FeedbackForm />
         </section>
     );
 }
