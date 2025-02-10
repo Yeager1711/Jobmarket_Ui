@@ -29,6 +29,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { CiLocationOn } from 'react-icons/ci';
 
+import Regional_Recruitment from './pages/Home/Regional_Recruitment/Regional_Recruitment';
 import ChartSection from './pages/Home/ChartSection/page';
 import SearchTypes from './pages/Home/SearchTypes/page';
 import OutstandingTool from './pages/Home/OutstandingTool/page';
@@ -198,12 +199,12 @@ function Home() {
                         : jobs.map((job) => (
                               <div
                                   onClick={() => window.open(`/jobs/job_details/${job.jobId}`, '_blank')}
-                                  className={styles['job']}
+                                  className={styles.job}
                                   key={job.jobId}
                                   style={{ cursor: 'pointer' }}
                               >
-                                {/* sử dụng hot job khi có job mới cần tuyển dụng gấp */}
-                                   <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
+                                {/* Kiểm tra job đang có yêu cầu nào không */}
+                                <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
 
                                   <span className={styles['icon-views']}>
                                       <FontAwesomeIcon icon={faEye} />
@@ -256,6 +257,8 @@ function Home() {
                     </button>
                 </div>
             </section>
+
+            <Regional_Recruitment />
 
             <ChartSection />
 

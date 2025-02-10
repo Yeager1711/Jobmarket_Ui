@@ -375,7 +375,7 @@ function JobDetail() {
                                         key={job.jobId}
                                         className={styles.box_companyJob}
                                     >
-                                        <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
+                                        <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
                                         <div className={styles.logo__company}>
                                             <img
                                                 src={job.company.images[0]?.image_company || 'default-image.png'}

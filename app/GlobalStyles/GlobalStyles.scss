@@ -40,7 +40,7 @@
     --textBlur: #666666f5;
     --colorPrice: #ff7d55;
     //box-shadow
-    --shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+    --shadow: 0 .5rem 1rem rgba(0, 0, 0, .3);
 
     //font-weight
     --weight400: 400;
@@ -57,7 +57,7 @@ html {
     font-size: 62.5%;
     overflow-x: none;
     scroll-behavior: smooth;
-    scroll-padding-top: 6rem;
+    scroll-padding-top: 10rem;
 
     &::-webkit-scrollbar {
         background: #dbdbdb;

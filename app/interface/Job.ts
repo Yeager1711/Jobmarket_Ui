@@ -22,6 +22,7 @@ export interface Job {
         district: {
             districtId: number;
             name: string;
+            encode_arean: string;
         };
     };
     company: {

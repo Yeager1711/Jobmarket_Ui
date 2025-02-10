@@ -1,0 +1,202 @@
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -60%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(-50%, -60%);
+        opacity: 0;
+    }
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99999 !important;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+
+    &.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+.modalContent {
+    background: var(--bg-White);
+    max-width: 65rem;
+    width: 95%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    border-radius: 1rem;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+
+    &.slideDown {
+        animation: slideDown 0.3s ease-in-out forwards;
+    }
+
+    &.slideUp {
+        animation: slideUp 0.3s ease-in-out forwards;
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5rem;
+        background: #fff;
+
+        svg {
+            font-size: 2rem;
+        }
+    }
+
+
+
+    h3 {
+        display: inline-block;
+        font-size: 1.8rem;
+    }
+
+    .boxContainer {
+        .boxInput {
+            margin: 3rem 0;
+            flex: 1 1 16rem;
+
+            .error {
+                font-size: 1.3rem;
+                color: red;
+                margin-top: .8rem;
+            }
+
+            span {
+                font-size: 1.4rem;
+                display: block;
+                font-weight: var(--weight550);
+            }
+
+            input {
+                padding: 1rem 1.5rem;
+                border: .1rem solid var(--border);
+                margin-top: .5rem;
+                width: 100%;
+                border-radius: .3rem;
+                font-size: 1.4rem;
+
+                &:focus {
+                    border-color: #06f;
+                }
+            }
+
+            .passwordWrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+
+
+
+                .eyeIcon {
+                    position: absolute;
+                    top: 1.8rem;
+                    right: 1.5rem;
+                    cursor: pointer;
+                    transition: color 0.3s ease;
+                    font-size: 1.3rem !important;
+                    color: #888;
+                    background: #fff;
+
+                    &:hover {
+                        color: #333;
+                    }
+                }
+            }
+
+        }
+
+        .policy_wrapper {
+            display: flex;
+            align-self: center;
+            gap: .5rem;
+
+            .checkbox_container {
+                input {
+                    width: 1.7rem;
+                    height: 1.7rem;
+                }
+            }
+
+            .accept_text {
+                font-size: 1.5rem;
+
+                a {
+                    color: var(--viewDetails);
+                }
+            }
+        }
+
+        .forgot_pass {
+            float: right;
+
+            a {
+                font-size: 1.3rem;
+                color: #06f;
+            }
+        }
+
+        .flex_control {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .btnRegister {
+                padding: 1rem 2rem;
+                background: #FF7D55;
+                text-align: center;
+                color: var(--colorWhiteText);
+                font-size: 1.3rem;
+                margin: 2rem 0 1rem 0;
+                display: inline-block;
+                border-radius: .5rem;
+                width: 12rem;
+            }
+
+            .policyQuestion {
+                flex: 1 1 22rem;
+                font-size: 1.4rem;
+                margin-top: 1rem;
+    
+                a {
+                    color: var(--viewDetails);
+                    font-weight: var(--weight550);
+                }
+            }
+        }
+
+       
+    }
+}

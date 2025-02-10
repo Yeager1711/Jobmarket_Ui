@@ -1,0 +1,139 @@
+.Register {
+    min-height: 25vh;
+    background: #1a9480;
+    position: relative;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+
+    .wrapper {
+        position: absolute;
+        top: 220%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 2rem 5rem;
+        background: var(--bg-White);
+        border-radius: 1rem;
+        max-width: 65rem;
+        width: 95%;
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .1);
+        margin-bottom: 2rem;
+
+        h3 {
+            font-size: 1.9rem;
+        }
+
+        .error {
+            font-size: 1.3rem;
+            color: red;
+        }
+
+        .box_container {
+            .flex_fullname {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+
+                .box_input {
+                    flex: 1 1 16rem;
+
+                    span {
+                        font-size: 1.4rem;
+                        display: block;
+                        font-weight: var(--weight550);
+                        margin-bottom: .5rem;
+                    }
+
+                    input {
+                        padding: 1rem 1.5rem;
+                        border: .1rem solid var(--border);
+                        margin-top: .5rem;
+                        width: 100%;
+                        border-radius: .3rem;
+                        font-size: 1.4rem;
+                    }
+                }
+            }
+
+            .box_input {
+                margin: 2rem 0;
+                flex: 1 1 16rem;
+                position: relative;
+
+                .eye_icon {
+                    position: absolute;
+                    top: 3.2rem;
+                    right: 1.5rem;
+
+                    svg {
+                        font-size: 1.3rem;
+                        color: #888;
+                        background: #fff;
+                    }
+                }
+
+                span {
+                    font-size: 1.4rem;
+                    display: block;
+                    font-weight: var(--weight550);
+                }
+
+                input {
+                    padding: 1rem 1.5rem;
+                    border: .1rem solid var(--border);
+                    margin-top: .5rem;
+                    width: 100%;
+                    border-radius: .3rem;
+                    font-size: 1.4rem;
+
+                    &::placeholder {
+                        font-size: 1.2rem;
+                    }
+                }
+            }
+
+            .policy_wrapper {
+                display: flex;
+                align-self: center;
+                gap: .5rem;
+
+                .checkbox_container {
+                    input {
+                        width: 1.7rem;
+                        height: 1.7rem;
+                    }
+                }
+
+                .accept_text {
+                    max-width: 45rem;
+                    width: 75%;
+                    font-size: 1.4rem;
+
+                    a {
+                        color: var(--viewDetails);
+                    }
+                }
+            }
+
+            .btn_register {
+                padding: 1rem 2rem;
+                background: #FF7D55;
+                text-align: center;
+                color: var(--colorWhiteText);
+                font-size: 1.5rem;
+                margin: 2rem 0 1rem 0;
+                cursor: pointer;
+                border-radius: .5rem;
+            }
+
+            .policy_question {
+                font-size: 1.4rem;
+                margin-top: 1rem;
+
+                a {
+                    color: var(--viewDetails);
+                    font-weight: var(--weight550);
+                }
+            }
+        }
+    }
+}

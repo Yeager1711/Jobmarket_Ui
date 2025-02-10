@@ -37,7 +37,7 @@
                 .box__content {
                     padding: 1rem;
                     width: 35rem;
-                    height: 37rem;
+                    height: 38rem;
                     background: var(--bg-White);
                     border-radius: .5rem;
                     overflow: hidden;
@@ -55,6 +55,25 @@
                             align-items: center;
                             margin-bottom: 1.5rem;
                             gap: 1rem;
+                            position: relative;
+                            padding: 0 0 0 1rem;
+
+                            &:hover {
+                                background: #f1eeee;
+                                border-radius: .5rem;
+                            }
+
+                            .Remarkable {
+                                position: absolute;
+                                top: -.7rem;
+                                right: -1.85rem;
+                                padding: .2rem 1.5rem .2rem .5rem;
+                                background: red;
+                                color: var(--colorWhiteText);
+                                border-radius: 5rem;
+                                font-size: 1rem;
+                                z-index: 1;
+                            }
 
                             .image-company {
                                 flex: 1 1;
@@ -108,7 +127,7 @@
 
                 .box__content_data {
                     width: 83.5rem;
-                    height: 36rem;
+                    height: 36.8rem;
                     border-radius: .5rem;
 
                     .box__content_title {

@@ -309,9 +309,10 @@ const SearchTypes = () => {
                                     <div className={styles.input__TechStack}>
                                         <input
                                             type="text"
-                                            placeholder="Nhập hoặc Chọn các từ khóa: Java, JavaScript, C#, PHP ..."
+                                            placeholder="Chọn các từ khóa tuyển dụng: Java, JavaScript, C#, PHP ..."
                                             onFocus={() => setShowTechStackFilters(true)}
                                             onChange={() => {}}
+                                            readOnly
                                         />
                                         <div
                                             className={`${styles.keyword_suggestions} ${
@@ -518,41 +519,47 @@ const SearchTypes = () => {
                         {loading ? (
                             SearchTypes_Skeleton()
                         ) : paginatedJobs.length > 0 ? (
-                            paginatedJobs.map((job) => (
-                                <div onClick={() => handleViewJob(job.jobId)} className={styles.job} key={job.jobId}>
-                                    <span className={styles.views}>
-                                        {' '}
-                                        <FontAwesomeIcon icon={faEye} /> {job.view}
-                                    </span>
+                            paginatedJobs
+                                .sort((a, b) => Number(b.Hot_Job !== 'Null') - Number(a.Hot_Job !== 'Null'))
+                                .map((job) => (
+                                    <div
+                                        onClick={() => handleViewJob(job.jobId)}
+                                        className={styles.job}
+                                        key={job.jobId}
+                                    >
+                                        <span className={styles.views}>
+                                            {' '}
+                                            <FontAwesomeIcon icon={faEye} /> {job.view}
+                                        </span>
 
-                                    {/* sử dụng hot job khi có job mới cần tuyển dụng gấp */}
-                                    <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
+                                        {/* sử dụng hot job khi có job mới cần tuyển dụng gấp */}
+                                        <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
 
-                                    <div className={styles.image__logo}>
-                                        <img src={job.company.images[0]?.image_company} alt={job.company.name} />
+                                        <div className={styles.image__logo}>
+                                            <img src={job.company.images[0]?.image_company} alt={job.company.name} />
+                                        </div>
+
+                                        <div className={styles.content}>
+                                            <h3 title={job.title}>{job.title}</h3>
+                                            <span className={styles.name__company} title={job.company.name}>
+                                                {job.company.name}
+                                            </span>
+                                            <span className={styles.positon}>{job.jobLevel.name.join(' - ')}</span>
+                                            <span className={styles.salary}>
+                                                {job.salary_to === 0 && job.salary_to === 0 ? (
+                                                    <>Thỏa thuận</>
+                                                ) : (
+                                                    <>{formatSalary(job.salary)}</>
+                                                )}
+                                            </span>
+
+                                            <span className={styles.district} title={job.workLocation.address_name}>
+                                                <CiLocationOn />
+                                                {job.workLocation.address_name}
+                                            </span>
+                                        </div>
                                     </div>
-
-                                    <div className={styles.content}>
-                                        <h3 title={job.title}>{job.title}</h3>
-                                        <span className={styles.name__company} title={job.company.name}>
-                                            {job.company.name}
-                                        </span>
-                                        <span className={styles.positon}>{job.jobLevel.name.join(' - ')}</span>
-                                        <span className={styles.salary}>
-                                            {job.salary_to === 0 && job.salary_to === 0 ? (
-                                                <>Thỏa thuận</>
-                                            ) : (
-                                                <>{formatSalary(job.salary)}</>
-                                            )}
-                                        </span>
-
-                                        <span className={styles.district} title={job.workLocation.address_name}>
-                                            <CiLocationOn />
-                                            {job.workLocation.address_name}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))
+                                ))
                         ) : (
                             <p>Không có công việc nào!</p>
                         )}

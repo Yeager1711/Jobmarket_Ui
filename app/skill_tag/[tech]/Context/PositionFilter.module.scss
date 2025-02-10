@@ -1,0 +1,35 @@
+.positions {
+    margin-left: 2.3rem;
+    border-top: .1rem solid var(--border);
+    padding-top: 2rem;
+    margin-bottom: 2rem;
+
+    span {
+        font-weight: var(--weight550);
+        font-size: 1.4rem;
+    }
+
+    .list_positions_item {
+        width: 100%;
+        margin-top: 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+        gap: 2rem;
+
+        .positions_item {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+
+            input {
+                width: 1.5rem;
+                height: 1.5rem;
+                cursor: pointer;
+            }
+
+            label {
+                font-size: 1.3rem;
+            }
+        }
+    }
+}

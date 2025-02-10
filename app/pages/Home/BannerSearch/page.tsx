@@ -11,6 +11,8 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
 
+import { PiDiamondsFour } from 'react-icons/pi';
+
 import HotJob from 'app/Ultils/HotJob/HotJob';
 
 import BannerSearch_Skeleton from './BannerSearch_skeleton';
@@ -101,6 +103,16 @@ const BannerSearch = () => {
             );
         }
 
+        results.sort((a, b) => {
+            if(a.Hot_Job !== 'Null' || b.Hot_Job === 'Null') {
+                return -1;
+            }else  if(a.Hot_Job === 'Null' || b.Hot_Job !== 'Null') {
+                return 1
+            }
+
+            return 0
+        })
+
         setFilteredJobs(results);
         setIsExpanded(true);
     };
@@ -154,7 +166,17 @@ const BannerSearch = () => {
                                             href={`/jobs/job_details/${job.jobId}`}
                                             key={job.jobId}
                                             className={styles['job-item']}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                         >
+                                            {job.Hot_Job && job.Hot_Job !== 'Null' && (
+                                                <div className={styles.Remarkable}>
+                                                    {' '}
+                                                    <PiDiamondsFour />
+                                                    {job.Hot_Job}
+                                                </div>
+                                            )}
+
                                             <div className={styles['image-company']}>
                                                 <img
                                                     src={job.company.images[0]?.image_company}
@@ -183,7 +205,7 @@ const BannerSearch = () => {
                                 <Swiper pagination={true} modules={[Pagination]} className="mySwiperBannerSlides">
                                     <SwiperSlide>
                                         <div className={styles.images_slide}>
-                                            <img src="./slides/slide1.jpg" alt="" />
+                                            <img src="./slides/slide4.jpg" alt="" />
                                         </div>
                                     </SwiperSlide>
 
@@ -275,8 +297,7 @@ const BannerSearch = () => {
                                             key={job.jobId}
                                             className={styles['search-result-item']}
                                         >
-                                            
-                                            <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
+                                            <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
                                             <div className={styles['image-company__result']}>
                                                 <img
                                                     src={job.company.images[0]?.image_company}

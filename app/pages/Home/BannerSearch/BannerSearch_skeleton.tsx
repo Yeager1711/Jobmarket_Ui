@@ -8,8 +8,8 @@ const BannerSearch_Skeleton = () => {
     return (
         <div>
             {Array.from({ length: 5 }).map((_, index) => (
-                <div className={styles.jobs_new}>
-                    <div key={index} className={styles['job-item']}>
+                <div key={index} className={styles.jobs_new}>  {/* Move the key here */}
+                    <div className={styles['job-item']}>
                         <div className={styles['image-company']}>
                             <Skeleton width={40} height={40} borderRadius={50} />
                         </div>

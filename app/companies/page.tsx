@@ -117,23 +117,15 @@ function Companies() {
                                   >
                                       <div className={styles['company-logo__wrapper']}>
                                           <div className={styles['company-logo']}>
-                                              <img
-                                                  src={firstJob.company.images[0]?.image_company}
-                                                  alt={company.name}
-                                              />
+                                              <img src={firstJob.company.images[0]?.image_company} alt={company.name} />
                                           </div>
                                           <div className={styles['company-logo__border']}>
-                                              <img
-                                                  src={firstJob.company.images[0]?.image_company}
-                                                  alt={company.name}
-                                              />
+                                              <img src={firstJob.company.images[0]?.image_company} alt={company.name} />
                                           </div>
                                           <div className={styles['company-content']}>
                                               <h3>{company.name}</h3>
                                               <div className={styles['company-content__details']}>
-                                                  <span className={styles['company-district']}>
-                                                      {company.district}
-                                                  </span>
+                                                  <span className={styles['company-district']}>{company.district}</span>
                                                   <span className={styles['total__job']}>
                                                       Số lượng công việc tuyển dụng: {company.jobs.length}
                                                   </span>
@@ -146,19 +138,13 @@ function Companies() {
                 </div>
 
                 <div className={styles['pagination']}>
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                    >
+                    <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                         <FontAwesomeIcon icon={faChevronLeft} />
                     </button>
                     <span>
                         {currentPage} / {totalPages} Trang
                     </span>
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                    >
+                    <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
                         <FontAwesomeIcon icon={faChevronRight} />
                     </button>
                 </div>
@@ -168,4 +154,3 @@ function Companies() {
 }
 
 export default Companies;
-

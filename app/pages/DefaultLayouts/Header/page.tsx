@@ -1,28 +1,64 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faBars } from '@fortawesome/free-solid-svg-icons';
 import { HiOutlineXMark } from 'react-icons/hi2';
 import styles from './header.module.scss';
 
+import LoginModal from '../../../Auth/Login/Modal/page';
 const cx = classNames.bind(styles);
+
+interface DecodedToken {
+    userId: number;
+    firstName: string;
+    lastName: string;
+    image: string
+}
 
 function Header() {
     const pathname = usePathname();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+    const [user, setUser] = useState<DecodedToken | null>(null);
 
     const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
-    const handleRegisterClick = () => setIsRegisterModalOpen(true);
-    const handleCloseModal = () => setIsRegisterModalOpen(false);
-    const handleLoginClick = () => setIsLoginModalOpen(true);
-    const handleCloseLoginModal = () => setIsLoginModalOpen(false);
-    // const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const access_token = localStorage.getItem('access_token');
+        console.log('acces_token', access_token);
+
+        if (access_token) {
+            try {
+                const decoded = jwtDecode<DecodedToken>(access_token);
+                setUser({ firstName: decoded.firstName, lastName: decoded.lastName, image: decoded.image, userId: decoded.userId });
+                console.log('decoded:  ', decoded);
+            } catch (error) {
+                console.error('Lỗi khi giải mã JWT:', error);
+            }
+        }
+    }, [location, localStorage.getItem("access_token")]);
+
+    const handleLogout = () => {
+        Cookies.remove('token');
+        setUser(null);
+        router.push('/');
+    };
+
+    const handleRegisterClick = () => {
+        router.push('/Auth/Register');
+    };
 
     return (
         <>
@@ -42,18 +78,39 @@ function Header() {
                         Công ty
                     </Link>
 
-                    <div className={cx('nav-link', { active: pathname === '/companies' })}>
-                        Công cụ
-                    </div>
+                    <Link
+                        href="/AI/automatic_search/CV"
+                        className={cx('nav-link', { active: pathname === '/AI/automatic_search/CV' })}
+                    >
+                        Công cụ AI
+                    </Link>
                 </nav>
 
                 <div className={cx('button-control')}>
-                    <button className={cx('btn-login')} onClick={handleLoginClick}>
-                        Đăng nhập
-                    </button>
-                    <button className={cx('btn-register')} onClick={handleRegisterClick}>
-                        Đăng ký
-                    </button>
+                    {user ? (
+                        <div className={cx('user-info')}>
+                            <div className={styles.avatar_image}  onClick={() => {router.push(`/Auth/User/${user.userId}`)}}>
+                                <img src={`data:image/png;base64,${user.image}`} alt="User Avatar" />
+                            </div>
+                            <span className={cx('user-name')}  onClick={() => {router.push(`/Auth/User/${user.userId}`)}}>
+                                {user.firstName} {' '} {user.lastName}
+                            </span>
+                            <button className={cx('btn-logout')} onClick={handleLogout}>
+                                Đăng xuất
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <button className={styles.btn_login} onClick={() => setIsLoginModalOpen(true)}>
+                                Đăng nhập
+                            </button>
+                            <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+
+                            <button className={cx('btn-register')} onClick={() => router.push('/Auth/Register')}>
+                                Đăng ký
+                            </button>
+                        </>
+                    )}
 
                     <div className={cx('employer')}>
                         <span className={cx('header-question-employer')}>Bạn là nhà tuyển dụng?</span>
@@ -78,7 +135,10 @@ function Header() {
                 <div className={cx('side-drawer-content')}>
                     {/* Auth Buttons */}
                     <div className={cx('auth-buttons')}>
-                        <button className={cx('btn-login')}>Đăng nhập</button>
+                        <>
+                            <button onClick={() => setIsLoginModalOpen(true)}>Đăng nhập</button>
+                            <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+                        </>
                         <button className={cx('btn-register')}>Đăng ký</button>
                     </div>
 

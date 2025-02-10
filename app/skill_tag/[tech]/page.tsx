@@ -276,7 +276,7 @@ function skillTag() {
             <div className={styles.wrapper__jobTag}>
                 <div className={styles.wrapper_jobs}>
                     <h2>
-                        {loading ? <Skeleton width={50} /> : `${jobs.length} Công việc`}
+                        {loading ? <Skeleton width={50} /> : `${filteredJobs.length} Công việc`}
                         {loading ? (
                             <Skeleton width={50} height={30} />
                         ) : (
@@ -337,13 +337,15 @@ function skillTag() {
                             {loading ? (
                                 <TechStack__Skeleton />
                             ) : filteredJobs && filteredJobs.length > 0 ? (
-                                filteredJobs.map((job) => (
+                                filteredJobs
+                                .sort((a,b) => Number(b.Hot_Job !== 'Null') - Number(a.Hot_Job !== 'Null'))
+                                .map((job) => (
                                     <div className={styles.box_jobs} key={job.jobId}>
                                         <div className={styles.views_total}>
                                             <FontAwesomeIcon icon={faEye} /> {job.view}
                                         </div>
                                         
-                                        <HotJob isHot={job.Hot_Job === 'HOT JOB'} />
+                                        <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
                                         <div className={styles.btn_favorite__job}>
                                             <FontAwesomeIcon icon={faHeart} />
                                         </div>

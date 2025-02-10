@@ -1,0 +1,456 @@
+.district_Job {
+    margin-top: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+
+    .district_Job__banner {
+        position: relative;
+
+        .banner_image {
+            max-width: 100%;
+            height: 30rem;
+            object-fit: contain;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: .1rem solid var(--border);
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .content {
+                position: absolute;
+                top: 5%;
+                max-width: 65rem;
+                width: 100%;
+
+                h3 {
+                    font-size: 4rem;
+                    font-weight: var(--weight600);
+                }
+
+                span {
+                    margin-top: 1rem;
+                    display: block;
+                    font-size: 2rem;
+                    margin-left: 3rem;
+                    font-weight: var(--weight500);
+                    text-transform: capitalize;
+                }
+
+                p {
+                    margin-top: 2rem;
+                    margin-left: 3rem;
+                    font-size: 1.35rem;
+                    line-height: 1.5;
+                }
+
+                a {
+                    display: inline-block;
+                    margin-left: 3rem;
+                    margin-top: 3rem;
+                    padding: .8rem 2rem;
+                    background: var(--viewDetails);
+                    font-size: 1.4rem;
+                    font-weight: var(--weight500);
+                    border-radius: .5rem;
+                    color: var(--colorWhiteText);
+                }
+            }
+        }
+    }
+
+    .wraper_header {
+        margin-top: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 4rem;
+
+        .total_amount__job {
+
+            margin-left: 3rem;
+            font-size: 1.4rem;
+            padding: .8rem 2rem;
+            border: .2rem solid var(--border);
+            border-radius: .5rem;
+            display: inline-block;
+        }
+
+      
+    }
+
+    .wrapper_container {
+        margin: 0 0 4rem 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+
+        .filtering_tool {
+            flex: 1 1 12rem;
+            padding: 2rem;
+
+            .header_advanced__jobs {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                h3 {
+                    font-size: 1.6rem;
+                    margin-bottom: 2rem;
+
+                }
+
+                .btn_clear__filter {
+                    padding: .8rem 2rem;
+                    margin-top: -1rem;
+                    border-radius: 5rem;
+                    font-size: 1.3rem;
+                    font-weight: var(--weight550);
+                    color: #bf2a1d;
+
+                    &:disabled {
+                        color: #999;
+                    }
+                }
+            }
+
+            .salary_sort {
+                margin-left: 2.3rem;
+                border-top: .1rem solid var(--border);
+                padding-top: 2rem;
+                margin-bottom: 2rem;
+                margin-right: 1rem;
+
+                .header_salary {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-bottom: 1.5rem;
+                    width: 100%;
+
+                    div {
+                        font-weight: var(--weight550);
+                        font-size: 1.4rem;
+                    }
+
+                    .select_choose {
+                        padding: 1rem;
+                        width: 50%;
+                        border: .1rem solid var(--border);
+                        border-radius: .5rem;
+
+                        select {
+                            width: 100%;
+                            cursor: pointer;
+                            font-size: 1.3rem;
+                        }
+                    }
+                }
+
+                .box_select {
+                    span {
+                        display: block;
+                        font-size: 1.3rem;
+                    }
+
+                    .select_rank__sort {
+                        margin-top: 1rem;
+                        padding: 1rem 1.5rem;
+                        width: 100%;
+                        border: .1rem solid var(--border);
+                        border-radius: .5rem;
+
+                        select {
+                            width: 100%;
+                            cursor: pointer;
+                            font-size: 1.3rem;
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+        .wrapper_jobList {
+            flex: 1 1 60rem;
+            width: 100%;
+            padding: 2rem;
+            position: relative;
+
+            .box_search {
+                position: absolute;
+                top: -1.5rem;
+                left: 2rem;
+                display: flex;
+                align-items: center;
+    
+                .box_input {
+                    width: 60rem;
+                    border: .1rem solid var(--border);
+                    border-top-left-radius: .5rem;
+                    border-bottom-left-radius: .5rem;
+                    padding: 1.3rem 1.5rem;
+    
+                    input {
+                        font-size: 1.3rem;
+                        width: 100%;
+    
+                        &::placeholder {
+                            font-size: 1.2rem;
+                        }
+                    }
+                }
+    
+                .btn_search {
+                    padding: 1.35rem 1.5rem;
+                    border-top-right-radius: .5rem;
+                    border-bottom-right-radius: .5rem;
+                    background: var(--viewDetails);
+                    color: var(--colorWhiteText);
+                    font-size: 1.35rem;
+                }
+            }
+
+            .pagination {
+                position: absolute;
+                top: -.5rem;
+                right: 2rem;
+                display: flex;
+                margin: 1.5rem 0;
+                margin: auto;
+                width: 15rem;
+                padding: 0;
+        
+                gap: 2rem;
+                align-items: center;
+        
+                border-radius: 15rem;
+                overflow: hidden;
+        
+                button {
+                    margin: auto;
+                    padding: 1rem 1.3rem;
+                    background: var(--hoverBox);
+                    border: .1rem solid var(--hoverBoxBd);
+                    border-radius: 5rem;
+                }
+        
+                span {
+                    margin: auto;
+                    font-size: 1.5rem;
+                }
+            }
+
+            .jobList {
+                margin-top: 2rem;
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(32rem, 1fr));
+                gap: 1.5rem;
+                height: max-content;
+
+                p {
+                    font-size: 1.3rem;
+                }
+
+                .job {
+                    background: var(--bg-White);
+                    border-radius: 1rem;
+                    overflow: hidden;
+                    border: .1rem solid var(--border);
+                    padding: 1rem 4.5rem 1rem 1rem;
+                    cursor: pointer;
+                    position: relative;
+                    display: flex;
+
+                    .hot_job {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        border-top: .45rem solid red;
+                        display: flex;
+                        align-items: center;
+                        gap: .5rem;
+
+
+                        p {
+                            font-size: 1.3rem;
+                            text-transform: capitalize;
+                            background: red;
+                            color: var(--colorWhiteText);
+                            margin-top: -.8rem;
+                            padding: .5rem 2rem .5rem 1rem;
+                            border-bottom-right-radius: 5rem;
+
+                            svg {
+                                margin-bottom: -.3rem;
+                            }
+
+                        }
+
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            background: red;
+                            width: 20rem;
+                        }
+                    }
+
+                    &:hover {
+                        background: var(--hoverBox);
+                        border: .1rem solid var(--hoverBoxBd);
+                    }
+
+                    .icon-views {
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        z-index: 9 !important;
+                        color: var(--colorBlackText);
+                        font-size: 1.1rem;
+                        display: flex;
+                        align-items: center;
+                        gap: .5rem;
+                        padding: .5rem 1rem;
+                        border-bottom-left-radius: 1rem;
+                        background: var(--globalColor);
+                        color: var(--colorWhiteText);
+
+                        svg {
+                            color: var(--colorWhiteText);
+                        }
+                    }
+
+                    .img_company {
+                        flex: 1 1 14.5rem;
+                        margin: auto;
+                        text-align: center;
+
+                        img {
+                            width: 7.5rem;
+                            object-fit: cover;
+                        }
+                    }
+
+                    .content_job {
+                        overflow: hidden;
+                        overflow: hidden;
+                        max-width: 35rem;
+                        width: 100%;
+
+
+
+                        h3 {
+                            font-size: 1.5rem;
+                            font-weight: 600;
+                            margin-bottom: .5rem;
+                            color: var(--colorBlackText);
+                            text-transform: capitalize;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+
+                        .company {
+                            display: flex;
+                            align-items: center;
+                            gap: .5rem;
+                            padding: .3rem 0;
+                            font-size: 1.2rem;
+                            margin-left: 2rem;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            color: var(--textBlur);
+                            text-transform: capitalize;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            max-width: 31rem;
+                        }
+
+                        .salary {
+                            display: flex;
+                            align-items: center;
+                            gap: .5rem;
+                            padding: .3rem 0;
+                            font-size: 1.3rem;
+                            margin-left: 2rem;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            color: var(--viewDetails);
+                            text-transform: capitalize;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            max-width: 31rem;
+                            margin-bottom: .2rem;
+                        }
+
+                        .positon {
+                            display: block;
+                            align-items: center;
+                            padding: 0.5rem 0;
+                            font-size: 1.3rem;
+                            margin-left: 1rem;
+                            padding: 0.25rem 1rem;
+                            border-radius: 0.3rem;
+                            text-transform: capitalize;
+                            max-width: 100%;
+                            white-space: nowrap;
+
+
+                            p {
+                                font-weight: var(--weight550);
+                            }
+                        }
+
+
+                        .district {
+                            display: flex;
+                            align-items: center;
+                            gap: .5rem;
+                            padding: .25rem 0;
+                            font-size: 1.2rem;
+                            margin-left: 1rem;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            padding: .5rem 1rem;
+                            border-radius: .3rem;
+                            text-transform: capitalize;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            max-width: 31rem;
+
+                            p {
+                                font-weight: var(--weight550);
+                                color: var(--viewDetails);
+                            }
+                        }
+                    }
+
+                    .btn-viewDetails {
+                        padding: .6rem 2.5rem;
+                        background: var(--viewDetails);
+                        color: var(--colorWhiteText);
+                        font-size: 1.4rem;
+                        border-top-left-radius: 3rem;
+                        border-bottom-right-radius: 3rem;
+                    }
+
+                }
+            }
+        }
+
+
+    }
+
+}

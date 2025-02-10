@@ -1,0 +1,171 @@
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -60%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(-50%, -60%);
+        opacity: 0;
+    }
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99999 !important;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+
+    &.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+.modalContent {
+    background: var(--bg-White);
+    max-width: 65rem;
+    width: 95%;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2rem;
+    border-radius: 1rem;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+
+    &.slideDown {
+        animation: slideDown 0.3s ease-in-out forwards;
+    }
+
+    &.slideUp {
+        animation: slideUp 0.3s ease-in-out forwards;
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 5rem;
+        background: #fff;
+
+        svg {
+            font-size: 2rem;
+        }
+    }
+
+    h3 {
+        display: inline-block;
+        font-size: 1.5rem;
+    }
+
+    .uploadBox {
+        margin-top: 1.5rem;
+        border: .2rem dashed #ddd;
+        padding: 4rem;
+        border-radius: 1rem;
+        background: #f8f8f8;
+        text-align: center;
+
+        .uploadLabel {
+            background: #eff5ff;
+            color: #005aff;
+            padding: 1rem;
+            border-radius: 5rem;
+            font-size: 1.4rem;
+            cursor: pointer;
+
+
+            svg {
+                font-size: 1.8rem;
+                margin-right: .5rem;
+            }
+        }
+
+        p {
+            margin-top: 1.8rem;
+            font-size: 1.2rem;
+            color: var(--textBlur);
+        }
+    }
+
+    .btn_updateCV {
+        margin-top: 1.5rem;
+        display: inline-block;
+        width: 100%;
+        padding: .8rem 2rem;
+        font-size: 1.3rem;
+        color: var(--colorWhiteText);
+        background: #0073e6;
+        text-align: center;
+        border-radius: .5rem;
+        cursor: pointer;
+    }
+
+    .fileInfo {
+        margin-top: 1rem;
+        text-align: left;
+        background: #f1f1f1;
+        padding: 1rem;
+        border-radius: .8rem;
+        position: relative;
+
+        svg {
+            font-size: 1.7rem;
+            margin-right: 1rem;
+        }
+
+        span  {
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin: .8rem 0 0 2rem;
+            color: var(--textBlur);
+        }
+
+        a {
+            margin: .8rem 0 0 2rem;
+            font-size: 1.25rem;
+        }
+    }
+
+    .fileInfo span {
+        font-weight: bold;
+    }
+
+    .viewAsRecruiter {
+        color: #0073e6;
+        display: block;
+        margin-top: .5rem;
+        text-decoration: none;
+    }
+
+    .optionsIcon {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        cursor: pointer;
+    }
+}

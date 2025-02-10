@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../jobTag.module.scss';
+import styles from './ExperienceFilter.module.scss';
 
 interface ExperienceFilterProps {
     experience: string;

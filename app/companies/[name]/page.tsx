@@ -6,6 +6,11 @@ import styles from './name.module.scss';
 import classNames from 'classnames';
 import { formatSalary } from '../../Ultils/formatSalary';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+
+import HotJob from '../../Ultils/HotJob/HotJob';
+
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
 function NameCompany() {
@@ -73,10 +78,21 @@ function NameCompany() {
                     </div>
                 )}
             </div>
-            <h2 id="job" >Vị trí ứng tuyển</h2>
+            <h2 id="job">Vị trí ứng tuyển</h2>
             <div className={styles.wrapper__groupJob}>
                 {jobCompany.map((job) => (
-                    <div onClick={() => router.push(`/jobs/job_details/${job.jobId}`)} className={styles.job} key={job.jobId}>
+                    <div
+                        onClick={() => router.push(`/jobs/job_details/${job.jobId}`)}
+                        className={styles.job}
+                        key={job.jobId}
+                    >
+                        <HotJob isHot={job.Hot_Job !== 'Null'}>{job.Hot_Job}</HotJob>
+
+                        <span className={styles['icon-views']}>
+                            <FontAwesomeIcon icon={faEye} />
+                            {job.view}
+                        </span>
+
                         <div className={styles.image_company}>
                             <img
                                 src={job.company.images[0]?.image_company || 'default-image.png'}
