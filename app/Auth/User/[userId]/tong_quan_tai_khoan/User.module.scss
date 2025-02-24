@@ -7,81 +7,8 @@
         flex-wrap: wrap;
         gap: 1.5rem;
 
-        .user_control {
-            flex: 1 1 16rem;
-            border-radius: 1rem;
-
-            .user_infomation {
-                display: flex;
-                gap: 1.5rem;
-                align-items: center;
-                background: var(--bg-White);
-                padding: 2rem;
-                border-radius: .5rem;
-
-
-                .image_user {
-                    max-width: 13rem;
-                    height: 13rem;
-
-                    img {
-                        width: 13rem;
-                        height: 13rem;
-                        object-fit: cover;
-                        border-radius: 50%;
-                    }
-                }
-
-                .infomation {
-                    .fullname {
-                        font-size: 2rem;
-                        font-weight: var(--weight550);
-                    }
-
-                    .candidate_code {
-                        display: flex;
-                        align-items: center;
-                        gap: .5rem;
-                        margin: .8rem 0;
-                        font-size: 1.3rem;
-                        font-weight: var(--weight550);
-
-                        p {
-                            color: #6f7882;
-                            font-weight: var(--weight400);
-                        }
-                    }
-
-                    .email {
-                        color: #6f7882;
-                        font-size: 1.3rem;
-                    }
-                }
-            }
-
-            .control_link {
-                margin-top: 1rem;
-                background: var(--bg-White);
-                padding: 2rem;
-                border-radius: .5rem;
-
-                a {
-                    display: block;
-                    padding: 1.5rem;
-                    font-size: 1.4rem;
-                    margin-bottom: 2rem;
-
-                    &:hover {
-                        background: var(--background);
-                        border-radius: 1rem;
-                        font-weight: var(--weight550);
-                    }
-                }
-            }
-        }
-
         .control_detail {
-            flex: 1 1 72rem;
+            flex: 1 1 90rem;
 
             .overview_header {
                 background: var(--bg-White);
@@ -98,8 +25,21 @@
 
                     span {
                         display: block;
-                        font-size: 1.3rem;
+                        font-size: 1.7rem;
                         padding: .5rem 0;
+                    }
+
+                    .profileCompletion {
+                        display: flex;
+                        
+                        align-items: center;
+                        gap: .3rem;
+
+                        p {
+                            font-size: 1.7rem;
+                            font-weight: var(--weight550);
+                            color: var(--viewDetails);
+                        }
                     }
                 }
 
@@ -160,40 +100,71 @@
 
                 .CV_Uploaded {
                     margin-top: 2rem;
+
                     .fileInfo {
                         margin-top: 1rem;
                         text-align: left;
                         background: #f1f1f1;
-                        padding: 1rem;
+                        padding: 2rem;
                         border-radius: .8rem;
                         position: relative;
-                
+
+                        .btn_controll {
+                            position: absolute;
+                            top: 1rem;
+                            right: 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: .7rem;
+
+                            svg {
+                                width: 2rem;
+                                height: 2rem;
+                            }
+                        }
+
+                        .setDefault {
+                            position: absolute;
+                            bottom: 1rem;
+                            right: 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: .7rem;
+
+                            input {
+                                width: 1.4rem;
+                                height: 1.4rem;
+                                cursor: pointer;
+                            }
+                        }
+
+
                         svg {
                             font-size: 1.7rem;
                             margin-right: 1rem;
                         }
-                
-                        span  {
+
+                        span {
                             font-size: 1.4rem;
                             font-weight: var(--weight550);
                         }
-                
+
                         p {
                             margin: 1rem 0 1rem 2.5rem;
                             color: var(--textBlur);
                             font-size: 1.3rem;
                         }
-    
+
                         .text_view {
                             margin: .8rem 0 0 2.5rem;
                             color: #005aff;
                             font-size: 1.3rem;
-    
+
                             &:hover {
                                 color: #ff7d55;
                             }
                         }
-                
+
                         a {
                             margin: .8rem 0 0 0;
                             font-size: 1.25rem;
@@ -201,7 +172,7 @@
                     }
                 }
 
-                
+
             }
 
             .overview_activity {
@@ -247,9 +218,9 @@
                         }
 
                         svg {
-                           width: 1.5rem;
-                           height: 1.5rem;
-                           cursor: pointer;
+                            width: 1.5rem;
+                            height: 1.5rem;
+                            cursor: pointer;
                         }
                     }
                 }

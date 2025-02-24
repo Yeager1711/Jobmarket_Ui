@@ -1,24 +1,36 @@
 'use client';
-import { useState, useEffect } from 'react';
-import type { User } from '../../../interface/User';
+import { useState, useEffect, useRef } from 'react';
+import type { User } from '../../../../interface/User';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faPaperclip } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faPaperclip, faEllipsis, faCamera } from '@fortawesome/free-solid-svg-icons';
 import { useParams } from 'next/navigation';
 import styles from './User.module.scss';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { jwtDecode } from 'jwt-decode';
-import type { ResumeCV } from '../../../interface/resume-cv.interface';
-import PdfViewerModal from '../../../pages/DefaultLayouts/Popup/PdfViewerModal/pagge';
-import ModelUploadCV from '../popup/uploadCV/page';
-
+import type { ResumeCV } from '../../../../interface/resume-cv.interface';
+import PdfViewerModal from '../../popup/PdfViewerModal/page';
+import ModelUploadCV from '../../popup/uploadCV/page';
+import axios from 'axios';
+import { showToastError, showToastSuccess } from 'app/Ultils/toast';
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+import UserControl from '../userControl/UserControl';
+
+import UpdateProfileModal from '../../popup/updateProfie/page';
 
 function User() {
     const [isUploadCVOpen, setIsUploadCVOpen] = useState(false);
     const [user, setUser] = useState<User | null>(null);
-    const { userId } = useParams();
     const [cvList, setCvList] = useState<ResumeCV[]>([]);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [defaultCVId, setDefaultCVId] = useState<number | null>(null);
+    const [isUpdateProfileOpen, setIsUpdateProfileOpen] = useState(false);
+
+    const params = useParams();
+    const userId = params?.userId;
+
+    // Image
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [preview, setPrivew] = useState<string | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('access_token');
@@ -63,6 +75,36 @@ function User() {
         fetchUser();
     }, [userId]);
 
+    const handleSetDefaultCV = async (cvId: number) => {
+        console.log('🚀 Gọi handleSetDefaultCV với cvId:', cvId);
+        setDefaultCVId(cvId);
+
+        const access_token = localStorage.getItem('access_token');
+        if (!access_token) return console.warn('⚠️ Không tìm thấy token, hủy request.');
+
+        try {
+            const decoded: any = jwtDecode(access_token);
+            const userId = decoded?.userId;
+
+            if (!userId) return console.warn('⚠️ Không lấy được userId từ token, hủy request.');
+
+            const apiEndpoint = `${apiUrl}/users/setDefaultCV/${userId}/${cvId}`;
+            console.log('🔗 Gửi request đến API:', apiEndpoint);
+
+            const response = await axios.post(apiEndpoint, null, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${access_token}`,
+                },
+                withCredentials: true,
+            });
+
+            console.log('✅ Cập nhật CV mặc định thành công', response.data);
+        } catch (error) {
+            console.error('🚨 Lỗi khi cập nhật CV mặc định:', error);
+        }
+    };
+
     // Dữ liệu mẫu cho biểu đồ
     const appliedJobsData = [
         { month: '02/2024', applications: 5 },
@@ -83,49 +125,33 @@ function User() {
     return (
         <section className={styles.user}>
             <div className={styles.wapper}>
-                <div className={styles.user_control}>
-                    <div className={styles.user_infomation}>
-                        {user ? (
-                            <>
-                                <div className={styles.image_user}>
-                                    <img src={`data:image/png;base64,${user.image}`} alt="User Avatar" />
-                                </div>
-
-                                <div className={styles.infomation}>
-                                    <span className={styles.fullname}>{`${user.firstName} ${user.lastName}`}</span>
-                                    <span className={styles.candidate_code}>
-                                        <p>Mã ứng viên:</p> #{user.userId}
-                                    </span>
-                                    <span className={styles.email}>{user.email}</span>
-                                </div>
-                            </>
-                        ) : (
-                            <p>Đang tải...</p>
-                        )}
-                    </div>
-
-                    <div className={styles.control_link}>
-                        <a href="">Tổng quan</a>
-                        <a href="">Hồ sơ của tôi</a>
-                        <a href="">Việc làm của tôi</a>
-                        <a href="">Quản lý tài khoản</a>
-                    </div>
-                </div>
+                <UserControl />
+                <UpdateProfileModal isOpen={isUpdateProfileOpen} onClose={() => setIsUpdateProfileOpen(false)} />
 
                 <div className={styles.control_detail}>
                     <div className={styles.control_detail}>
                         <div className={styles.overview_header}>
                             <h3>Tổng quan Tài khoản</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
                                 <div className={styles.flex_overview}>
                                     <span>
                                         Cập nhật hồ sơ của bạn để tìm hiểu thêm về con đường sự nghiệp tiếp theo của
                                         bạn.
                                     </span>
-                                    <span>Mức độ hoàn thành hồ sơ của bạn: 10%</span>
+
+                                    {user ? (
+                                        <span className={styles.profileCompletion}>
+                                            Mức độ hoàn thành hồ sơ của bạn:
+                                            <p>{`${user.profileCompletion}`}</p>
+                                        </span>
+                                    ) : (
+                                        <span>Loading</span>
+                                    )}
                                 </div>
 
-                                <div className={styles.btn_updateProfile}>Cập nhật hồ sơ</div>
+                                <div className={styles.btn_updateProfile} onClick={() => setIsUpdateProfileOpen(true)}>
+                                    Cập nhật hồ sơ
+                                </div>
                             </div>
                         </div>
                         <div className={styles.resume}>
@@ -150,6 +176,18 @@ function User() {
                                             {cvList.map((cv) => (
                                                 <div key={cv.resumeCVId}>
                                                     <div className={styles.fileInfo}>
+                                                        <div className={styles.setDefault}>
+                                                            <input
+                                                                type="radio"
+                                                                checked={defaultCVId === Number(cv.resumeCVId)}
+                                                                onChange={() => handleSetDefaultCV(cv.resumeCVId)}
+                                                            />
+                                                            Mặc định
+                                                        </div>
+
+                                                        <div className={styles.btn_controll}>
+                                                            <FontAwesomeIcon icon={faEllipsis} />
+                                                        </div>
                                                         <FontAwesomeIcon icon={faPaperclip} />
                                                         <a
                                                             href={`data:application/pdf;base64,${cv.CV_img}`}
@@ -168,7 +206,12 @@ function User() {
                                                         >
                                                             Xem như nhà ứng tuyển
                                                         </button>
-                                                        {pdfUrl && <PdfViewerModal pdfUrl={pdfUrl} onClose={() => setPdfUrl(null)} />}
+                                                        {pdfUrl && (
+                                                            <PdfViewerModal
+                                                                pdfUrl={pdfUrl}
+                                                                onClose={() => setPdfUrl(null)}
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}

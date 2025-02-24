@@ -20,8 +20,10 @@ interface DecodedToken {
     userId: number;
     firstName: string;
     lastName: string;
-    image: string
+    image: string;
 }
+
+const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
 function Header() {
     const pathname = usePathname();
@@ -42,13 +44,18 @@ function Header() {
         if (access_token) {
             try {
                 const decoded = jwtDecode<DecodedToken>(access_token);
-                setUser({ firstName: decoded.firstName, lastName: decoded.lastName, image: decoded.image, userId: decoded.userId });
+                setUser({
+                    firstName: decoded.firstName,
+                    lastName: decoded.lastName,
+                    image: decoded.image,
+                    userId: decoded.userId,
+                });
                 console.log('decoded:  ', decoded);
             } catch (error) {
                 console.error('Lỗi khi giải mã JWT:', error);
             }
         }
-    }, [location, localStorage.getItem("access_token")]);
+    }, [location, localStorage.getItem('access_token')]);
 
     const handleLogout = () => {
         Cookies.remove('token');
@@ -89,11 +96,29 @@ function Header() {
                 <div className={cx('button-control')}>
                     {user ? (
                         <div className={cx('user-info')}>
-                            <div className={styles.avatar_image}  onClick={() => {router.push(`/Auth/User/${user.userId}`)}}>
-                                <img src={`data:image/png;base64,${user.image}`} alt="User Avatar" />
+                            <div
+                                className={styles.avatar_image}
+                                onClick={() => {
+                                    router.push(`/Auth/User/${user.userId}/tong_quan_tai_khoan`);
+                                }}
+                            >
+                                <img
+                                    src={
+                                        user.image
+                                            ? `${apiUrl}${user.image}`
+                                            : '/images/user/user_default.png'
+                                    }
+                                    alt=""
+                                    width="200"
+                                />
                             </div>
-                            <span className={cx('user-name')}  onClick={() => {router.push(`/Auth/User/${user.userId}`)}}>
-                                {user.firstName} {' '} {user.lastName}
+                            <span
+                                className={cx('user-name')}
+                                onClick={() => {
+                                    router.push(`/Auth/User/${user.userId}/tong_quan_tai_khoan`);
+                                }}
+                            >
+                                {user.firstName} {user.lastName}
                             </span>
                             <button className={cx('btn-logout')} onClick={handleLogout}>
                                 Đăng xuất

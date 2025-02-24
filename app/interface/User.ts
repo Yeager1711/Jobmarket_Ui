@@ -18,4 +18,5 @@ export interface User {
     updatedAt: string;
     lastLogin?: string;
     status: string;
+    profileCompletion: number
 }

@@ -1,0 +1,100 @@
+.user_control {
+    flex: 1 1 16rem;
+    border-radius: 1rem;
+
+    .user_infomation {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        background: var(--bg-White);
+        padding: 2rem;
+        border-radius: .5rem;
+
+
+        .image_user {
+            max-width: 13rem;
+            width: 13rem;
+            height: 13rem;
+            border: .1rem solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            position: relative;
+
+            img {
+                width: 13rem;
+                height: 13rem;
+                object-fit: cover;
+                border-radius: 50%;
+                margin: auto;
+            }
+
+            .btn_upload_imgUser {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+
+
+                svg {
+                    padding: .8rem;
+                    border: .1rem solid var(--border);
+                    border-radius: 5rem;
+                    background: var(--bg-White);
+                    cursor: pointer;
+                    font-size: 1.5rem !important;
+                }
+            }
+        }
+
+        .infomation {
+            .fullname {
+                font-size: 2rem;
+                font-weight: var(--weight550);
+            }
+
+            .candidate_code {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                margin: .8rem 0;
+                font-size: 1.3rem;
+                font-weight: var(--weight550);
+
+                p {
+                    color: #6f7882;
+                    font-weight: var(--weight400);
+                }
+            }
+
+            .email {
+                color: #6f7882;
+                font-size: 1.3rem;
+            }
+        }
+    }
+
+    .control_link {
+        margin-top: 1rem;
+        background: var(--bg-White);
+        padding: 2rem;
+        border-radius: .5rem;
+
+        a {
+            display: block;
+            padding: 1.5rem;
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+
+            &:hover {
+                background: var(--background);
+                border-radius: 1rem;
+                font-weight: var(--weight550);
+            }
+        }
+
+        .active {
+            font-weight: bold;
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+        }
+    }
+}
