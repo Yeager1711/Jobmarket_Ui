@@ -4,6 +4,6 @@ export interface ResumeCV {
     name_file: string;
     CV_img: string;
     updatedAt: Date;
-    default: number;
+    isDefault: number;
     view: number;
 }

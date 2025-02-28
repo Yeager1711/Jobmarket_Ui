@@ -1,5 +1,7 @@
-import React from "react";
-import styles from "./PdfViewerModal.module.scss"; // File SCSS riêng
+import React from 'react';
+import styles from './PdfViewerModal.module.scss'; 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 interface PdfViewerModalProps {
     pdfUrl: string;
@@ -11,7 +13,7 @@ const PdfViewerModal: React.FC<PdfViewerModalProps> = ({ pdfUrl, onClose }) => {
         <div className={styles.overlay}>
             <div className={styles.modal}>
                 <button className={styles.closeBtn} onClick={onClose}>
-                    &times;
+                    <FontAwesomeIcon icon={faXmark} />
                 </button>
                 <iframe src={pdfUrl} className={styles.pdfViewer} />
             </div>

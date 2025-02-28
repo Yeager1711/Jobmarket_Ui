@@ -7,6 +7,10 @@ export interface User {
     address?: string;
     image?: string;
     resume?: string;
+    gender:string;
+    dateOfBirth: string;
+    nationality :string;
+    highestDegree:string;
     jobTitle?: string;
     industry?: string;
     experienceLevel?: string;

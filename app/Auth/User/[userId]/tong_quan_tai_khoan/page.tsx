@@ -16,6 +16,7 @@ const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 import UserControl from '../userControl/UserControl';
 
 import UpdateProfileModal from '../../popup/updateProfie/page';
+import { headers } from 'next/headers';
 
 function User() {
     const [isUploadCVOpen, setIsUploadCVOpen] = useState(false);
@@ -24,6 +25,8 @@ function User() {
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [defaultCVId, setDefaultCVId] = useState<number | null>(null);
     const [isUpdateProfileOpen, setIsUpdateProfileOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [cvToDelete, setCvToDelete] = useState<number | null>(null);
 
     const params = useParams();
     const userId = params?.userId;
@@ -33,11 +36,11 @@ function User() {
     const [preview, setPrivew] = useState<string | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (!token) return;
+        const access_token = localStorage.getItem('access_token');
+        if (!access_token) return;
 
         try {
-            const decoded: any = jwtDecode(token);
+            const decoded: any = jwtDecode(access_token);
             const userIdFromToken = decoded.userId;
 
             const fetchCVs = async () => {
@@ -47,6 +50,15 @@ function User() {
 
                     const data: ResumeCV[] = await response.json();
                     setCvList(data);
+
+                    // Tìm CV mặc định
+                    const defaultCV = data.find((cv) => cv.isDefault);
+
+                    if (defaultCV) {
+                        setDefaultCVId(defaultCV.resumeCVId);
+                    } else {
+                        setDefaultCVId(null); // Reset nếu không có CV mặc định
+                    }
                 } catch (error: any) {
                     console.error('Lỗi khi lấy danh sách CV:', error);
                 }
@@ -75,36 +87,85 @@ function User() {
         fetchUser();
     }, [userId]);
 
-    const handleSetDefaultCV = async (cvId: number) => {
-        console.log('🚀 Gọi handleSetDefaultCV với cvId:', cvId);
-        setDefaultCVId(cvId);
+    const handleSetDefaultCV = async (resumeCVId: number) => {
+        console.log('🚀 Gọi handleSetDefaultCV với cvId:', resumeCVId);
+        setDefaultCVId(resumeCVId);
 
         const access_token = localStorage.getItem('access_token');
-        if (!access_token) return console.warn('⚠️ Không tìm thấy token, hủy request.');
+        if (!access_token) {
+            console.warn('⚠️ Không tìm thấy token, hủy request.');
+            showToastError('Không tìm thấy token');
+            return;
+        }
 
         try {
-            const decoded: any = jwtDecode(access_token);
-            const userId = decoded?.userId;
-
-            if (!userId) return console.warn('⚠️ Không lấy được userId từ token, hủy request.');
-
-            const apiEndpoint = `${apiUrl}/users/setDefaultCV/${userId}/${cvId}`;
+            const apiEndpoint = `${apiUrl}/users/setDefaultCV/${resumeCVId}`;
             console.log('🔗 Gửi request đến API:', apiEndpoint);
 
-            const response = await axios.post(apiEndpoint, null, {
+            const response = await fetch(apiEndpoint, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${access_token}`,
                 },
-                withCredentials: true,
+                credentials: 'include',
             });
 
-            console.log('✅ Cập nhật CV mặc định thành công', response.data);
-        } catch (error) {
-            console.error('🚨 Lỗi khi cập nhật CV mặc định:', error);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Server responded with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ Cập nhật CV mặc định thành công', data);
+
+            // Cập nhật cvList: Đặt isDefault cho CV mới và bỏ isDefault cho CV cũ
+            setCvList((prevCvList) =>
+                prevCvList.map((cv) => ({
+                    ...cv,
+                    isDefault: cv.resumeCVId === resumeCVId ? 1 : 0,
+                }))
+            );
+
+            showToastSuccess(data.message);
+        } catch (error: any) {
+            console.error('🚨 Lỗi khi cập nhật CV mặc định:', error.message);
+            showToastError(error.message || 'Lỗi khi đặt CV mặc định');
         }
     };
 
+    //Hàm xử lý xóa CV
+    const handleDeleteCV = async (resumeCVId: number) => {
+        const access_token = localStorage.getItem('access_token');
+        if (!access_token) {
+            showToastError('Tokens not found');
+            return;
+        }
+
+        //Sử dụng confirm
+        const confirmed = window.confirm('Bạn có muốn xóa Cv này không ? ');
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`${apiUrl}/users/deleteCV/${resumeCVId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${access_token}`,
+                },
+                credentials: 'include',
+            });
+
+            if (response.status === 200) {
+                setCvList(cvList.filter((cv) => cv.resumeCVId !== resumeCVId));
+                if (defaultCVId === resumeCVId) setDefaultCVId(null);
+                showToastSuccess('Xóa CV thành công');
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa CV:', error);
+            showToastError('Xóa CV thất bại');
+        }
+    };
     // Dữ liệu mẫu cho biểu đồ
     const appliedJobsData = [
         { month: '02/2024', applications: 5 },
@@ -132,7 +193,14 @@ function User() {
                     <div className={styles.control_detail}>
                         <div className={styles.overview_header}>
                             <h3>Tổng quan Tài khoản</h3>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                }}
+                            >
                                 <div className={styles.flex_overview}>
                                     <span>
                                         Cập nhật hồ sơ của bạn để tìm hiểu thêm về con đường sự nghiệp tiếp theo của
@@ -159,7 +227,11 @@ function User() {
                             <div className={styles.box_resume}>
                                 <div className={styles.box_resume__question}>
                                     <span>Bạn đã có CV?</span>
-                                    <p>Tải lên CV để có thể ứng tuyển nhanh chóng</p>
+                                    {cvList.length === 0 ? (
+                                        <p>Tải lên CV để có thể ứng tuyển nhanh chóng.</p>
+                                    ) : (
+                                        <p>Lựa chọn CV phù hợp nhất với công việc bạn mong muốn.</p>
+                                    )}
                                 </div>
                                 {/* Khi bấm vào đây, modal sẽ hiển thị */}
                                 <div className={styles.btn_resume_upload} onClick={() => setIsUploadCVOpen(true)}>
@@ -176,16 +248,25 @@ function User() {
                                             {cvList.map((cv) => (
                                                 <div key={cv.resumeCVId}>
                                                     <div className={styles.fileInfo}>
-                                                        <div className={styles.setDefault}>
-                                                            <input
-                                                                type="radio"
-                                                                checked={defaultCVId === Number(cv.resumeCVId)}
-                                                                onChange={() => handleSetDefaultCV(cv.resumeCVId)}
-                                                            />
-                                                            Mặc định
-                                                        </div>
+                                                        {cv.isDefault ? (
+                                                            <div className={styles.setDefault_isDefault}>
+                                                                CV mặc định
+                                                            </div>
+                                                        ) : (
+                                                            <div className={styles.setDefault}>
+                                                                <input
+                                                                    type="radio"
+                                                                    checked={defaultCVId === Number(cv.resumeCVId)}
+                                                                    onChange={() => handleSetDefaultCV(cv.resumeCVId)}
+                                                                />
+                                                                Mặc định
+                                                            </div>
+                                                        )}
 
-                                                        <div className={styles.btn_controll}>
+                                                        <div
+                                                            className={styles.btn_controll}
+                                                            onClick={() => handleDeleteCV(cv.resumeCVId)}
+                                                        >
                                                             <FontAwesomeIcon icon={faEllipsis} />
                                                         </div>
                                                         <FontAwesomeIcon icon={faPaperclip} />
@@ -228,14 +309,14 @@ function User() {
                             <div className={styles.overview_activity__container}>
                                 <div className={styles.recorded_data}>
                                     <div className={styles.wapper_data}>
-                                        <span className={styles.total}>18</span>
+                                        <span className={styles.total}>0</span>
                                         <span className={styles.title}>Việc làm đã ứng tuyển</span>
                                         <FontAwesomeIcon icon={faChevronRight} />
                                     </div>
 
                                     <div className={styles.wapper_data}>
                                         <span className={styles.total}>200</span>
-                                        <span className={styles.title}>Việc làm phù hợp</span>
+                                        <span className={styles.title}>Được AI lọc ra phù hợp với CV của bạn</span>
                                         <FontAwesomeIcon icon={faChevronRight} />
                                     </div>
                                 </div>

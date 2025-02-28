@@ -138,6 +138,20 @@
                             }
                         }
 
+                        .setDefault_isDefault{
+                            position: absolute;
+                            bottom: 1rem;
+                            right: 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: .7rem; 
+                            background: #ff7d55;
+                            padding: .7rem 1.5rem;
+                            border-radius: 5rem;
+                            color: var(--colorWhiteText);
+                            font-size: 1.3rem;
+                        }
+
 
                         svg {
                             font-size: 1.7rem;

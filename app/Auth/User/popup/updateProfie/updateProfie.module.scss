@@ -57,12 +57,95 @@
     }
 
     .form {
-        margin-top: 1.5rem;
+        margin-top: 1rem;
         border-top: .1rem solid var(--border);
-        padding-top: 1.5rem;
+        padding-top: 1rem;
         display: flex;
         flex-wrap: wrap;
         gap: 2rem;
+
+        &:nth-child(3) {
+            padding-top: 0;
+        }
+
+        .flex_phoneNumber {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1 1 32rem;
+            gap: 1rem;
+            margin-top: -.8rem;
+
+            .box_national {
+                flex: 1 1 8rem;
+            }
+
+            .box_phoneNumber {
+                flex: 1 1 16rem;
+            }
+
+            .box_national,
+            .box_phoneNumber {
+                padding: .9rem 0;
+                width: 100%;
+                border-radius: .5rem;
+                font-size: 1.3rem;
+
+                .input_box {
+                    width: 100%;
+                    margin: 1.5rem 0;
+
+                    label {
+                        &::before {
+                            content: "*";
+                            color: rgb(220, 54, 46);
+                            margin-right: .5rem;
+                            font-size: 2rem;
+                            margin-top: .5rem;
+                        }
+
+                        display: block;
+                        font-size: 1.4rem;
+                    }
+
+                    input {
+                        margin-top: .8rem;
+                        padding: 1.1rem 1.5rem;
+                        border: .1rem solid var(--border);
+                        width: 100%;
+                        border-radius: .5rem;
+                        font-size: 1.4rem;
+
+                        &:focus {
+                            border-color: #4646ff;
+                            border: .2rem solid #4646ff;
+                        }
+                    }
+
+                    .region,
+                    .districts {
+                        font-size: 1.4rem;
+
+                    }
+
+                    .selectExperience,
+                    .jobTitle,
+                    .selectGender,
+                    .selectDegree,
+                    .selectNational {
+                        padding: .9rem 0;
+                        width: 100%;
+                        border-radius: .5rem;
+                        font-size: 1.3rem;
+
+                        div {
+                            font-size: 1.4rem;
+                            cursor: pointer;
+
+                        }
+                    }
+                }
+            }
+        }
 
         .box {
             flex: 1 1 32rem;
@@ -104,8 +187,11 @@
 
                 }
 
-                .selectExperience, 
-                .jobTitle{
+                .selectExperience,
+                .jobTitle,
+                .selectGender,
+                .selectDegree,
+                .selectNational {
                     padding: .9rem 0;
                     width: 100%;
                     border-radius: .5rem;
