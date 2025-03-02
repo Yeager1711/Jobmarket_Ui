@@ -35,41 +35,32 @@ import SearchTypes from './pages/Home/SearchTypes/page';
 import OutstandingTool from './pages/Home/OutstandingTool/page';
 import OutstandingCompany from './pages/Home/OutstandingCompany/page';
 import BannerSearch from './pages/Home/BannerSearch/page';
-
 import NotificationCard from './pages/DefaultLayouts/Notifications/receive/NotificationCard/NotificationCard';
 
 import { formatSalary } from './Ultils/formatSalary';
-
 import Home_Skeleton from './home_skeleton';
-
-// Định nghĩa kiểu cho công việc
 import { Job } from '../app/interface/Job';
 import HotJob from './Ultils/HotJob/HotJob';
-
 import { useHandleViewJob } from './Ultils/hanle__viewJob';
-
-const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+import { useApi } from './Context/ApiContext/ApiContext'; // Điều chỉnh đường dẫn
 
 function Home() {
     const router = useRouter();
     const handleViewJob = useHandleViewJob();
+    const { fetchJobsBySkip, fetchAllJobs } = useApi(); // Sử dụng useApi
 
     const [jobs, setJobs] = useState<Job[]>([]);
     const [allJobData, setAllJobData] = useState<Job[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // func skip and take data
     const [totalItems, setTotalItems] = useState(0);
     const [totalItems_Type, setTotalItems_Type] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
 
     const itemsPerPage = 12;
-
-    // Tính toán số trang
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-    //   Chuyển trang
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
             setCurrentPage(page);
@@ -77,21 +68,14 @@ function Home() {
     };
 
     useEffect(() => {
-        const fetchJobsBySkip = async () => {
+        const loadJobsBySkip = async () => {
             try {
                 const skip = (currentPage - 1) * itemsPerPage;
                 const take = itemsPerPage;
-
-                const response = await fetch(`${apiUrl}/jobs/job_skip?skip=${skip}&take=${take}`);
-
-                if (!response.ok) throw new Error('API request failed');
-                const data: { data: Job[]; totalItems: number } = await response.json();
-
-                // Random hóa dữ liệu sau khi nhận từ API
+                const data = await fetchJobsBySkip(skip, take); // Gọi từ context
                 const sortedData = data.data.sort(
-                    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                    (a: Job, b: Job) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
                 );
-
                 setJobs(sortedData);
                 setTotalItems(data.totalItems);
                 setLoading(false);
@@ -101,17 +85,15 @@ function Home() {
             }
         };
 
-        fetchJobsBySkip();
-    }, [currentPage]);
+        loadJobsBySkip();
+    }, [currentPage, fetchJobsBySkip]);
 
     useEffect(() => {
-        const fetchAllJobs = async () => {
+        const loadAllJobs = async () => {
             try {
-                const response = await fetch(`${apiUrl}/jobs/all-jobs`);
-                const data: { data: Job[]; totalItems: number } = await response.json();
-
+                const data = await fetchAllJobs(); // Gọi từ context
                 const sortedData = data.data.sort(
-                    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                    (a: Job, b: Job) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
                 );
                 setAllJobData(sortedData);
                 setLoading(false);
@@ -121,8 +103,8 @@ function Home() {
             }
         };
 
-        fetchAllJobs();
-    }, []);
+        loadAllJobs();
+    }, [fetchAllJobs]);
 
     if (error) {
         return <div>{error}</div>;
@@ -130,11 +112,8 @@ function Home() {
 
     return (
         <div className={styles.Home}>
-            {/* Banner Search Section */}
-
             <BannerSearch />
 
-            {/* Swiper Section for Companies */}
             <section className={styles['wrapper-home']}>
                 <h3>
                     <p>Phổ Biến & Hàng Đầu</p> Công Ty Tuyển Dụng
@@ -185,7 +164,6 @@ function Home() {
                 </div>
             </section>
 
-            {/* Recruitment Section */}
             <section className={styles['wrapper-home']}>
                 <div className={styles['header-recruitment']}>
                     <h3>
@@ -203,18 +181,14 @@ function Home() {
                                   key={job.jobId}
                                   style={{ cursor: 'pointer' }}
                               >
-                                {/* Kiểm tra job đang có yêu cầu nào không */}
-                                <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
-
+                                  <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
                                   <span className={styles['icon-views']}>
                                       <FontAwesomeIcon icon={faEye} />
                                       {job.view}
                                   </span>
-
                                   <div className={styles['img-company']}>
                                       <img src={job.company.images[0]?.image_company} alt={job.company.name} />
                                   </div>
-
                                   <div className={styles['content-company']}>
                                       <div className={styles['company-location']}>
                                           <h3 className={styles['title-company']} title={job.title}>
@@ -223,7 +197,6 @@ function Home() {
                                           <span className={styles['name-company']} title={job.company.name}>
                                               {job.company.name}
                                           </span>
-
                                           <span className={styles['salary']} title={job.salary}>
                                               {job.salary_from === 0 && job.salary_to === 0 ? (
                                                   <>Thỏa thuận</>
@@ -231,7 +204,6 @@ function Home() {
                                                   <> {formatSalary(job.salary)}</>
                                               )}
                                           </span>
-
                                           <span className={styles['positon']}>
                                               <p> {job.jobLevel.name.join(', ')}</p>
                                           </span>
@@ -244,7 +216,7 @@ function Home() {
                               </div>
                           ))}
                 </div>
-                {/* Phân trang */}
+
                 <div className={styles['pagination']}>
                     <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                         <FontAwesomeIcon icon={faChevronLeft} />
@@ -259,15 +231,10 @@ function Home() {
             </section>
 
             <Regional_Recruitment />
-
             <ChartSection />
-
             <SearchTypes />
-
             <OutstandingTool />
-
             <NotificationCard />
-
             <OutstandingCompany />
         </div>
     );

@@ -2,12 +2,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
-import type { User } from '../../../../interface/User';
+import type { User } from '../../../interface/User';
 import styles from './UserControl.module.scss';
 import { useParams, usePathname } from 'next/navigation';
 import { showToastError, showToastSuccess } from 'app/Ultils/toast';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { jwtDecode } from 'jwt-decode';
+import { useApi } from '../../../Context/ApiContext/ApiContext';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
@@ -20,36 +22,51 @@ export default function UserControl() {
     const [duration, setDuration] = useState(0);
     const [timeLeft, setTimeLeft] = useState<string>('0:00');
 
-    const params = useParams();
     const pathname = usePathname();
-    const userId = params?.userId;
+    const { fetchUser } = useApi();
+
+    //Lấy userId từ token
+    const [userId, setUserId] = useState<string | null>(null);
 
     // Image
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+
+    useEffect(() => {
+        const accessToken = localStorage.getItem('access_token');
+
+        if (!accessToken) {
+            showToastError('Vui lòng đăng nhập để xem thông tin');
+            return;
+        }
+
+        try {
+            const decoded: any = jwtDecode(accessToken);
+            const userIdFromToken = decoded.userId;
+            setUserId(userIdFromToken);
+
+            const fetchUserData = async () => {
+                try {
+                    const userData = await fetchUser();
+                    setUser(userData);
+                } catch (error) {
+                    console.error('Lỗi khi lấy dữ liệu user:', error);
+                    showToastError('Không thể tải thông tin người dùng');
+                }
+            };
+
+            fetchUserData();
+        } catch (error) {
+            console.error('Lỗi khi giải mã token:', error);
+            showToastError('Token không hợp lệ');
+        }
+    }, [fetchUser]);
 
     const handleIconClick = () => {
         if (fileInputRef.current) {
             fileInputRef.current?.click();
         }
     };
-
-    useEffect(() => {
-        if (!userId) return;
-
-        const fetchUser = async () => {
-            try {
-                const response = await fetch(`${apiUrl}/users/${userId}`);
-                if (!response.ok) throw new Error('Không thể lấy dữ liệu user');
-                const data: User = await response.json();
-                setUser(data);
-            } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu user:', error);
-            }
-        };
-
-        fetchUser();
-    }, [userId]);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -197,25 +214,25 @@ export default function UserControl() {
 
                 <div className={styles.control_link}>
                     <a
-                        href={`/Auth/User/${userId}/tong_quan_tai_khoan`}
+                        href={`/Auth/User/tong_quan_tai_khoan`}
                         className={pathname.includes('tong_quan_tai_khoan') ? styles.active : ''}
                     >
                         Tổng quan
                     </a>
                     <a
-                        href={`/Auth/User/${userId}/ho_so_cua_toi`}
+                        href={`/Auth/User/ho_so_cua_toi`}
                         className={pathname.includes('ho_so_cua_toi') ? styles.active : ''}
                     >
                         Hồ sơ của tôi
                     </a>
                     <a
-                        href={`/Auth/User/${userId}/viec_lam_cua_toi`}
+                        href={`/Auth/User/viec_lam_cua_toi`}
                         className={pathname.includes('viec_lam_cua_toi') ? styles.active : ''}
                     >
                         Việc làm của tôi
                     </a>
                     <a
-                        href={`/Auth/User/${userId}/quan_ly_tai_khoan`}
+                        href={`/Auth/User/quan_ly_tai_khoan`}
                         className={pathname.includes('quan_ly_tai_khoan') ? styles.active : ''}
                     >
                         Quản lý tài khoản
@@ -242,7 +259,10 @@ export default function UserControl() {
 
                         <div className={styles.podcardContent}>
                             <h3>Mất động lực làm việc </h3>
-                            <a target="_blank" href="https://www.tiktok.com/@bob.setuplivestream?is_from_webapp=1&sender_device=pc">
+                            <a
+                                target="_blank"
+                                href="https://www.tiktok.com/@bob.setuplivestream?is_from_webapp=1&sender_device=pc"
+                            >
                                 Cre: Bob 🤝
                             </a>
                             <p>27 Tháng 02 năm 2025 - Jobmarket</p>

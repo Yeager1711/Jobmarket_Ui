@@ -120,9 +120,10 @@ function Register() {
                 body: JSON.stringify({
                     firstName: formData.firstName,
                     lastName: formData.lastName,
-                    phoneNumber: formattedPhoneNumber, // Gửi số điện thoại với mã quốc gia
+                    phoneNumber: formattedPhoneNumber,
                     email: formData.email,
                     password: formData.password,
+                    nationality: formData.nationality
                 }),
             });
 

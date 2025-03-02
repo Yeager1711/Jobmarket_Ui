@@ -1,0 +1,228 @@
+.account_overview {
+    background: #f7f8fa;
+    min-height: 100vh;
+
+    .wapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+
+        .account_overview__details {
+            flex: 1 1 90rem;
+
+            .account_overview__header {
+                background: var(--bg-White);
+                padding: 2rem;
+                border-radius: .5rem;
+                display: flex;
+                gap: 2rem;
+
+                .image_user {
+                    max-width: 10rem;
+                    height: 10rem;
+
+                    img {
+                        width: 10rem;
+                        height: 10rem;
+                        object-fit: cover;
+                        overflow: hidden;
+                        border-radius: 50%;
+                    }
+                }
+
+                .user_infomation {
+                    width: 100%;
+
+                    h2 {
+                        font-size: 2.5rem;
+                    }
+
+                    .years_of_experience {
+                        font-size: 1.3rem;
+                        padding: .6rem 0;
+                        color: var(--textBlur);
+                    }
+
+                    .flex_info {
+                        display: flex;
+                        justify-content: space-between;
+                        flex-wrap: wrap;
+                        gap: 1.5rem;
+                        width: 100%;
+
+                        .box_info {
+                            flex: 1 1 8rem;
+                            width: 100%;
+
+                            .box_info__item {
+                                display: flex;
+                                gap: .4rem;
+                                padding: .5rem 0;
+                                font-size: 1.4rem;
+                                font-weight: var(--weight500);
+
+                                p {
+                                    font-weight: var(--weight400);
+                                    color: var(--textBlur);
+                                }
+
+                                svg {
+                                    width: 2rem;
+                                    margin-right: .5rem;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .account_overview__MainContent {
+                background: var(--bg-White);
+                padding: 2rem;
+                border-radius: .5rem;
+                margin-top: 1rem;
+
+                h2 {
+                    font-size: 1.7rem;
+                }
+
+                .box_mainContent {
+                    margin-top: 1rem;
+
+                    .mainContent_item {
+                        display: flex;
+                        align-items: center;
+                        gap: 2rem;
+                        color: var(--textBlur);
+                        padding: .8rem 0;
+                        font-size: 1.3rem;
+
+                        p {
+                            color: var(--colorBlackText);
+                            font-weight: var(--weight550);
+                        }
+                    }
+                }
+            }
+
+            .Level_Profile__Complete {
+                background: var(--bg-White);
+                padding: 2rem;
+                border-radius: .5rem;
+                margin-top: 1rem;
+
+                h2 {
+                    font-size: 1.7rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                }
+
+                .progress_container {
+                    margin-bottom: 1rem;
+
+                    .progress_bar {
+                        position: relative;
+                        width: 100%;
+                        height: 10px;
+                        background: #e0e0e0;
+                        border-radius: 5px;
+
+                        .progress_fill {
+                            height: 100%;
+                            background: #ff6f61;
+                            border-radius: 5px;
+                            position: relative;
+                            transition: width 0.3s ease-in-out;
+
+                            .progress_label {
+                                position: absolute;
+                                top: -25px;
+                                right: 0;
+                                font-size: 1.2rem;
+                                font-weight: 600;
+                                color: #ff6f61;
+                            }
+                        }
+                    }
+
+                    .progress_milestones {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-top: 5px;
+                        font-size: 1.2rem;
+                        color: #666;
+                    }
+                }
+
+                .progress_info {
+                    margin-bottom: 1rem;
+                    font-size: 1.3rem;
+                    color: #333;
+
+                    svg {
+                        margin-left: 5px;
+                    }
+                }
+
+                .progress_actions {
+                    display: flex;
+                    gap: 1rem;
+
+                    .action_button {
+                        background: #fff;
+                        border: 1px solid #e0e0e0;
+                        border-radius: 5rem;
+                        padding: 0.8rem 1.5rem;
+                        font-size: 1.3rem;
+                        color: #333;
+                        cursor: pointer;
+                        transition: background 0.3s;
+
+                        &:hover {
+                            background: #f0f0f0;
+                        }
+                    }
+                }
+            }
+
+            .box_infoBasic {
+                .box_infoBasic__item {
+                    background: var(--bg-White);
+                    padding: 2rem;
+                    border-radius: .5rem;
+                    margin-top: 1rem;
+
+                    h2 {
+                        font-size: 1.7rem;
+                        font-weight: 600;
+                        margin-bottom: 1rem;
+                    }
+
+                    span {
+                        font-size: 1.3rem;
+                        color: var(--textBlur);
+                    }
+
+                    p {
+                        display: flex;
+                        align-items: center;
+                        gap: .5rem;
+                        font-size: 1.3rem;
+                        color: #005aff;
+                        font-weight: var(--weight500);
+                        margin-top: 1.5rem;
+                        cursor: pointer;
+
+                        svg {
+                            height: 1rem;
+                            width: 1rem;
+                            border: .1rem solid #005aff;
+                            padding: .3rem;
+                            border-radius: 50%;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,4 +1,3 @@
-// BannerSearch.jsx
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CiLocationOn } from 'react-icons/ci';
@@ -6,18 +5,13 @@ import styles from './BannerSearch.module.scss';
 import { Job } from 'app/interface/Job';
 import { formatSalary } from '../../../Ultils/formatSalary';
 import { Swiper, SwiperSlide } from 'swiper/react';
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import { Pagination } from 'swiper/modules';
-
 import { PiDiamondsFour } from 'react-icons/pi';
-
 import HotJob from 'app/Ultils/HotJob/HotJob';
-
 import BannerSearch_Skeleton from './BannerSearch_skeleton';
-
-const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+import { useApi } from '../../../Context/ApiContext/ApiContext'; // Import useApi
 
 const BannerSearch = () => {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -31,18 +25,18 @@ const BannerSearch = () => {
     const animationInterval = 10000;
     const [currentJobIndex, setCurrentJobIndex] = useState(0);
 
+    const { fetchAllJobs } = useApi(); // Sử dụng useApi để lấy fetchAllJobs
+
     const toggleVisible = () => {
         setIsVisible(!isVisible);
     };
 
     useEffect(() => {
-        const fetchAllJobs = async () => {
+        const loadAllJobs = async () => {
             try {
-                const response = await fetch(`${apiUrl}/jobs/all-jobs`);
-                const data: { data: Job[]; totalItems: number } = await response.json();
-
+                const data = await fetchAllJobs(); // Gọi API từ context
                 const sortedData = data.data.sort(
-                    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                    (a: Job, b: Job) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
                 );
                 setAllJobData(sortedData);
                 setLoading(false);
@@ -52,11 +46,10 @@ const BannerSearch = () => {
             }
         };
 
-        fetchAllJobs();
-    }, []);
+        loadAllJobs();
+    }, [fetchAllJobs]);
 
     const handleSearch = () => {
-        // Kiểm tra nếu không nhập gì và không chọn địa điểm
         if (!searchTerm.trim() && !selectedLocation) {
             setFilteredJobs([]);
             setIsExpanded(false);
@@ -65,7 +58,6 @@ const BannerSearch = () => {
 
         let results = allJobData;
 
-        // Lọc theo từ khóa nếu có
         if (searchTerm.trim()) {
             results = results.filter((job) => {
                 const titleMatch = job.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -81,7 +73,6 @@ const BannerSearch = () => {
                 const jobTypeNameMatch = job.jobType.name.some((name) =>
                     name.toLowerCase().includes(searchTerm.toLowerCase())
                 );
-
                 const companyNameMatch = job.company.name.toLowerCase().includes(searchTerm.toLowerCase());
 
                 return (
@@ -95,23 +86,17 @@ const BannerSearch = () => {
             });
         }
 
-        // Lọc theo địa điểm nếu có
         if (selectedLocation) {
             results = results.filter((job) =>
-                // Kiểm tra xem tên địa phương có chứa địa điểm đã chọn hay không
                 job.workLocation.district.name.toLowerCase().includes(selectedLocation.toLowerCase())
             );
         }
 
         results.sort((a, b) => {
-            if(a.Hot_Job !== 'Null' || b.Hot_Job === 'Null') {
-                return -1;
-            }else  if(a.Hot_Job === 'Null' || b.Hot_Job !== 'Null') {
-                return 1
-            }
-
-            return 0
-        })
+            if (a.Hot_Job !== 'Null' && b.Hot_Job === 'Null') return -1;
+            if (a.Hot_Job === 'Null' && b.Hot_Job !== 'Null') return 1;
+            return 0;
+        });
 
         setFilteredJobs(results);
         setIsExpanded(true);
@@ -137,7 +122,6 @@ const BannerSearch = () => {
         );
     });
 
-    // Animation logic
     useEffect(() => {
         if (jobsToday.length === 0) return;
 
@@ -146,7 +130,7 @@ const BannerSearch = () => {
         }, animationInterval);
 
         return () => clearInterval(interval);
-    }, [jobsToday]);
+    }, [jobsToday, allJobData.length]);
 
     const visibleJobs = allJobData.slice(currentJobIndex, currentJobIndex + 5);
 
@@ -171,19 +155,16 @@ const BannerSearch = () => {
                                         >
                                             {job.Hot_Job && job.Hot_Job !== 'Null' && (
                                                 <div className={styles.Remarkable}>
-                                                    {' '}
                                                     <PiDiamondsFour />
                                                     {job.Hot_Job}
                                                 </div>
                                             )}
-
                                             <div className={styles['image-company']}>
                                                 <img
                                                     src={job.company.images[0]?.image_company}
                                                     alt={job.company.name}
                                                 />
                                             </div>
-
                                             <div style={{ flex: '1 1' }}>
                                                 <div className={styles['job-title']} title={job.title}>
                                                     <span>{job.title}</span>
@@ -208,13 +189,11 @@ const BannerSearch = () => {
                                             <img src="./slides/slide4.jpg" alt="" />
                                         </div>
                                     </SwiperSlide>
-
                                     <SwiperSlide>
                                         <div className={styles.images_slide}>
                                             <img src="./slides/slide2.jpg" alt="" />
                                         </div>
                                     </SwiperSlide>
-
                                     <SwiperSlide>
                                         <div className={styles.images_slide}>
                                             <img src="./slides/slide3.jpg" alt="" />
@@ -222,17 +201,15 @@ const BannerSearch = () => {
                                     </SwiperSlide>
                                 </Swiper>
                             </div>
-
                             <div className={styles.box__content_today}>
                                 <div className={styles.current_today}>
                                     <h3>
                                         Thị trường tìm việc hôm nay:{' '}
                                         <span>
                                             <p>{formattedDate}</p>
-                                        </span>{' '}
+                                        </span>
                                     </h3>
                                 </div>
-
                                 <div className={styles.current_today_data}>
                                     <span>
                                         Việc làm đang tuyển dụng: <p>{allJobData.length}</p>
@@ -288,7 +265,6 @@ const BannerSearch = () => {
                                     Kết quả tìm kiếm: {filteredJobs.length}
                                 </span>
                             )}
-
                             <div className={styles.search_result__container__wrapper}>
                                 {isExpanded && filteredJobs.length > 0 ? (
                                     filteredJobs.map((job) => (
@@ -297,7 +273,7 @@ const BannerSearch = () => {
                                             key={job.jobId}
                                             className={styles['search-result-item']}
                                         >
-                                            <HotJob isHot={job.Hot_Job !== 'Null'}> {job.Hot_Job}</HotJob>
+                                            <HotJob isHot={job.Hot_Job !== 'Null'}>{job.Hot_Job}</HotJob>
                                             <div className={styles['image-company__result']}>
                                                 <img
                                                     src={job.company.images[0]?.image_company}

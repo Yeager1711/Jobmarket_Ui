@@ -23,7 +23,7 @@ function Companies() {
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        const fetchAllJobs = async () => {
+        const fetchAllJobsByCompanyName = async () => {
             try {
                 const response = await fetch(`${apiUrl}/jobs/all-jobs`);
                 const data = await response.json();
@@ -50,7 +50,7 @@ function Companies() {
             }
         };
 
-        fetchAllJobs();
+        fetchAllJobsByCompanyName();
     }, []);
 
     const filteredCompanies = Object.keys(groupedCompanies).filter((key) =>

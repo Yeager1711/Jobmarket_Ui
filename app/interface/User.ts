@@ -14,6 +14,8 @@ export interface User {
     jobTitle?: string;
     industry?: string;
     experienceLevel?: string;
+    yearOfNumberExperience: string;
+    expectedSalary: number;
     skills?: string;
     education?: string;
     isJobSeeker: boolean;
@@ -22,5 +24,5 @@ export interface User {
     updatedAt: string;
     lastLogin?: string;
     status: string;
-    profileCompletion: number
+    profileCompletion: string
 }

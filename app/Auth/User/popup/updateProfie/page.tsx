@@ -1,12 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import styles from './updateProfie.module.scss';
-import { showToastSuccess, showToastError } from 'app/Ultils/toast';
-import axios from 'axios';
+import { showToastError } from 'app/Ultils/toast';
 import Select from 'react-select';
 import { parsePhoneNumberFromString, getCountryCallingCode } from 'libphonenumber-js';
-
-const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+import { useApi } from '../../../../Context/ApiContext/ApiContext';
 
 interface UpdateProfileProps {
     isOpen: boolean;
@@ -25,9 +23,25 @@ interface UpdateProfileProps {
         highestDegree: string;
         expectedSalary: number;
         phoneNumber: string;
+        yearOfNumberExperience: string;
     };
-    onUpdate: (updatedUser: any) => void;
 }
+
+const yearOfNumberExperienceOptions = [
+    { value: 'Chưa có kinh nghiệm', label: 'Chưa có kinh nghiệm' },
+    { value: 'Dưới 1 năm', label: 'Dưới 1 năm' },
+    { value: '1 năm', label: '1 năm' },
+    { value: '2 năm', label: '2 năm' },
+    { value: '3 năm', label: '3 năm' },
+    { value: '4 năm', label: '4 năm' },
+    { value: '5 năm', label: '5 năm' },
+    { value: '6 năm', label: '6 năm' },
+    { value: '7 năm', label: '7 năm' },
+    { value: '8 năm', label: '8 năm' },
+    { value: '9 năm', label: '9 năm' },
+    { value: '10 năm', label: '10 năm' },
+    { value: 'Trên 10 năm', label: 'Trên 10 năm' },
+];
 
 const experienceLevelOptions = [
     { value: 'Thưc tập sinh/Sinh viên', label: 'Thưc tập sinh/Sinh viên' },
@@ -76,6 +90,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
         dateOfBirth: '',
         gender: '',
         phoneNumber: '',
+        yearOfNumberExperience: '',
     });
 
     const [provinces, setProvinces] = useState<{ value: string; label: string }[]>([]);
@@ -86,44 +101,40 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
     const [selectedWard, setSelectedWard] = useState<{ value: string; label: string } | null>(null);
     const [nationalOptions, setNationalOptions] = useState<{ value: string; label: string }[]>([]);
 
-    // Lấy danh sách quốc gia từ API Rest Countries
+    const { updateUserProfile, fetchCountries, fetchProvinces } = useApi();
+
     useEffect(() => {
-        const fetchCountries = async () => {
+        const loadCountries = async () => {
             try {
-                const response = await axios.get('https://restcountries.com/v3.1/all');
-                const countries = response.data.map((country: any) => ({
+                const data = await fetchCountries();
+                const countries = data.map((country: any) => ({
                     value: country.cca2,
                     label: country.name.common,
                 }));
 
-                // Tách Vietnam ra và đặt lên đầu
                 const vietnam = countries.find((country: any) => country.value === 'VN');
                 const otherCountries = countries
-                    .filter((country: any) => country.value !== 'VN') // Loại Vietnam khỏi danh sách
-                    .sort((a: any, b: any) => a.label.localeCompare(b.label)); // Sắp xếp các nước còn lại
-
-                // Ghép lại với Vietnam đứng đầu
+                    .filter((country: any) => country.value !== 'VN')
+                    .sort((a: any, b: any) => a.label.localeCompare(b.label));
                 const sortedCountries = vietnam ? [vietnam, ...otherCountries] : otherCountries;
 
                 setNationalOptions(sortedCountries);
             } catch (error) {
-                console.error('Lỗi khi lấy danh sách quốc gia:', error);
                 setNationalOptions([
-                    { value: 'VN', label: 'Vietnam' }, // Vietnam vẫn đứng đầu trong fallback
+                    { value: 'VN', label: 'Vietnam' },
                     { value: 'US', label: 'United States' },
                     { value: 'JP', label: 'Japan' },
                 ]);
             }
         };
-        fetchCountries();
-    }, []);
+        loadCountries();
+    }, [fetchCountries]);
 
-    // Lấy danh sách tỉnh/thành phố từ API
     useEffect(() => {
-        const fetchProvinces = async () => {
+        const loadProvinces = async () => {
             try {
-                const response = await axios.get('https://provinces.open-api.vn/api/?depth=2');
-                const provinceOptions = response.data.map((province: any) => ({
+                const data = await fetchProvinces();
+                const provinceOptions = data.map((province: any) => ({
                     value: province.code,
                     label: province.name,
                     districts: province.districts,
@@ -133,10 +144,9 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                 console.error('Lỗi khi lấy danh sách tỉnh/thành phố:', error);
             }
         };
-        fetchProvinces();
-    }, []);
+        loadProvinces();
+    }, [fetchProvinces]);
 
-    // Hàm chuẩn hóa số điện thoại
     const normalizePhoneNumber = (phone: string, countryCode: string) => {
         const phoneNumber = parsePhoneNumberFromString(phone, countryCode as any);
         if (phoneNumber && phoneNumber.isValid()) {
@@ -147,7 +157,6 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
-
         let formattedValue = value;
         if (name === 'expectedSalary') {
             const numericValue = value.replace(/\D/g, '');
@@ -203,13 +212,75 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
         }));
     };
 
+    const handleExperienceLevelChange = (selectedOption: any) => {
+        const newExperienceLevel = selectedOption?.value || '';
+        setFormData((prev) => {
+            let newYearOfNumberExperience = prev.yearOfNumberExperience;
+
+            // Nếu chọn "Mới ra trường", giới hạn "Dưới 1 năm"
+            if (newExperienceLevel === 'Mới ra trường' && prev.yearOfNumberExperience !== 'Dưới 1 năm') {
+                newYearOfNumberExperience = 'Dưới 1 năm';
+            }
+            // Nếu chọn "Thực tập sinh/Sinh viên", xóa kinh nghiệm
+            if (newExperienceLevel === 'Thưc tập sinh/Sinh viên') {
+                newYearOfNumberExperience = 'Chưa có kinh nghiệm';
+            }
+
+            if (
+                ['Nhân viên', 'Trưởng phòng', 'Giám đốc và cấp cao hơn'].includes(newExperienceLevel) &&
+                newYearOfNumberExperience === 'Chưa có kinh nghiệm'
+            ) {
+                newYearOfNumberExperience = '';
+            }
+
+            return {
+                ...prev,
+                experienceLevel: newExperienceLevel,
+                yearOfNumberExperience: newYearOfNumberExperience,
+            };
+        });
+    };
+
+    const handleYearOfNumberExperienceChange = (selectedOption: any) => {
+        const newYearOfNumberExperience = selectedOption?.value || '';
+        setFormData((prev) => ({ ...prev, yearOfNumberExperience: newYearOfNumberExperience }));
+    };
+
+    // Lọc tùy chọn yearOfNumberExperience dựa trên experienceLevel
+    const getFilteredYearOptions = () => {
+        if (formData.experienceLevel === 'Mới ra trường') {
+            return yearOfNumberExperienceOptions.map((option) => ({
+                ...option,
+                isDisabled: option.value !== 'Dưới 1 năm', 
+            }));
+        }
+        if (formData.experienceLevel === 'Thưc tập sinh/Sinh viên') {
+            return yearOfNumberExperienceOptions.map((option) => ({
+                ...option,
+                isDisabled: true, // Disable toàn bộ
+            }));
+        }
+
+        if (['Nhân viên', 'Trưởng phòng', 'Giám đốc và cấp cao hơn'].includes(formData.experienceLevel)) {
+            return yearOfNumberExperienceOptions.map((option) => ({
+                ...option,
+                isDisabled: option.value === 'Chưa có kinh nghiệm', // Disable "Chưa có kinh nghiệm"
+            }));
+        }
+        
+        return yearOfNumberExperienceOptions; // Không giới hạn cho cấp bậc Nhân viên trở lên
+    };
+
     const handleSubmit = async (e: any) => {
         e.preventDefault();
 
         console.log('📌 Dữ liệu formData trước khi gửi:', formData);
 
         const access_token = localStorage.getItem('access_token');
-        if (!access_token) return console.warn('⚠️ Không tìm thấy token, hủy request.');
+        if (!access_token) {
+            console.warn('⚠️ Không tìm thấy token, hủy request.');
+            return;
+        }
 
         try {
             const changedData: any = {};
@@ -238,32 +309,10 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
 
             console.log('📌 Dữ liệu thay đổi gửi lên backend:', changedData);
 
-            const response = await axios.put(`${apiUrl}/users/updateProfile`, changedData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${access_token}`,
-                },
-                withCredentials: true,
-            });
-
-            console.log('response: ', response);
-            showToastSuccess('Cập nhật hồ sơ thành công!');
+            await updateUserProfile(changedData);
             onClose();
-        } catch (error: any) {
-            console.error('❌ Lỗi API:', error);
-            if (error.response) {
-                console.error('📌 Chi tiết lỗi:', error.response.data);
-                if (error.response.status === 409) {
-                    showToastError('❌ Số điện thoại đã được sử dụng bởi người dùng khác.');
-                    return;
-                }
-                const errorMessage = error.response.data?.message || 'Lỗi không xác định từ server.';
-                showToastError(`❌ ${errorMessage}`);
-            } else if (error.request) {
-                showToastError('❌ Máy chủ không phản hồi, vui lòng thử lại.');
-            } else {
-                showToastError('❌ Có lỗi xảy ra, vui lòng thử lại.');
-            }
+        } catch (error) {
+            // Lỗi đã được xử lý trong context
         }
     };
 
@@ -353,7 +402,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                         gender: selectedOption?.value || '',
                                     }))
                                 }
-                                placeholder={user?.gender || 'Chọn giới tính...'}
+                                placeholder={user?.gender || ''}
                             />
                         </div>
                     </div>
@@ -395,22 +444,33 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                 )}
                             </div>
 
-                            <div className={styles.input_box}>
-                                <label>Mức độ kinh nghiệm:</label>
-                                <Select
-                                    className={styles.selectExperience}
-                                    options={experienceLevelOptions}
-                                    value={experienceLevelOptions.find(
-                                        (option) => option.value === formData.experienceLevel
-                                    )}
-                                    onChange={(selectedOption) =>
-                                        setFormData((prev) => ({
-                                            ...prev,
-                                            experienceLevel: selectedOption?.value || '',
-                                        }))
-                                    }
-                                    placeholder={user?.experienceLevel || 'Chọn mức độ kinh nghiệm...'}
-                                />
+                            <div style={{ display: 'flex', gap: '2rem' }}>
+                                <div className={styles.input_box}>
+                                    <label>Mức độ kinh nghiệm:</label>
+                                    <Select
+                                        className={styles.selectExperience}
+                                        options={experienceLevelOptions}
+                                        value={experienceLevelOptions.find(
+                                            (option) => option.value === formData.experienceLevel
+                                        )}
+                                        onChange={handleExperienceLevelChange}
+                                        placeholder={user?.experienceLevel || ''}
+                                    />
+                                </div>
+
+                                <div className={styles.input_box}>
+                                    <label>Số năm kinh nghiệm:</label>
+                                    <Select
+                                        className={styles.selectExperience}
+                                        options={getFilteredYearOptions()}
+                                        value={yearOfNumberExperienceOptions.find(
+                                            (option) => option.value === formData.yearOfNumberExperience
+                                        )}
+                                        onChange={handleYearOfNumberExperienceChange}
+                                        placeholder={user?.yearOfNumberExperience || ''}
+                                        isOptionDisabled={(option: any) => option.isDisabled || false}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -423,7 +483,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                 name="industry"
                                 value={formData.industry}
                                 onChange={handleChange}
-                                placeholder={user?.industry || 'Nhập lĩnh vực'}
+                                placeholder={user?.industry || ''}
                             />
                         </div>
 
@@ -437,12 +497,12 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                     formData.jobTitle.split(', ').includes(option.value)
                                 )}
                                 onChange={handleExperienceJobTitleChange}
-                                placeholder={(user?.jobTitle || []).join(', ') || 'Chọn vị trí mong muốn'}
+                                placeholder={(user?.jobTitle || []).join(', ') || ''}
                             />
                         </div>
 
                         <div className={styles.input_box}>
-                            <label>Mức lương mong muốn: VNĐ/Tháng</label>
+                            <label>Mức lương mong muốn: (VNĐ/Tháng  theo hệ số lương NET)</label>
                             <input
                                 type="text"
                                 name="expectedSalary"
@@ -451,7 +511,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                 placeholder={
                                     user?.expectedSalary
                                         ? new Intl.NumberFormat('vi-VN').format(user.expectedSalary)
-                                        : 'Nhập mức lương'
+                                        : ''
                                 }
                             />
                         </div>
@@ -465,7 +525,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                 name="education"
                                 value={formData.education}
                                 onChange={handleChange}
-                                placeholder={user?.education || 'Nhập học vấn'}
+                                placeholder={user?.education || ''}
                             />
                         </div>
 
@@ -481,7 +541,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                         highestDegree: selectedOption?.value || '',
                                     }))
                                 }
-                                placeholder={user?.highestDegree || 'Chọn bằng cấp...'}
+                                placeholder={user?.highestDegree || ''}
                             />
                         </div>
 
@@ -492,7 +552,7 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
                                 name="skills"
                                 value={formData.skills}
                                 onChange={handleChange}
-                                placeholder={user?.skills || 'Nhập kỹ năng'}
+                                placeholder={user?.skills || ''}
                             />
                         </div>
                     </div>
