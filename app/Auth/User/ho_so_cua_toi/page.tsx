@@ -16,6 +16,7 @@ import { useApi } from '../../../Context/ApiContext/ApiContext';
 import { User } from '../../../interface/User';
 import { showToastError } from 'app/Ultils/toast';
 import UpdateProfileModal from '../popup/updateProfie/page';
+import { PhoneNumber } from 'libphonenumber-js';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
@@ -27,6 +28,7 @@ function Profile() {
 
     // Hàm để xác định nhãn của thanh tiến trình dựa trên phần trăm
     const getProgressLabel = (percentage: number) => {
+        if (percentage <= 10) return 'Thấp';
         if (percentage <= 25) return 'Cơ bản';
         if (percentage <= 50) return 'Trung bình';
         if (percentage <= 75) return 'Tương đối hoàn chỉnh';
@@ -59,6 +61,17 @@ function Profile() {
         }
     }, [fetchUserData]);
 
+    // Định dạng số điện thoai
+    const formatPhoneNumber = (phoneNumber: string) => {
+        if (!phoneNumber || phoneNumber.trim() === '') return '';
+
+        // Lấy mã quốc gia (VD: +84) và phần số còn lại
+        const countryCode = phoneNumber.substring(0, 3); // +84
+        const number = phoneNumber.substring(3); // 333409892
+
+        return `${countryCode}-${number}`; // +84-333409892
+    };
+    
     if (loading) {
         return <div>Đang tải...</div>;
     }
@@ -79,11 +92,7 @@ function Profile() {
                     <div className={styles.account_overview__header}>
                         <div className={styles.image_user}>
                             <img
-                                src={
-                                    user.image
-                                        ? `${apiUrl}${user.image}`
-                                        : 'https://www.vietnamworks.com/_next/image?url=https%3A%2F%2Fimages.vietnamworks.com%2Fpictureofresume%2Ff5%2F1740707804101225115.png&w=256&q=75'
-                                }
+                                src={user.image ? `${apiUrl}${user.image}` : '/images/user/user_default.png'}
                                 alt={`${user.firstName} ${user.lastName}`}
                             />
                         </div>
@@ -113,8 +122,8 @@ function Profile() {
                                         Bằng cấp: <p>{user.highestDegree}</p>
                                     </span>
                                     <span className={styles.box_info__item}>
-                                        <FontAwesomeIcon icon={faPhone} />
-                                        Số điện thoại: <p>{user.phoneNumber}</p>
+                                        <FontAwesomeIcon icon={faPhone} /> Số điện thoại:{' '}
+                                        <p>{user.phoneNumber ? formatPhoneNumber(user.phoneNumber) : 'N/A'}</p>
                                     </span>
                                 </div>
                             </div>
@@ -140,7 +149,9 @@ function Profile() {
                         <div className={styles.progress_container}>
                             <div className={styles.progress_bar}>
                                 <div className={styles.progress_fill} style={{ width: `${profileCompletion}%` }}>
-                                    <span className={styles.progress_label}>{user.profileCompletion}</span>
+                                    <span className={styles.progress_label}>
+                                        <span>{user.profileCompletion}</span>
+                                    </span>
                                 </div>
                             </div>
                             <div className={styles.progress_milestones}>

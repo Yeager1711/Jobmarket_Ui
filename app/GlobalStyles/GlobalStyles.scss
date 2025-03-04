@@ -146,6 +146,7 @@ h3 {
 }
 
 
+
 .swiper-button-next {
     right: -1rem !important;
     z-index: 999 !important;
@@ -175,10 +176,36 @@ h3 {
 .mySwiper_companyslide {
     overflow: visible !important;
 }
+
 .swiper-pagination-bullet.swiper-pagination-bullet-active {
     width: 3rem !important;
     height: .7rem !important;
     border-radius: .5rem !important;
+}
+
+.mySwiper_popupUpdate {
+    overflow: hidden !important;
+    height: 40rem;
+
+    .swiper-button-prev {
+        left: 20% !important;
+        z-index: 999 !important;
+        top: 38rem !important;
+
+        &::after {
+            box-shadow: none !important;
+        }
+    }
+
+    .swiper-button-next {
+        right: 20% !important;
+        z-index: 999 !important;
+        top: 38rem !important;
+
+        &::after {
+            box-shadow: none !important;
+        }
+    }
 }
 
 .hot_job {
@@ -193,24 +220,24 @@ h3 {
 
 
     p {
-      font-size: 1.3rem;
-      text-transform: capitalize;
-      background: red;
-      color: var(--colorWhiteText);
-      margin-top: -.8rem;
-      padding: .5rem 2rem .5rem 1rem;
-      border-bottom-right-radius: 5rem;
+        font-size: 1.3rem;
+        text-transform: capitalize;
+        background: red;
+        color: var(--colorWhiteText);
+        margin-top: -.8rem;
+        padding: .5rem 2rem .5rem 1rem;
+        border-bottom-right-radius: 5rem;
 
-      svg {
-        margin-bottom: -.3rem;
-      }
+        svg {
+            margin-bottom: -.3rem;
+        }
 
     }
 
     &::before {
-      content: '';
-      position: absolute;
-      background: red;
-      width: 20rem;
+        content: '';
+        position: absolute;
+        background: red;
+        width: 20rem;
     }
-  }
+}

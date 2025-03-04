@@ -16,6 +16,8 @@ interface ApiContextType {
     updateUserProfile: (data: any) => Promise<any>;
     fetchCountries: () => Promise<any>;
     fetchProvinces: () => Promise<any>;
+    updateEmail: (newEmail: string, currentPassword: string) => Promise<any>;
+    changePassword: (currentPassword: string, newPassword: string) => Promise<any>;
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -178,6 +180,44 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     }, []);
 
+    //API update email
+    const updateEmail = useCallback(
+        async (newEmail: string, currentPassword: string) => {
+            try {
+                const headers = getAuthHeaders();
+                const response = await axios.put(
+                    `${apiUrl}/users/update-email`,
+                    { newEmail, currentPassword },
+                    { headers }
+                );
+                return response.data;
+            } catch (error: any) {
+                console.error('Lỗi khi cập nhật email:', error);
+                throw error; //Giao diện xử lý lỗi
+            }
+        },
+        [accessToken]
+    );
+
+    //API change password
+    const changePassword = useCallback(
+        async (currentPassword: string, newPassword: string) => {
+            try {
+                const headers = getAuthHeaders();
+                const response = await axios.put(
+                    `${apiUrl}/users/change-password`, // Giả định endpoint đổi mật khẩu
+                    { currentPassword, newPassword },
+                    { headers }
+                );
+                return response.data;
+            } catch (error: any) {
+                console.error('Lỗi khi đổi mật khẩu:', error);
+                throw error;
+            }
+        },
+        [accessToken]
+    );
+
     return (
         <ApiContext.Provider
             value={{
@@ -190,6 +230,8 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 updateUserProfile,
                 fetchCountries,
                 fetchProvinces,
+                updateEmail,
+                changePassword,
             }}
         >
             {children}

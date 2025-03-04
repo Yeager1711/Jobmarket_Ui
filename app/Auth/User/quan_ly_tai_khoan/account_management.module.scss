@@ -1,0 +1,113 @@
+.account_management {
+    background: #f7f8fa;
+    min-height: 100vh;
+
+    .wapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+
+        .account_management__details {
+            flex: 1 1 90rem;
+
+            .account_management__header {
+                background: var(--bg-White);
+                padding: 2rem;
+                border-radius: 0.5rem;
+                display: flex;
+                gap: 2rem;
+
+                h2 {
+                    font-size: 2.5rem;
+                    font-weight: var(--weight500);
+                }
+            }
+
+            .account_management__MainContent {
+                background: var(--bg-White);
+                padding: 2rem;
+                border-radius: 0.5rem;
+                margin-top: 1rem;
+
+                h3 {
+                    font-size: 1.4rem;
+                    text-transform: capitalize;
+                }
+
+                .Email_access__text {
+                    display: flex;
+                    align-items: center;
+                    gap: .5rem;
+                    padding: 1.5rem 0;
+                    margin-left: 2.5rem;
+                    font-size: 1.3rem;
+                    color: var(--textBlur);
+
+                    p {
+                        font-weight: var(--weight500);
+                        color: var(--colorBlackText);
+                    }
+                }
+
+                .flex_control_button {
+                    width: 100%;
+                    position: relative;
+                    margin-top: 1.5rem;
+
+                    .span_text {
+                        position: absolute;
+                        right: 1rem;
+                        bottom: 0;
+
+                        span {
+                            text-align: end;
+                            padding: 0 1rem;
+                            color: #005aff;
+                            font-size: 1.3rem;
+                            cursor: pointer;
+
+                            &:nth-child(1) {
+                                border-right: .1rem solid #005aff;
+                            }
+
+                            &:nth-child(2) {
+                                border-left: .1rem solid #005aff;
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            .Permanently_delete_account {
+                background: var(--bg-White);
+                padding: 2rem;
+                border-radius: 0.5rem;
+                margin-top: 1rem;
+
+                h3 {
+                    font-size: 1.4rem;
+                    text-transform: capitalize;
+                }
+
+                span {
+                    display: flex;
+                    align-items: center;
+                    gap: .5rem;
+                    padding: 1.5rem 0;
+                    margin-left: 2.5rem;
+                    font-size: 1.3rem;
+                    color: var(--textBlur);
+
+                    p {
+                        &:hover {
+                            text-decoration: underline;
+                            cursor: pointer;
+                            color: #005aff;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

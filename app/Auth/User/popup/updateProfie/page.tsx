@@ -5,6 +5,13 @@ import { showToastError } from 'app/Ultils/toast';
 import Select from 'react-select';
 import { parsePhoneNumberFromString, getCountryCallingCode } from 'libphonenumber-js';
 import { useApi } from '../../../../Context/ApiContext/ApiContext';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface UpdateProfileProps {
     isOpen: boolean;
@@ -78,25 +85,27 @@ const jobTitleOptions = [
 
 function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
     const [formData, setFormData] = useState({
-        jobTitle: '',
-        experienceLevel: '',
-        industry: '',
-        address: '',
-        skills: '',
-        education: '',
-        expectedSalary: '',
-        highestDegree: '',
-        nationality: '',
-        dateOfBirth: '',
-        gender: '',
-        phoneNumber: '',
-        yearOfNumberExperience: '',
+        jobTitle: user?.jobTitle?.join(', ') || '',
+        experienceLevel: user?.experienceLevel || '',
+        industry: user?.industry || '',
+        address: user?.address || '',
+        skills: user?.skills || '',
+        education: user?.education || '',
+        expectedSalary: user?.expectedSalary ? new Intl.NumberFormat('vi-VN').format(user.expectedSalary) : '',
+        highestDegree: user?.highestDegree || '',
+        nationality: user?.nationality || 'VN',
+        dateOfBirth: user?.dateOfBirth || '',
+        gender: user?.gender || '',
+        phoneNumber: user?.phoneNumber || '',
+        yearOfNumberExperience: user?.yearOfNumberExperience || '',
     });
 
-    const [provinces, setProvinces] = useState<{ value: string; label: string }[]>([]);
+    const [provinces, setProvinces] = useState<{ value: string; label: string; districts: any[] }[]>([]);
     const [districts, setDistricts] = useState<{ value: string; label: string }[]>([]);
     const [wards, setWards] = useState<{ value: string; label: string }[]>([]);
-    const [selectedProvince, setSelectedProvince] = useState<{ value: string; label: string } | null>(null);
+    const [selectedProvince, setSelectedProvince] = useState<{ value: string; label: string; districts: any[] } | null>(
+        null
+    );
     const [selectedDistrict, setSelectedDistrict] = useState<{ value: string; label: string } | null>(null);
     const [selectedWard, setSelectedWard] = useState<{ value: string; label: string } | null>(null);
     const [nationalOptions, setNationalOptions] = useState<{ value: string; label: string }[]>([]);
@@ -217,15 +226,12 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
         setFormData((prev) => {
             let newYearOfNumberExperience = prev.yearOfNumberExperience;
 
-            // Nếu chọn "Mới ra trường", giới hạn "Dưới 1 năm"
             if (newExperienceLevel === 'Mới ra trường' && prev.yearOfNumberExperience !== 'Dưới 1 năm') {
                 newYearOfNumberExperience = 'Dưới 1 năm';
             }
-            // Nếu chọn "Thực tập sinh/Sinh viên", xóa kinh nghiệm
             if (newExperienceLevel === 'Thưc tập sinh/Sinh viên') {
                 newYearOfNumberExperience = 'Chưa có kinh nghiệm';
             }
-
             if (
                 ['Nhân viên', 'Trưởng phòng', 'Giám đốc và cấp cao hơn'].includes(newExperienceLevel) &&
                 newYearOfNumberExperience === 'Chưa có kinh nghiệm'
@@ -246,29 +252,26 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
         setFormData((prev) => ({ ...prev, yearOfNumberExperience: newYearOfNumberExperience }));
     };
 
-    // Lọc tùy chọn yearOfNumberExperience dựa trên experienceLevel
     const getFilteredYearOptions = () => {
         if (formData.experienceLevel === 'Mới ra trường') {
             return yearOfNumberExperienceOptions.map((option) => ({
                 ...option,
-                isDisabled: option.value !== 'Dưới 1 năm', 
+                isDisabled: option.value !== 'Dưới 1 năm',
             }));
         }
         if (formData.experienceLevel === 'Thưc tập sinh/Sinh viên') {
             return yearOfNumberExperienceOptions.map((option) => ({
                 ...option,
-                isDisabled: true, // Disable toàn bộ
+                isDisabled: true,
             }));
         }
-
         if (['Nhân viên', 'Trưởng phòng', 'Giám đốc và cấp cao hơn'].includes(formData.experienceLevel)) {
             return yearOfNumberExperienceOptions.map((option) => ({
                 ...option,
-                isDisabled: option.value === 'Chưa có kinh nghiệm', // Disable "Chưa có kinh nghiệm"
+                isDisabled: option.value === 'Chưa có kinh nghiệm',
             }));
         }
-        
-        return yearOfNumberExperienceOptions; // Không giới hạn cho cấp bậc Nhân viên trở lên
+        return yearOfNumberExperienceOptions;
     };
 
     const handleSubmit = async (e: any) => {
@@ -339,224 +342,271 @@ function UpdateProfileModal({ isOpen, onClose, user }: UpdateProfileProps) {
         <div className={styles.modalOverlay} onClick={handleOverlayClick}>
             <div className={styles.modalContent}>
                 <h3>Cập nhật hồ sơ</h3>
-
-                <div className={styles.form}>
-                    <div className={styles.flex_phoneNumber}>
-                        <div className={styles.box_national}>
-                            <div className={styles.input_box}>
-                                <label>Quốc gia:</label>
-                                <Select
-                                    className={styles.selectNational}
-                                    options={nationalOptions}
-                                    value={nationalOptions.find((option) => option.value === formData.nationality)}
-                                    onChange={handleNationalityChange}
-                                    placeholder={user?.nationality || 'Chọn quốc gia...'}
-                                    formatOptionLabel={formatOptionLabel}
-                                />
-                            </div>
-                        </div>
-
-                        <div className={styles.box_phoneNumber}>
-                            <div className={styles.input_box}>
-                                <label>
-                                    Số điện thoại (
-                                    {formData.nationality
-                                        ? `+${getCountryCallingCode(formData.nationality as any)}`
-                                        : '+'}
-                                    )
-                                </label>
-                                <input
-                                    type="text"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber}
-                                    onChange={handleChange}
-                                    placeholder={user?.phoneNumber || 'Enter phone number'}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.box}>
-                        <div className={styles.input_box}>
-                            <label>Ngày sinh:</label>
-                            <input
-                                type="date"
-                                name="dateOfBirth"
-                                value={formData.dateOfBirth}
-                                onChange={handleChange}
-                                placeholder={user?.dateOfBirth || 'Chọn ngày sinh'}
-                            />
-                        </div>
-                    </div>
-
-                    <div className={styles.box}>
-                        <div className={styles.input_box}>
-                            <label>Giới tính:</label>
-                            <Select
-                                className={styles.selectGender}
-                                options={genderOptions}
-                                value={genderOptions.find((option) => option.value === formData.gender)}
-                                onChange={(selectedOption) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        gender: selectedOption?.value || '',
-                                    }))
-                                }
-                                placeholder={user?.gender || ''}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className={styles.form}>
-                    <div className={styles.box}>
-                        <div className={styles.input_box}>
-                            <div className={styles.flexProvince}>
-                                <label>Địa chỉ:</label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    placeholder={user?.address || 'Nhập địa chỉ'}
-                                    readOnly
-                                    style={{ marginBottom: '2rem' }}
-                                    disabled
-                                />
-                                <Select
-                                    className={styles.region}
-                                    options={provinces}
-                                    onChange={handleProvinceChange}
-                                    placeholder="Chọn tỉnh/thành phố..."
-                                    value={selectedProvince}
-                                />
-                                {selectedProvince && (
-                                    <div className={styles.input_box}>
-                                        <label>Quận/Huyện:</label>
-                                        <Select
-                                            className={styles.districts}
-                                            options={districts}
-                                            onChange={handleDistrictChange}
-                                            placeholder="Chọn quận/huyện..."
-                                            value={selectedDistrict}
-                                        />
+                <Swiper
+                    modules={[Navigation, Pagination]}
+                    spaceBetween={50}
+                    slidesPerView={1}
+                    pagination={{ clickable: true }}
+                    navigation
+                    allowTouchMove={false}
+                    className="mySwiper_popupUpdate"
+                >
+                    {/* Slide 1: Quốc gia, Số điện thoại, Ngày sinh, Giới tính */}
+                    <SwiperSlide>
+                        <div className={styles.form}>
+                            <div className={styles.box}>
+                                <div className={styles.flex_phoneNumber}>
+                                    <div className={styles.box_national}>
+                                        <div className={styles.input_box}>
+                                            <label>Quốc gia:</label>
+                                            <Select
+                                                className={styles.selectNational}
+                                                options={nationalOptions}
+                                                value={nationalOptions.find(
+                                                    (option) => option.value === formData.nationality
+                                                )}
+                                                onChange={handleNationalityChange}
+                                                placeholder={user?.nationality || 'Chọn quốc gia...'}
+                                                formatOptionLabel={formatOptionLabel}
+                                                menuPortalTarget={document.body} // Render dropdown vào body
+                                                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                            />
+                                        </div>
                                     </div>
-                                )}
+
+                                    <div className={styles.box_phoneNumber}>
+                                        <div className={styles.input_box}>
+                                            <label>
+                                                Số điện thoại (
+                                                {formData.nationality
+                                                    ? `+${getCountryCallingCode(formData.nationality as any)}`
+                                                    : '+'}
+                                                )
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="phoneNumber"
+                                                value={formData.phoneNumber}
+                                                onChange={handleChange}
+                                                placeholder={user?.phoneNumber || 'Enter phone number'}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '2rem' }}>
+                            <div className={styles.box}>
                                 <div className={styles.input_box}>
-                                    <label>Mức độ kinh nghiệm:</label>
+                                    <label>Ngày sinh:</label>
+                                    <input
+                                        type="date"
+                                        name="dateOfBirth"
+                                        value={formData.dateOfBirth}
+                                        onChange={handleChange}
+                                        placeholder={user?.dateOfBirth || 'Chọn ngày sinh'}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className={styles.box}>
+                                <div className={styles.input_box}>
+                                    <label>Giới tính:</label>
                                     <Select
-                                        className={styles.selectExperience}
-                                        options={experienceLevelOptions}
-                                        value={experienceLevelOptions.find(
-                                            (option) => option.value === formData.experienceLevel
+                                        className={styles.selectGender}
+                                        options={genderOptions}
+                                        value={genderOptions.find((option) => option.value === formData.gender)}
+                                        onChange={(selectedOption) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                gender: selectedOption?.value || '',
+                                            }))
+                                        }
+                                        placeholder={user?.gender || ''}
+                                        menuPortalTarget={document.body} // Render dropdown vào body
+                                        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </SwiperSlide>
+
+                    {/* Slide 2: Địa chỉ, Mức độ kinh nghiệm, Số năm kinh nghiệm */}
+                    <SwiperSlide>
+                        <div className={styles.form}>
+                            <div className={styles.box}>
+                                <div className={styles.input_box}>
+                                    <div className={styles.flexProvince}>
+                                        <label>Địa chỉ:</label>
+                                        <input
+                                            type="text"
+                                            name="address"
+                                            value={formData.address}
+                                            onChange={handleChange}
+                                            placeholder={user?.address || 'Nhập địa chỉ'}
+                                            readOnly
+                                            style={{ marginBottom: '2rem' }}
+                                            disabled
+                                        />
+                                        <Select
+                                            className={styles.region}
+                                            options={provinces}
+                                            onChange={handleProvinceChange}
+                                            placeholder="Chọn tỉnh/thành phố..."
+                                            value={selectedProvince}
+                                            menuPortalTarget={document.body} // Render dropdown vào body
+                                            styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                        />
+                                        {selectedProvince && (
+                                            <div className={styles.input_box}>
+                                                <label>Quận/Huyện:</label>
+                                                <Select
+                                                    className={styles.districts}
+                                                    options={districts}
+                                                    onChange={handleDistrictChange}
+                                                    placeholder="Chọn quận/huyện..."
+                                                    value={selectedDistrict}
+                                                    menuPortalTarget={document.body} // Render dropdown vào body
+                                                    styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                                />
+                                            </div>
                                         )}
-                                        onChange={handleExperienceLevelChange}
-                                        placeholder={user?.experienceLevel || ''}
+                                    </div>
+
+                                    <div style={{ display: 'flex', gap: '2rem' }}>
+                                        <div className={styles.input_box}>
+                                            <label>Mức độ kinh nghiệm:</label>
+                                            <Select
+                                                className={styles.selectExperience}
+                                                options={experienceLevelOptions}
+                                                value={experienceLevelOptions.find(
+                                                    (option) => option.value === formData.experienceLevel
+                                                )}
+                                                onChange={handleExperienceLevelChange}
+                                                placeholder={user?.experienceLevel || ''}
+                                                menuPortalTarget={document.body} // Render dropdown vào body
+                                                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                            />
+                                        </div>
+
+                                        <div className={styles.input_box}>
+                                            <label>Số năm kinh nghiệm:</label>
+                                            <Select
+                                                className={styles.selectExperience}
+                                                options={getFilteredYearOptions()}
+                                                value={yearOfNumberExperienceOptions.find(
+                                                    (option) => option.value === formData.yearOfNumberExperience
+                                                )}
+                                                onChange={handleYearOfNumberExperienceChange}
+                                                placeholder={user?.yearOfNumberExperience || ''}
+                                                isOptionDisabled={(option: any) => option.isDisabled || false}
+                                                menuPortalTarget={document.body} // Render dropdown vào body
+                                                styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </SwiperSlide>
+
+                    {/* Slide 3: Lĩnh vực, Vị trí mong muốn, Mức lương mong muốn */}
+                    <SwiperSlide>
+                        <div className={styles.form}>
+                            <div className={styles.box}>
+                                <div className={styles.input_box}>
+                                    <label>Lĩnh vực:</label>
+                                    <input
+                                        type="text"
+                                        name="industry"
+                                        value={formData.industry}
+                                        onChange={handleChange}
+                                        placeholder={user?.industry || ''}
                                     />
                                 </div>
 
                                 <div className={styles.input_box}>
-                                    <label>Số năm kinh nghiệm:</label>
+                                    <label>Vị trí mong muốn:</label>
                                     <Select
-                                        className={styles.selectExperience}
-                                        options={getFilteredYearOptions()}
-                                        value={yearOfNumberExperienceOptions.find(
-                                            (option) => option.value === formData.yearOfNumberExperience
+                                        className={styles.jobTitle}
+                                        isMulti
+                                        options={jobTitleOptions}
+                                        value={jobTitleOptions.filter((option) =>
+                                            formData.jobTitle.split(', ').includes(option.value)
                                         )}
-                                        onChange={handleYearOfNumberExperienceChange}
-                                        placeholder={user?.yearOfNumberExperience || ''}
-                                        isOptionDisabled={(option: any) => option.isDisabled || false}
+                                        onChange={handleExperienceJobTitleChange}
+                                        placeholder={(user?.jobTitle || []).join(', ') || ''}
+                                        menuPortalTarget={document.body} // Render dropdown vào body
+                                        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                    />
+                                </div>
+
+                                <div className={styles.input_box}>
+                                    <label>Mức lương mong muốn (VNĐ/Tháng)</label>
+                                    <input
+                                        type="text"
+                                        name="expectedSalary"
+                                        value={formData.expectedSalary}
+                                        onChange={handleChange}
+                                        placeholder={
+                                            user?.expectedSalary
+                                                ? new Intl.NumberFormat('vi-VN').format(user.expectedSalary)
+                                                : ''
+                                        }
                                     />
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </SwiperSlide>
 
-                    <div className={styles.box}>
-                        <div className={styles.input_box}>
-                            <label>Lĩnh vực:</label>
-                            <input
-                                type="text"
-                                name="industry"
-                                value={formData.industry}
-                                onChange={handleChange}
-                                placeholder={user?.industry || ''}
-                            />
-                        </div>
+                    {/* Slide 4: Học vấn, Bằng cấp cao nhất, Kỹ năng */}
+                    <SwiperSlide>
+                        <div className={styles.form}>
+                            <div className={styles.box}>
+                                <div className={styles.input_box}>
+                                    <label>Học vấn:</label>
+                                    <input
+                                        type="text"
+                                        name="education"
+                                        value={formData.education}
+                                        onChange={handleChange}
+                                        placeholder={user?.education || ''}
+                                    />
+                                </div>
 
-                        <div className={styles.input_box}>
-                            <label>Vị trí mong muốn</label>
-                            <Select
-                                className={styles.jobTitle}
-                                isMulti
-                                options={jobTitleOptions}
-                                value={jobTitleOptions.filter((option) =>
-                                    formData.jobTitle.split(', ').includes(option.value)
-                                )}
-                                onChange={handleExperienceJobTitleChange}
-                                placeholder={(user?.jobTitle || []).join(', ') || ''}
-                            />
-                        </div>
+                                <div className={styles.input_box}>
+                                    <label>Bằng cấp cao nhất:</label>
+                                    <Select
+                                        className={styles.selectDegree}
+                                        options={highestDegreeOptions}
+                                        value={highestDegreeOptions.find(
+                                            (option) => option.value === formData.highestDegree
+                                        )}
+                                        onChange={(selectedOption) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                highestDegree: selectedOption?.value || '',
+                                            }))
+                                        }
+                                        placeholder={user?.highestDegree || ''}
+                                        menuPortalTarget={document.body} // Render dropdown vào body
+                                        styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }} // Tăng z-index
+                                    />
+                                </div>
 
-                        <div className={styles.input_box}>
-                            <label>Mức lương mong muốn: (VNĐ/Tháng  theo hệ số lương NET)</label>
-                            <input
-                                type="text"
-                                name="expectedSalary"
-                                value={formData.expectedSalary}
-                                onChange={handleChange}
-                                placeholder={
-                                    user?.expectedSalary
-                                        ? new Intl.NumberFormat('vi-VN').format(user.expectedSalary)
-                                        : ''
-                                }
-                            />
+                                <div className={styles.input_box}>
+                                    <label>Kỹ năng:</label>
+                                    <input
+                                        type="text"
+                                        name="skills"
+                                        value={formData.skills}
+                                        onChange={handleChange}
+                                        placeholder={user?.skills || ''}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div className={styles.box}>
-                        <div className={styles.input_box}>
-                            <label>Học vấn</label>
-                            <input
-                                type="text"
-                                name="education"
-                                value={formData.education}
-                                onChange={handleChange}
-                                placeholder={user?.education || ''}
-                            />
-                        </div>
-
-                        <div className={styles.input_box}>
-                            <label>Bằng cấp cao nhất:</label>
-                            <Select
-                                className={styles.selectDegree}
-                                options={highestDegreeOptions}
-                                value={highestDegreeOptions.find((option) => option.value === formData.highestDegree)}
-                                onChange={(selectedOption) =>
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        highestDegree: selectedOption?.value || '',
-                                    }))
-                                }
-                                placeholder={user?.highestDegree || ''}
-                            />
-                        </div>
-
-                        <div className={styles.input_box}>
-                            <label>Kĩ năng</label>
-                            <input
-                                type="text"
-                                name="skills"
-                                value={formData.skills}
-                                onChange={handleChange}
-                                placeholder={user?.skills || ''}
-                            />
-                        </div>
-                    </div>
-                </div>
+                    </SwiperSlide>
+                </Swiper>
 
                 <div className={styles.modalActions}>
                     <button type="button" className={styles.closeButton} onClick={onClose}>

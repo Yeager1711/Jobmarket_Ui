@@ -39,7 +39,8 @@
     "react-select": "^5.10.0",
     "react-toastify": "^10.0.6",
     "recharts": "^2.15.1",
-    "sass": "^1.80.6"
+    "sass": "^1.80.6",
+    "swiper": "^11.2.5"
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
