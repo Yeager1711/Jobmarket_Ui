@@ -1,17 +1,17 @@
 'use client';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import Cookies from 'js-cookie';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faBars } from '@fortawesome/free-solid-svg-icons';
 import { HiOutlineXMark } from 'react-icons/hi2';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import styles from './header.module.scss';
 import LoginModal from '../../../Auth/Login/Modal/page';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
 import { showToastError } from 'app/Ultils/toast';
-import { User } from '../../../interface/User';
 
 const cx = classNames.bind(styles);
 
@@ -20,82 +20,81 @@ const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 function Header() {
     const pathname = usePathname();
     const router = useRouter();
-    const { fetchUser } = useApi();
+    const { user, fetchUser, Funclogout, isReady, accessToken } = useApi();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-    const [user, setUser] = useState<User | null>(null);
-    const [lastToken, setLastToken] = useState<string | null>(null); // Lưu giá trị access_token cuối cùng
+    const [isLoading, setIsLoading] = useState(true);
 
     // Memoize toggleDrawer để tránh tạo lại hàm
     const toggleDrawer = useCallback(() => setIsDrawerOpen((prev) => !prev), []);
 
-    // Tải thông tin người dùng từ API /users/me
-    const fetchUserData = useCallback(async () => {
-        const access_token = localStorage.getItem('access_token');
-        if (access_token) {
-            try {
-                const userData = await fetchUser();
-                setUser(userData); // Lưu toàn bộ dữ liệu từ API vào state
-                setLastToken(access_token); // Cập nhật token cuối cùng
-            } catch (error) {
-                console.error('Lỗi khi lấy dữ liệu user:', error);
-                showToastError('Không thể tải thông tin người dùng');
-                setUser(null);
-                setLastToken(null);
-            }
-        } else {
-            setUser(null);
-            setLastToken(null);
+    // Callback khi đăng nhập thành công
+    const handleLoginSuccess = useCallback(async () => {
+        setIsLoginModalOpen(false); // Đóng modal sau khi đăng nhập thành công
+        try {
+            await fetchUser(); // Gọi lại fetchUser để cập nhật user
+        } catch (error) {
+            showToastError('Không thể tải thông tin người dùng sau khi đăng nhập');
+            console.error('Error fetching user after login:', error);
         }
     }, [fetchUser]);
 
-    // Gọi fetchUserData khi mount
-    useEffect(() => {
-        fetchUserData();
-    }, [fetchUserData]);
-
-    // Lắng nghe sự thay đổi của access_token trong localStorage
-    useEffect(() => {
-        const checkTokenChange = () => {
-            const currentToken = localStorage.getItem('access_token');
-            if (currentToken !== lastToken) {
-                fetchUserData(); // Gọi lại fetchUserData nếu token thay đổi
-            }
-        };
-
-        // Kiểm tra token mỗi 1 giây
-        const interval = setInterval(checkTokenChange, 1000);
-
-        // Lắng nghe sự kiện storage (cho các tab khác)
-        const handleStorageChange = (event: StorageEvent) => {
-            if (event.key === 'access_token') {
-                fetchUserData(); // Gọi lại fetchUserData nếu token thay đổi ở tab khác
-            }
-        };
-
-        window.addEventListener('storage', handleStorageChange);
-
-        // Dọn dẹp khi component unmount
-        return () => {
-            clearInterval(interval);
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, [fetchUserData, lastToken]);
-
-    // Callback khi đăng nhập thành công
-    const handleLoginSuccess = useCallback(() => {
-        fetchUserData(); // Gọi lại fetchUserData để cập nhật thông tin user ngay lập tức
-    }, [fetchUserData]);
-
     // Memoize handleLogout
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('access_token');
-        setUser(null);
-        setLastToken(null);
-        router.push('/');
-    }, [router]);
+    const handleLogout = useCallback(async () => {
+        try {
+            await Funclogout();
+            router.push('/');
+        } catch (error: any) {
+            showToastError('Đăng xuất thất bại, vui lòng thử lại');
+            console.error('Lỗi khi đăng xuất:', error);
+        }
+    }, [Funclogout, router]);
+
+    // Kiểm tra trạng thái sẵn sàng và tải dữ liệu
+    useEffect(() => {
+        if (isReady) {
+            if (accessToken) {
+                // Nếu có accessToken, chờ fetchUser hoàn tất
+                fetchUser()
+                    .then(() => setIsLoading(false))
+                    .catch((error) => {
+                        setIsLoading(false);
+                        showToastError('Không thể tải thông tin người dùng');
+                        console.error('Error fetching user:', error);
+                    });
+            } else {
+                setIsLoading(false); // Nếu không có token, không cần loading
+            }
+        }
+    }, [isReady, accessToken, fetchUser]);
 
     if (pathname === '/Auth/Register') return null;
+
+    // Hiển thị skeleton nếu dữ liệu chưa sẵn sàng
+    if (isLoading) {
+        return (
+            <header className={cx('header_wrapper')}>
+                <Link href="/" className={cx('logo')}>
+                    <img src="/logo/logo_website.png" alt="Logo" />
+                </Link>
+                <nav className={cx('navbar')}>
+                    {[...Array(4)].map((_, index) => (
+                        <Skeleton key={index} width={80} height={20} style={{ marginRight: '20px' }} />
+                    ))}
+                </nav>
+                <div className={cx('button-control')}>
+                    <Skeleton width={120} height={40} style={{ marginRight: '10px' }} />
+                    <Skeleton width={120} height={40} style={{ marginRight: '10px' }} />
+                    <div className={cx('employer')}>
+                        <Skeleton width={150} height={20} />
+                    </div>
+                </div>
+                <div className={cx('menu-icon')}>
+                    <Skeleton width={24} height={24} />
+                </div>
+            </header>
+        );
+    }
 
     return (
         <>
@@ -124,15 +123,21 @@ function Header() {
                 </nav>
 
                 <div className={cx('button-control')}>
-                    {user ? (
+                    {accessToken && user ? (
                         <div className={cx('user-info')}>
                             <Link href="/Auth/User/tong_quan_tai_khoan" prefetch>
                                 <div className={styles.avatar_image}>
-                                    <img
-                                        src={user.image ? `${apiUrl}${user.image}` : '/images/user/user_default.png'}
-                                        alt={`${user.firstName} ${user.lastName}`}
-                                        width="200"
-                                    />
+                                    {user && (
+                                        <img
+                                            src={
+                                                user.image && user.image.trim() !== ''
+                                                    ? `${apiUrl}${user.image}`
+                                                    : '/images/user/user_default.png'
+                                            }
+                                            alt={`${user?.firstName || ''} ${user?.lastName || ''}`}
+                                            width="200"
+                                        />
+                                    )}
                                 </div>
                             </Link>
                             <Link href="/Auth/User/tong_quan_tai_khoan" prefetch>
@@ -181,7 +186,7 @@ function Header() {
                 </div>
                 <div className={cx('side-drawer-content')}>
                     <div className={cx('auth-buttons')}>
-                        {user ? (
+                        {accessToken && user ? (
                             <>
                                 <Link href="/Auth/User/tong_quan_tai_khoan" prefetch>
                                     {user.firstName} {user.lastName}

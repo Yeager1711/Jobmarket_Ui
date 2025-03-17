@@ -1,5 +1,4 @@
 
-
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -38,16 +37,31 @@
 }
 
 .modalContent {
+    position: relative;
     margin-top: 7rem;
-    background: white;
+    background: var(--bg-White);
     padding: 2.5rem;
     border-radius: .8rem;
     max-width: 125rem;
-    width: 95%;
+    width: 90%;
     box-shadow: 0 .4rem .6rem rgba(0, 0, 0, 0.1);
     transform: translateY(-100%);
     opacity: 0;
     animation: slideDown 0.35s ease-out forwards;
+
+    .postion_img1 {
+        position: absolute;
+        top: 0;
+        right: 0;
+        overflow: hidden;
+    }
+
+    .postion_img2 {
+        position: absolute;
+        bottom: 0;
+        overflow: hidden;
+        left: 0;
+    }
 
     &.closing {
         animation: slideUp 0.35s ease-out forwards;
@@ -58,11 +72,39 @@
         margin-bottom: 1rem;
     }
 
+    .introduction_jobmarket {
+        max-width: 100rem;
+        width: 100%;
+        margin: auto;
+        padding: 2rem;
+        line-height: 1.4;
+        text-align: center;
+        align-items: center;
+
+        h1 {
+            font-size: 4.5rem;
+
+            p {
+                color: #0277a3;
+                text-transform: uppercase;
+            }
+
+            // svg {
+            //    font-size: 2.7rem;
+            //    color: var(--viewDetails);
+            // }
+        }
+
+
+    }
+
     .form {
         max-width: 75rem;
         width: 100%;
         margin: auto;
         padding: 2rem;
+        background: var(--bg-White);
+        border-radius: 1rem;
 
         .flex_phoneNumber {
             display: flex;

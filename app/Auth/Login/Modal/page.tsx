@@ -1,22 +1,22 @@
+// LoginModal.tsx
 'use client';
 import { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import styles from './Login.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { showToastError, showToastSuccess } from 'app/Ultils/toast';
+import { showToastError } from 'app/Ultils/toast';
+import { useApi } from 'app/Context/ApiContext/ApiContext';
 
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onLoginSuccess: () => void; // Callback để thông báo đăng nhập thành công
+    onLoginSuccess: () => void;
 }
-
-const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
 function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
     const router = useRouter();
+    const { FuncLogin } = useApi();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -28,21 +28,10 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
         setPasswordError('');
 
         try {
-            const response = await axios.post(
-                `${apiUrl}/auth/login`,
-                { email, password },
-                { withCredentials: true }
-            );
-
-            // Lưu accessToken vào localStorage
-            localStorage.setItem('access_token', response.data.accessToken);
-            // Lưu thông tin user nếu cần (tùy chọn)
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-
-            showToastSuccess('Đăng nhập thành công');
-            onLoginSuccess(); // Gọi callback để thông báo cho Header cập nhật thông tin user
-            onClose(); // Đóng modal
-            router.push('/'); // Điều hướng về trang chủ
+            await FuncLogin(email, password);
+            onLoginSuccess();
+            onClose();
+            router.push('/');
         } catch (err: any) {
             if (err.response?.data?.field === 'email') {
                 setEmailError(err.response.data.message);
@@ -52,7 +41,6 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
                 setEmailError('');
                 setPasswordError('Sai email hoặc mật khẩu');
             }
-            showToastError('Đăng nhập thất bại, vui lòng kiểm tra lại thông tin');
         }
     };
 
@@ -71,7 +59,6 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
                         <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
                         {emailError && <p className={styles.error}>{emailError}</p>}
                     </div>
-
                     <div className={styles.boxInput}>
                         <span>Mật khẩu</span>
                         <div className={styles.passwordWrapper}>
@@ -88,11 +75,9 @@ function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
                         </div>
                         {passwordError && <p className={styles.error}>{passwordError}</p>}
                     </div>
-
                     <div className={styles.forgot_pass}>
                         <a href="">Quên mật khẩu ?</a>
                     </div>
-
                     <div className={styles.flex_control}>
                         <div className={styles.policyQuestion}>
                             <span>Bạn chưa có tài khoản của JobMarket ?</span>{' '}

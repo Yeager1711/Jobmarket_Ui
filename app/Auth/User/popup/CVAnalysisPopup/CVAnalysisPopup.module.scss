@@ -1,0 +1,177 @@
+.popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popupContent {
+    background: linear-gradient(90deg, #ff9a00, #a964d2, #6b0fff);
+    padding: 2rem 0 0 0;
+    overflow: hidden;
+    border-radius: 1rem;
+    max-width: 78rem;
+    width: 95%;
+    position: relative;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-in-out;
+
+    .popup_header {
+        padding: 0 2rem 1rem 2rem;
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: .5rem;
+        }
+
+        p {
+            display: flex;
+            align-items: center;
+            gap: .3rem;
+            color: var(--colorWhiteText);
+            font-size: 1.2rem;
+
+
+            svg {
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+    .image_bannerAI {
+        max-width: 100%;
+        overflow: hidden;
+        position: relative;
+
+        img {
+            width: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .content {
+            position: absolute;
+            top: 4%;
+            left: 0%;
+            border-radius: 16px;
+            margin: 1.6rem;
+            padding: 1.6rem;
+            background: linear-gradient(rgb(75 119 184) 0%, rgb(0 27 100 / 70%) 50%, rgb(255 77 221 / 30%) 100%);
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            gap: 2rem;
+            width: 95%;
+
+            .analysisBox {
+                margin: 1rem 0;
+                text-align: left;
+
+                .analysisItem {
+                    display: flex;
+                    align-items: center;
+                    padding: 1.5rem 0;
+
+                    .checkmark {
+                        color: #00ff00;
+                        margin-right: 0.5rem;
+                        font-size: 1.4rem;
+                    }
+
+                    p {
+                        font-size: 1.4rem;
+                        margin: 0;
+                    }
+                }
+            }
+        }
+
+        .popup_footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(100deg, rgba(74, 61, 255, 0.3) 0.76%, rgba(79, 12, 237, 0.3) 91.49%);
+            backdrop-filter: blur(2px);
+            padding: 1.6rem 2.5rem;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+
+            p {
+                max-width: 28rem;
+                line-height: 1.4;
+                width: 95%;
+                color: #fff;
+            }
+
+            .applyButton {
+                background: #ff6200;
+                color: #fff;
+                border: none;
+                padding: 0.8rem 2rem;
+                border-radius: 0.5rem;
+                font-size: 1.4rem;
+                cursor: pointer;
+                transition: background 0.3s;
+                align-items: center;
+                display: flex;
+                gap: 1rem;
+
+                svg {
+                    padding: .5rem .6rem;
+                    background: #fff;
+                    border-radius: 5rem;
+                    color: #333;
+                    font-size: 1.1rem;
+                }
+
+                &:hover {
+                    background: #ff8c00;
+                }
+            }
+        }
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #fff;
+        cursor: pointer;
+    }
+
+
+
+    .note {
+        font-size: 1.2rem;
+        color: #ddd;
+        margin-top: 1rem;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

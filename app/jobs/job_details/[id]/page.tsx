@@ -5,86 +5,32 @@ import { useRouter, useParams } from 'next/navigation';
 import styles from './jobDetail.module.scss';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCommentsDollar, faHourglassStart, faLocationDot, faIndustry } from '@fortawesome/free-solid-svg-icons';
+import {
+    faCommentsDollar,
+    faHourglassStart,
+    faLocationDot,
+    faIndustry,
+    faHeart,
+} from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 import { formatSalary } from '../../../Ultils/formatSalary';
 import JobDetails_Skeleton from './jobDetail__Skeleton';
 import HotJob from 'app/Ultils/HotJob/HotJob';
-
-interface Job {
-    success: boolean;
-    data: {
-        jobId: number;
-        title: string;
-        salary: string;
-        salary_from: number;
-        salary_to: number;
-        expire_on: string;
-        description: string;
-        requirement: string;
-        benefits: string;
-        work_time: string;
-        created_at: string;
-        updated_at: string;
-        Hot_Job: string;
-        workLocation: {
-            workLocationId: number;
-            address_name: string;
-            created_at: string;
-            updated_at: string;
-            district: {
-                districtId: number;
-                name: string;
-            };
-        };
-        company: {
-            companyId: number;
-            name: string;
-            created_at: string;
-            updated_at: string;
-            images: {
-                ImageCompanyId: number;
-                image_company: string;
-            }[];
-        };
-        refJob: {
-            ref_job_Id: number;
-            ref_url: string;
-            created_at: string;
-            updated_at: string;
-        };
-        jobType: {
-            jobTypeId: number;
-            work_at: string[];
-            name: string[];
-        };
-        jobLevel: {
-            jobLevelId: number;
-            name: string[];
-        };
-        jobIndustry: {
-            jobIndustryId: number;
-            name: string;
-        };
-        generalInformation: {
-            general_Information_Id: number;
-            numberOfRecruits: number;
-            gender: string;
-            experience: string;
-            tech_stack: string[];
-        };
-    };
-}
+import { Job } from '../../../interface/Job';
+import { useApi } from '../../../Context/ApiContext/ApiContext';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
 function JobDetail() {
     const router = useRouter();
-    const [jobDetails, setJobDetails] = useState<Job['data'] | null>(null);
-    const [jobData, setJobData] = useState<Record<string, Job['data'][]>>({});
+    const [jobDetails, setJobDetails] = useState<Job | null>(null);
+    const [jobData, setJobData] = useState<Record<string, Job[]>>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isFavorited, setIsFavorited] = useState(false);
+
+    const { fetchJobDetails, fetchAllJobs, addFavoriteJob } = useApi();
 
     const handleRedirect = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
         e.preventDefault();
@@ -93,54 +39,58 @@ function JobDetail() {
         }
     };
 
+    const handleAddFavorite = async () => {
+        try {
+            await addFavoriteJob(jobId); 
+            setIsFavorited(true); 
+        } catch (err) {
+            // Lỗi đã được xử lý trong context (showToastError), không cần alert thêm
+            console.error('Error in handleAddFavorite:', err);
+        }
+    };
+
     const params = useParams();
-    const jobId = params.id;
+    const jobId = Number(params.id);
 
     useEffect(() => {
-        const fetchJobDetails = async () => {
+        const loadJobDetails = async () => {
             try {
-                // Gọi API
-                const response = await fetch(`${apiUrl}/jobs/${jobId}`);
-                const { data } = await response.json();
-
-                setJobDetails(data);
+                setLoading(true);
+                const jobData = await fetchJobDetails(jobId);
+                setJobDetails(jobData);
             } catch (error) {
                 console.error('Error fetching job details:', error);
+                setError('Không thể tải chi tiết công việc');
+            } finally {
+                setLoading(false);
             }
         };
-        fetchJobDetails();
-    }, [jobId]);
+        loadJobDetails();
+    }, [jobId, fetchJobDetails]);
 
     useEffect(() => {
         const fetchJobs = async () => {
             try {
-                // Fetch job details to get the current company
-                const currentJobResponse = await fetch(`${apiUrl}/jobs/${jobId}`);
-                const currentJobData = await currentJobResponse.json();
+                setLoading(true);
+                const currentJob = await fetchJobDetails(jobId);
 
-                if (!currentJobData.success) {
+                if (!currentJob) {
                     setError('Không tìm thấy thông tin công việc');
                     return;
                 }
 
-                const currentCompanyName = currentJobData.data.company.name;
-                const currentJobsLevel = currentJobData.data.jobLevel.name;
+                const currentCompanyName = currentJob.company.name;
+                const currentJobsLevel = currentJob.jobLevel.name;
 
-                // Fetch all jobs
-                const response = await fetch(`${apiUrl}/jobs/all-jobs`);
-                const allJobsData = await response.json();
+                const allJobsData = await fetchAllJobs();
 
                 if (allJobsData.success) {
-                    // Lọc công việc cùng công ty
-                    const filteredJobs = allJobsData.data.filter(
-                        (job: Job['data']) => job.company.name === currentCompanyName
-                    );
+                    const filteredJobs = allJobsData.data.filter((job: Job) => job.company.name === currentCompanyName);
 
                     const filteredJobsLevel = allJobsData.data.filter(
-                        (job: Job['data']) => job.jobLevel.name === currentJobsLevel
+                        (job: Job) => job.jobLevel.name === currentJobsLevel
                     );
 
-                    // Nhóm công việc theo công ty
                     const groupedJobs = filteredJobs.reduce((acc: any, job: any) => {
                         const companyName = job.company.name;
                         if (!acc[companyName]) {
@@ -150,7 +100,6 @@ function JobDetail() {
                         return acc;
                     }, {});
 
-                    // nhóm các công ty đang tuyển cùng 1 vị trí
                     const groupedJobLevel = filteredJobsLevel.reduce((acc: any, level: any) => {
                         const jobLevel = level.jobLevel.name;
                         if (!acc[jobLevel]) {
@@ -172,7 +121,7 @@ function JobDetail() {
         };
 
         fetchJobs();
-    }, [jobId]);
+    }, [jobId, fetchJobDetails, fetchAllJobs]);
 
     if (!jobDetails) {
         return (
@@ -237,13 +186,24 @@ function JobDetail() {
                                     <p> {jobDetails.generalInformation.experience}</p>
                                 </span>
                             </div>
-                            <Link
-                                href="#"
-                                className={styles.box_apply_current}
-                                onClick={(e) => handleRedirect(e, jobDetails.refJob.ref_url)}
-                            >
-                                Ứng tuyển ngay
-                            </Link>
+                            <div className={styles.flex_btn}>
+                                <Link
+                                    href="#"
+                                    className={styles.box_apply_current}
+                                    onClick={(e) => handleRedirect(e, jobDetails.refJob.ref_url)}
+                                >
+                                    Ứng tuyển ngay
+                                </Link>
+
+                                <div
+                                    className={styles.btn_favorite__job}
+                                    onClick={handleAddFavorite}
+                                    style={{ color: isFavorited ? 'red' : '#fff' }} 
+                                >
+                                    <FontAwesomeIcon icon={faHeart} />
+                                    {isFavorited ? 'Đã yêu thích' : 'Yêu thích'}
+                                </div>
+                            </div>
                         </div>
 
                         <div className={styles.basic_infomation_description}>
@@ -413,3 +373,10 @@ function JobDetail() {
 }
 
 export default JobDetail;
+
+const handleRedirect = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
+    e.preventDefault();
+    if (url) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+};

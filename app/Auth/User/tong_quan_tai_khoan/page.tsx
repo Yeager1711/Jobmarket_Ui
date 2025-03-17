@@ -1,3 +1,4 @@
+// Account_OverView.tsx
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { User } from '../../../interface/User';
@@ -12,11 +13,12 @@ import PdfViewerModal from '../popup/PdfViewerModal/page';
 import ModelUploadCV from '../popup/uploadCV/page';
 import UserControl from '../userControl/UserControl';
 import UpdateProfileModal from '../popup/updateProfie/page';
+import AccountOverView_Skeleton from './AccountOverView_Skeleton';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
-function User() {
+function Account_OverView() {
     const [isUploadCVOpen, setIsUploadCVOpen] = useState(false);
     const [user, setUser] = useState<User | null>(null);
     const [cvList, setCvList] = useState<ResumeCV[]>([]);
@@ -32,7 +34,7 @@ function User() {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
 
-    const { fetchUser, fetchCVs, setDefaultCV, deleteCV } = useApi();
+    const { fetchUser, fetchCVs, setDefaultCV, deleteCV, isReady } = useApi();
 
     useEffect(() => {
         const loadData = async () => {
@@ -41,7 +43,7 @@ function User() {
 
             const accessToken = localStorage.getItem('access_token');
             if (!accessToken) {
-                setError('Vui lòng đăng nhập để xem thông tin');
+                // setError('Vui lòng đăng nhập để xem thông tin');
                 setLoading(false);
                 return;
             }
@@ -63,16 +65,19 @@ function User() {
                 setCvList(cvData);
                 const defaultCV = cvData.find((cv: ResumeCV) => cv.isDefault);
                 setDefaultCVId(defaultCV ? defaultCV.resumeCVId : null);
+                setLoading(false);
             } catch (err: any) {
                 setError(err.message || 'Có lỗi xảy ra khi tải dữ liệu');
                 console.error(err);
-            } finally {
                 setLoading(false);
             }
         };
 
-        loadData();
-    }, [fetchUser, fetchCVs]); // Xóa userId khỏi dependencies vì không dùng nữa
+        // Chỉ gọi loadData khi isReady là true
+        if (isReady) {
+            loadData();
+        }
+    }, [fetchUser, fetchCVs, isReady]);
 
     const handleSetDefaultCV = useCallback(
         async (resumeCVId: number) => {
@@ -136,14 +141,19 @@ function User() {
         { month: '02/2025', applications: 18 },
     ];
 
-    if (loading) return <div>Đang tải...</div>;
+    if (loading) return <AccountOverView_Skeleton />;
     if (error) return <div>{error}</div>;
 
     return (
-        <section className={styles.user}>
+        <section className={styles.user + ' marTop'}>
             <div className={styles.wapper}>
                 <UserControl />
-                <UpdateProfileModal isOpen={isUpdateProfileOpen} onClose={() => setIsUpdateProfileOpen(false)} />
+                <UpdateProfileModal
+                    isOpen={isUpdateProfileOpen}
+                    onClose={() => setIsUpdateProfileOpen(false)}
+                    firstName={user?.firstName}
+                    lastName={user?.lastName}
+                />
 
                 <div className={styles.control_detail}>
                     <div className={styles.control_detail}>
@@ -294,4 +304,4 @@ function User() {
     );
 }
 
-export default User;
+export default Account_OverView;

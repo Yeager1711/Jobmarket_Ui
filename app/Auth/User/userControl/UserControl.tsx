@@ -9,6 +9,7 @@ import { showToastError, showToastSuccess } from 'app/Ultils/toast';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { jwtDecode } from 'jwt-decode';
+import UserController_Skeleton from './UserController_skeleton';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
@@ -23,9 +24,9 @@ export default function UserControl() {
     const [timeLeft, setTimeLeft] = useState<string>('0:00');
 
     const pathname = usePathname();
-    const { fetchUser } = useApi();
+    const { fetchUser, isReady, accessToken } = useApi();
 
-    //Lấy userId từ token
+    // Lấy userId từ token
     const [userId, setUserId] = useState<string | null>(null);
 
     // Image
@@ -33,34 +34,27 @@ export default function UserControl() {
     const [preview, setPreview] = useState<string | null>(null);
 
     useEffect(() => {
-        const accessToken = localStorage.getItem('access_token');
+        const loadData = async () => {
+            if (!isReady || !accessToken) {
+                // showToastError('Vui lòng đăng nhập để xem thông tin');
+                return;
+            }
 
-        if (!accessToken) {
-            showToastError('Vui lòng đăng nhập để xem thông tin');
-            return;
-        }
+            try {
+                const decoded: any = jwtDecode(accessToken);
+                const userIdFromToken = decoded.userId;
+                setUserId(userIdFromToken);
 
-        try {
-            const decoded: any = jwtDecode(accessToken);
-            const userIdFromToken = decoded.userId;
-            setUserId(userIdFromToken);
+                const userData = await fetchUser();
+                setUser(userData);
+            } catch (error) {
+                console.error('Lỗi khi giải mã token hoặc tải user:', error);
+                showToastError('Token không hợp lệ hoặc không thể tải thông tin người dùng');
+            }
+        };
 
-            const fetchUserData = async () => {
-                try {
-                    const userData = await fetchUser();
-                    setUser(userData);
-                } catch (error) {
-                    console.error('Lỗi khi lấy dữ liệu user:', error);
-                    showToastError('Không thể tải thông tin người dùng');
-                }
-            };
-
-            fetchUserData();
-        } catch (error) {
-            console.error('Lỗi khi giải mã token:', error);
-            showToastError('Token không hợp lệ');
-        }
-    }, [fetchUser]);
+        loadData();
+    }, [fetchUser, isReady, accessToken]); // Thêm isReady và accessToken vào dependency array
 
     const handleIconClick = () => {
         if (fileInputRef.current) {
@@ -81,9 +75,8 @@ export default function UserControl() {
             const formData = new FormData();
             formData.append('file', file);
 
-            const access_token = localStorage.getItem('access_token');
-            if (!access_token) {
-                showToastError('Token is required !');
+            if (!accessToken || !userId) {
+                showToastError('Token hoặc userId không hợp lệ!');
                 return;
             }
 
@@ -91,7 +84,7 @@ export default function UserControl() {
                 const response = await fetch(`${apiUrl}/users/${userId}/upload-image`, {
                     method: 'POST',
                     headers: {
-                        Authorization: `Bearer ${access_token}`,
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: formData,
                 });
@@ -99,19 +92,23 @@ export default function UserControl() {
                 if (response.ok) {
                     const data = await response.json();
                     showToastSuccess('Ảnh đã được cập nhật');
+                    // Cập nhật lại user để lấy ảnh mới (nếu cần)
+                    const updatedUser = await fetchUser();
+                    setUser(updatedUser);
                 } else {
-                    showToastError('Lỗi trong quá trình tải lên ảnh!');
+                    const errorData = await response.json();
+                    showToastError(`Lỗi trong quá trình tải lên ảnh: ${errorData.message || 'Không xác định'}`);
                 }
             } catch (error) {
                 console.error('Error uploading image:', error);
                 showToastError('Đã xảy ra lỗi khi tải lên ảnh!');
             }
         } else {
-            showToastError('Lỗi trong quá trình cập nhật ảnh !');
+            showToastError('Lỗi trong quá trình cập nhật ảnh!');
         }
     };
 
-    //Audio podcard
+    // Audio podcard
     const audioSrc = '/audio/podcard/podcard.mp3';
 
     useEffect(() => {
@@ -121,7 +118,6 @@ export default function UserControl() {
                 const duration = audioRef.current.duration;
                 const remainingTime = Math.max(duration - currentTime, 0);
 
-                // Chuyển đổi giây sang phút:giây
                 const minutes = Math.floor(remainingTime / 60);
                 const seconds = Math.floor(remainingTime % 60);
                 setTimeLeft(`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`);
@@ -170,19 +166,28 @@ export default function UserControl() {
                     {user ? (
                         <>
                             <div className={styles.image_user}>
-                                <img
-                                    src={
-                                        preview
-                                            ? preview
-                                            : user.image
-                                              ? `${process.env.NEXT_PUBLIC_APP_API_BASE_URL}${user.image}`
-                                              : '/images/user/user_default.png'
-                                    }
-                                    alt={
-                                        user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : 'User'
-                                    }
-                                    width="200"
-                                />
+                                {preview || user?.image ? (
+                                    <img
+                                        src={
+                                            preview
+                                                ? preview
+                                                : user.image && process.env.NEXT_PUBLIC_APP_API_BASE_URL
+                                                  ? `${process.env.NEXT_PUBLIC_APP_API_BASE_URL}${user.image}`
+                                                  : '/images/user/user_default.png'
+                                        }
+                                        alt={
+                                            user?.firstName && user?.lastName
+                                                ? `${user.firstName} ${user.lastName}`
+                                                : 'User'
+                                        }
+                                        width="200"
+                                        onError={(e) => {
+                                            e.currentTarget.src = '/images/user/user_default.png'; // Fallback nếu không tải được hình
+                                        }}
+                                    />
+                                ) : (
+                                    <img src="/images/user/user_default.png" alt="User" width="200" />
+                                )}
 
                                 <div className={styles.btn_upload_imgUser}>
                                     <FontAwesomeIcon
@@ -208,7 +213,7 @@ export default function UserControl() {
                             </div>
                         </>
                     ) : (
-                        <p>Đang tải...</p>
+                        <UserController_Skeleton />
                     )}
                 </div>
 
@@ -231,12 +236,21 @@ export default function UserControl() {
                     >
                         Việc làm của tôi
                     </a>
+
                     <a
                         href={`/Auth/User/quan_ly_tai_khoan`}
                         className={pathname.includes('quan_ly_tai_khoan') ? styles.active : ''}
                     >
+                        Đơn hàng của tôi
+                    </a>
+
+                    <a
+                        href={`/Auth/User/quan_ly_don_hang`}
+                        className={pathname.includes('quan_ly_don_hang') ? styles.active : ''}
+                    >
                         Quản lý tài khoản
                     </a>
+                    
                 </div>
 
                 <>
@@ -277,7 +291,6 @@ export default function UserControl() {
                                     className={styles.timeline}
                                 />
                                 <div className={styles.time_display}>
-                                    {/* <p className={styles.timeLeft}>⏳ {timeLeft}</p> */}
                                     <p className={styles.timeLeft}>{timeLeft}</p>
                                 </div>
                                 <button onClick={handlePlayPause} className={styles.playButton}>

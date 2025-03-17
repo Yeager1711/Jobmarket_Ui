@@ -221,8 +221,20 @@
                     }
 
                     span {
+                        display: flex;
+                        align-items: center;
+                        gap: .3rem;
                         font-size: 1.3rem;
                         color: var(--textBlur);
+
+                        p {
+                            color: #06bc06;
+                        }
+
+                        .name_university {
+                            font-weight: var(--weight550);
+                            color: var(--colorBlackText);
+                        } 
                     }
 
                     p {

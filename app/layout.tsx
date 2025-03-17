@@ -1,3 +1,4 @@
+'use client';
 import 'normalize.css';
 import './GlobalStyles/GlobalStyles.scss';
 import Header from './pages/DefaultLayouts/Header/page';

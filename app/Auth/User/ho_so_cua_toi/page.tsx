@@ -9,6 +9,7 @@ import {
     faPhone,
     faChevronDown,
     faPlus,
+    faVenusMars,
 } from '@fortawesome/free-solid-svg-icons';
 import styles from './profile.module.scss';
 import UserControl from '../userControl/UserControl';
@@ -16,12 +17,12 @@ import { useApi } from '../../../Context/ApiContext/ApiContext';
 import { User } from '../../../interface/User';
 import { showToastError } from 'app/Ultils/toast';
 import UpdateProfileModal from '../popup/updateProfie/page';
-import { PhoneNumber } from 'libphonenumber-js';
+import Profile_Skeleton from './Profile_Skeleton';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
 function Profile() {
-    const { fetchUser } = useApi();
+    const { fetchUser, isReady, accessToken } = useApi(); // Sử dụng isReady và accessToken từ ApiContext
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [isUpdateProfileOpen, setIsUpdateProfileOpen] = useState(false);
@@ -40,40 +41,56 @@ function Profile() {
         setLoading(true);
         try {
             const userData = await fetchUser();
+            console.log('Dữ liệu user từ fetchUser:', userData); // Thêm logging để kiểm tra
             setUser(userData);
-        } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu user:', error);
-            showToastError('Không thể tải thông tin người dùng');
+        } catch (error: any) {
+            console.error('Lỗi khi lấy dữ liệu user:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+            });
+            showToastError(
+                error.response?.data?.message || 'Không thể tải thông tin người dùng do lỗi không xác định'
+            );
             setUser(null);
         } finally {
             setLoading(false);
         }
     }, [fetchUser]);
 
-    // Gọi fetchUserData khi component mount
+    // Gọi fetchUserData khi component mount và khi isReady thay đổi
     useEffect(() => {
-        const access_token = localStorage.getItem('access_token');
-        if (access_token) {
+        if (isReady && accessToken) {
             fetchUserData();
-        } else {
+        } else if (!accessToken) {
             setLoading(false);
             setUser(null);
         }
-    }, [fetchUserData]);
+    }, [fetchUserData, isReady, accessToken]);
 
-    // Định dạng số điện thoai
+    // Định dạng số điện thoại
     const formatPhoneNumber = (phoneNumber: string) => {
         if (!phoneNumber || phoneNumber.trim() === '') return '';
 
-        // Lấy mã quốc gia (VD: +84) và phần số còn lại
         const countryCode = phoneNumber.substring(0, 3); // +84
         const number = phoneNumber.substring(3); // 333409892
 
         return `${countryCode}-${number}`; // +84-333409892
     };
-    
+
+    // Hàm chuyển đổi jobTitle từ chuỗi thành mảng
+    const normalizeJobTitle = (jobTitle: string | string[] | undefined): string[] => {
+        if (!jobTitle) return [];
+        if (Array.isArray(jobTitle)) return jobTitle;
+        return jobTitle.split(',').map((title) => title.trim());
+    };
+
     if (loading) {
-        return <div>Đang tải...</div>;
+        return (
+            <div>
+                <Profile_Skeleton />
+            </div>
+        );
     }
 
     if (!user) {
@@ -104,22 +121,28 @@ function Profile() {
                             <div className={styles.flex_info}>
                                 <div className={styles.box_info}>
                                     <span className={styles.box_info__item}>
+                                        <FontAwesomeIcon icon={faVenusMars} />
+                                        Giới tính: {user.gender ? <p>{user.gender}</p> : <p>Chưa cập nhật</p>}
+                                    </span>
+                                    <span className={styles.box_info__item}>
                                         <FontAwesomeIcon icon={faSchool} />
-                                        Cấp bậc: <p>{user.experienceLevel}</p>
+                                        Cấp bậc:{' '}
+                                        {user.experienceLevel ? <p>{user.experienceLevel}</p> : <p>Chưa cập nhật</p>}
                                     </span>
                                     <span className={styles.box_info__item}>
                                         <FontAwesomeIcon icon={faEnvelope} />
-                                        Email: <p>{user.email}</p>
+                                        Email: {user.email ? <p>{user.email}</p> : <p>Chưa cập nhật</p>}
                                     </span>
                                     <span className={styles.box_info__item}>
                                         <FontAwesomeIcon icon={faHouse} />
-                                        Địa chỉ: <p>{user.address}</p>
+                                        Địa chỉ: {user.address ? <p>{user.address}</p> : <p>Chưa cập nhật</p>}
                                     </span>
                                 </div>
                                 <div className={styles.box_info}>
                                     <span className={styles.box_info__item}>
                                         <FontAwesomeIcon icon={faGraduationCap} />
-                                        Bằng cấp: <p>{user.highestDegree}</p>
+                                        Bằng cấp:{' '}
+                                        {user.highestDegree ? <p>{user.highestDegree}</p> : <p>Chưa cập nhật</p>}
                                     </span>
                                     <span className={styles.box_info__item}>
                                         <FontAwesomeIcon icon={faPhone} /> Số điện thoại:{' '}
@@ -135,7 +158,7 @@ function Profile() {
 
                         <div className={styles.box_mainContent}>
                             <span className={styles.mainContent_item}>
-                                Vị trí mong muốn: <p>{user.jobTitle}</p>
+                                Vị trí mong muốn: {user.jobTitle ? <p>{user.jobTitle}</p> : <p>Chưa cập nhật</p>}
                             </span>
                             <span className={styles.mainContent_item}>
                                 Mức lương mong muốn (VNĐ/tháng):{' '}
@@ -180,7 +203,6 @@ function Profile() {
                                 <>
                                     <span>Mô tả vị trí công việc bạn muốn hướng đến</span>
                                     <p onClick={() => setIsUpdateProfileOpen(true)}>
-                                        {' '}
                                         <FontAwesomeIcon icon={faPlus} /> Thêm vị trí mong muốn
                                     </p>
                                 </>
@@ -189,14 +211,12 @@ function Profile() {
 
                         <div className={styles.box_infoBasic__item}>
                             <h2>Mức lương mong muốn</h2>
-
                             {new Intl.NumberFormat('vi-VN').format(user.expectedSalary) ? (
                                 <span>{new Intl.NumberFormat('vi-VN').format(user.expectedSalary)} VNĐ</span>
                             ) : (
                                 <>
                                     <span>Thêm mức lương mong muốn</span>
                                     <p onClick={() => setIsUpdateProfileOpen(true)}>
-                                        {' '}
                                         <FontAwesomeIcon icon={faPlus} /> Thêm mức lương mong muốn
                                     </p>
                                 </>
@@ -205,14 +225,12 @@ function Profile() {
 
                         <div className={styles.box_infoBasic__item}>
                             <h2>Kỹ năng</h2>
-
                             {user.skills ? (
                                 <span>{user.skills}</span>
                             ) : (
                                 <>
-                                    <span>hêm những kỹ năng mà bạn đã có trong suốt quá trình.</span>
+                                    <span>Thêm những kỹ năng mà bạn đã có trong suốt quá trình.</span>
                                     <p onClick={() => setIsUpdateProfileOpen(true)}>
-                                        {' '}
                                         <FontAwesomeIcon icon={faPlus} /> Thêm kỹ năng đã có
                                     </p>
                                 </>
@@ -222,12 +240,22 @@ function Profile() {
                         <div className={styles.box_infoBasic__item}>
                             <h2>Thông tin học vấn</h2>
                             {user.education ? (
-                                <span>{user.education}</span>
+                                <>
+                                    {user.experienceLevel === 'Mới ra trường' ||
+                                    user.experienceLevel === 'Nhân viên' ||
+                                    user.experienceLevel === 'Thạc sĩ' ||
+                                    user.experienceLevel === 'Tiến sĩ' ? (
+                                        <span>
+                                            <p>Đã tốt nghiệp:</p> <p className={styles.name_university}>{user.education}</p>{' '}
+                                        </span>
+                                    ) : (
+                                        <span>{user.education}</span>
+                                    )}
+                                </>
                             ) : (
                                 <>
                                     <span>Mô tả thông tin trường bạn đang hoặc đã từng học tại đó.</span>
                                     <p onClick={() => setIsUpdateProfileOpen(true)}>
-                                        {' '}
                                         <FontAwesomeIcon icon={faPlus} /> Thêm thông tin học vấn tại nơi bạn đã trải qua
                                     </p>
                                 </>
@@ -241,11 +269,10 @@ function Profile() {
                             ) : (
                                 <>
                                     <span>
-                                        Mô tả toàn bộ quá trình học vấn của bạn, cũng như các bằng cấp bạn đã được và
-                                        các khóa huấn luyện bạn đã tham gia.
+                                        Mô tả toàn bộ quá trình học vấn của bạn, cũng như các bằng cấp bạn đã được và các
+                                        khóa huấn luyện bạn đã tham gia.
                                     </span>
                                     <p onClick={() => setIsUpdateProfileOpen(true)}>
-                                        {' '}
                                         <FontAwesomeIcon icon={faPlus} /> Thêm thông tin bằng cấp bạn đã có được
                                     </p>
                                 </>
@@ -255,7 +282,12 @@ function Profile() {
                 </div>
             </div>
 
-            <UpdateProfileModal isOpen={isUpdateProfileOpen} onClose={() => setIsUpdateProfileOpen(false)} />
+            <UpdateProfileModal
+                isOpen={isUpdateProfileOpen}
+                onClose={() => setIsUpdateProfileOpen(false)}
+                firstName={user?.firstName}
+                lastName={user?.lastName}
+            />
         </section>
     );
 }

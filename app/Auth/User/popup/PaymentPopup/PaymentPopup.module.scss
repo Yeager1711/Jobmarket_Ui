@@ -1,0 +1,133 @@
+.popupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popupContent {
+    background: #fff;
+    border-radius: 1rem;
+    max-width: 60rem;
+    width: 93%;
+    box-shadow: 0 .4rem .8rem rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+
+    animation: slideIn 0.3s ease-in-out;
+
+    .PaymentPopup_header {
+        background: linear-gradient(90deg, #6b0fff, #a964d2, #ff9a00);
+        padding: 2rem;
+
+        h2 {
+            font-size: 1.8rem;
+            color: #fff;
+        }
+    }
+
+
+    .closeButton {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+    }
+
+    .wrapper_option {
+        padding: 2rem;
+
+        h3 {
+            font-size: 1.6rem;
+            text-transform: capitalize;
+        }
+
+        .options {
+            .option {
+                position: relative;
+                padding: 2rem;
+                border: .1rem solid var(--border);
+                border-radius: 1rem;
+                margin-bottom: 1.5rem;
+                overflow: hidden;
+
+                label {
+                    font-size: 1.4rem;
+                    margin-left: .5rem;
+                    font-weight: var(--weight500);
+                }
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .content_history {
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: .5rem;
+                    margin: 1rem 0 0 1rem;
+                    color: var(--textBlur);
+
+                    p {
+                        font-size: 1.3rem;
+                    }
+                }
+
+                .CV_default {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    padding: .5rem 1rem;
+                    background: var(--viewDetails);
+                    color: var(--colorWhiteText);
+                    border-bottom-left-radius: 1rem;
+                }
+            }
+        }
+    }
+
+    .PaymentPopup_footers {
+        padding: 2rem;
+
+        .payButton {
+            background: linear-gradient(90deg, rgb(224, 54, 155) 0%, rgb(192, 6, 233) 100%);
+            color: #fff;
+            border: none;
+            padding: 1.2rem 2.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+
+            &:hover {
+                background: linear-gradient(90deg, #ff8c00, #ff6200);
+            }
+        }
+    }
+
+    
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
