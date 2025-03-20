@@ -93,6 +93,10 @@
                     color: var(--colorWhiteText);
                     border-bottom-left-radius: 1rem;
                 }
+
+                input {
+                    cursor: pointer;
+                }
             }
         }
     }

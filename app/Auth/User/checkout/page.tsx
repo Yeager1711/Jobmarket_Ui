@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
+import { showToastError, showToastSuccess } from 'app/Ultils/toast';
 
 // Hàm định dạng tiền tệ VND
 const formatVND = (amount: number): string => {
@@ -16,18 +17,28 @@ const formatVND = (amount: number): string => {
     }).format(amount);
 };
 
-export default function PaymentPage() {
+// Interface cho CV
+interface CV {
+    resumeCVId: number;
+    name_file?: string;
+    isDefault: boolean;
+    updatedAt: string;
+}
+
+export default function Checkout() {
     const [isProcessing, setIsProcessing] = useState(false);
     const searchParams = useSearchParams();
     const { accessToken, fetchUser, fetchCVs, fetchJobDetails } = useApi();
     const router = useRouter();
 
-    // Lấy jobId từ query parameter
+    // Lấy jobId và resumeCVId từ query parameter
     const jobId = searchParams.get('jobId') ? parseInt(searchParams.get('jobId') as string) : 0;
+    const resumeCVId = searchParams.get('resumeCVId') ? parseInt(searchParams.get('resumeCVId') as string) : 0;
+
     const [user, setUser] = useState<any | null>(null);
-    const [cvs, setCvs] = useState<any[]>([]);
+    const [cvs, setCvs] = useState<CV[]>([]);
     const [jobDetails, setJobDetails] = useState<any | null>(null);
-    const [selectedCV, setSelectedCV] = useState<any | null>(null); // CV được chọn
+    const [selectedCV, setSelectedCV] = useState<CV | null>(null);
 
     // Lấy thông tin người dùng, CV, và job khi component mount
     useEffect(() => {
@@ -41,9 +52,12 @@ export default function PaymentPage() {
                 if (userData?.userId) {
                     const cvData = await fetchCVs(userData.userId);
                     setCvs(cvData);
-                    // Giả sử chọn CV mặc định hoặc CV đầu tiên nếu không có selectedCVId từ PaymentPopup
-                    const defaultCV = cvData.find((cv: any) => cv.isDefault);
-                    setSelectedCV(defaultCV || cvData[0] || null);
+
+                    // Chỉ chọn CV nếu resumeCVId được cung cấp
+                    if (resumeCVId) {
+                        const selected = cvData.find((cv: CV) => cv.resumeCVId === resumeCVId);
+                        setSelectedCV(selected || null);
+                    }
                 }
 
                 // Lấy thông tin job
@@ -64,49 +78,44 @@ export default function PaymentPage() {
             }
         };
         loadData();
-    }, [accessToken, fetchUser, fetchCVs, fetchJobDetails, jobId]);
+    }, [accessToken, fetchUser, fetchCVs, fetchJobDetails, jobId, resumeCVId]);
 
     const handlePayment = async () => {
         if (!jobId || jobId === 0) {
-            toast.error('Không tìm thấy jobId', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            showToastError('Không tìm thấy jobId');
             return;
         }
 
         if (!selectedCV) {
-            toast.error('Vui lòng chọn một CV để tiếp tục', {
-                position: 'top-right',
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            showToastError('Vui lòng chọn một CV để tiếp tục');
             return;
         }
 
         setIsProcessing(true);
 
         try {
+            console.log('jobId gửi đi:', jobId);
+            console.log('resumeCVId gửi đi:', selectedCV.resumeCVId);
+
             const headers = {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${accessToken}`,
             };
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_APP_API_BASE_URL}/users/compare-competitiveness/${jobId}/${selectedCV}`,
+                `${process.env.NEXT_PUBLIC_APP_API_BASE_URL}/users/compare-competitiveness/${jobId}/${selectedCV.resumeCVId}`,
                 {
-                    resumeCVId: selectedCV.resumeCVId, // Gửi ID của CV đã chọn
+                    resumeCVId: selectedCV.resumeCVId,
                 },
                 { headers }
             );
 
-            toast.success('Thanh toán và phân tích thành công!', {
+            showToastSuccess('Thanh toán và phân tích thành công!');
+            router.push(
+                `/Auth/User/chatAI/result/compareCompetitiveness?jobId=${jobId}&resumeCVId=${selectedCV.resumeCVId}`
+            );
+        } catch (error: any) {
+            console.error('Lỗi khi gọi API:', error);
+            toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi phân tích mức độ cạnh tranh', {
                 position: 'top-right',
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -114,44 +123,26 @@ export default function PaymentPage() {
                 pauseOnHover: true,
                 draggable: true,
             });
-
-            // Điều hướng hoặc hiển thị kết quả phân tích
-            console.log('Kết quả phân tích:', response.data.data);
-            router.push('/Auth/User/chatAI/result/compareCompetitiveness'); // Điều hướng đến trang kết quả (có thể tùy chỉnh)
-        } catch (error: any) {
-            console.error('Lỗi khi gọi API:', error);
-            toast.error(
-                error.response?.data?.message || 'Có lỗi xảy ra khi phân tích mức độ cạnh tranh',
-                {
-                    position: 'top-right',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                }
-            );
         } finally {
             setIsProcessing(false);
         }
     };
 
     // Tính toán giá tiền
-    const basePrice = parseInt(process.env.NEXT_PUBLIC_APP_PRICE_AI || '25000'); // Giá mặc định là 25.000
+    const basePrice = parseInt(process.env.NEXT_PUBLIC_APP_PRICE_AI || '25000');
     const taxRate = 0.1; // 10% VAT
-    const totalWithoutTax = Math.round(basePrice / (1 + taxRate)); // Tổng cộng (Chưa bao gồm thuế)
-    const totalWithTax = basePrice; // Số tiền thanh toán (Đã bao gồm 10% VAT)
+    const totalWithoutTax = Math.round(basePrice / (1 + taxRate));
+    const totalWithTax = basePrice;
 
     return (
         <section className={styles.PaymentPage}>
-            <h2 className={styles.paymentSection__title}>Checkout</h2>
+            <h2 className={styles.paymentSection__title}>Thanh toán</h2>
             <p className={styles.paymentSection__text}>Thông tin thanh toán</p>
 
             <div className={styles.container}>
                 <div className={styles.paymentSection}>
                     <div className={styles.orderInfo}>
                         <h3 className={styles.orderInfo__title}>Thông tin đơn hàng</h3>
-
                         <div className={styles.user_infomation}>
                             <span className={styles.user_infomation__item}>
                                 {user?.firstName} {user?.lastName}
@@ -159,7 +150,14 @@ export default function PaymentPage() {
                             <span className={styles.user_infomation__item}>
                                 Mã ứng viên: <p>#{user?.userId || 'N/A'}</p>
                             </span>
-                            <span className={styles.user_infomation__item}>{user?.email}</span>
+                            <span className={styles.user_infomation__item}>
+                                <p>Email: </p>
+                                {user?.email}
+                            </span>
+                            <span className={styles.user_infomation__item}>
+                                <p style={{ marginRight: '.5rem' }}>Nội dung: </p>
+                                "Thanh toán sử dụng dịch vụ phân tích hồ sơ xin việc bằng AI"
+                            </span>
                         </div>
                         <div className={styles.orderDetails}>
                             <div className={styles.orderDetails__row}>
@@ -171,8 +169,13 @@ export default function PaymentPage() {
                             <div className={styles.orderDetails__row}>
                                 <span className={styles.orderDetails__cell}>
                                     Báo Cáo Phân Tích Mức Độ Cạnh Tranh Phần Cứng CV{' '}
-                                    <p>{selectedCV?.name_file || 'Chưa chọn CV'}</p> (ID: {selectedCV?.resumeCVId || 'N/A'}) vị trí{' '}
-                                    <p>{jobDetails?.title || 'Chưa tải job'}</p> (ID: {jobId})
+                                    <p>
+                                        {selectedCV?.name_file || 'Chưa chọn CV'} (ID: {selectedCV?.resumeCVId || 'N/A'}
+                                        )
+                                    </p>
+                                    <p>
+                                        Vị trí: {jobDetails?.title || 'Chưa tải job'} (ID: {jobId})
+                                    </p>
                                 </span>
                                 <span className={styles.orderDetails__cell__item}>{formatVND(totalWithoutTax)}</span>
                                 <span className={styles.orderDetails__cell__item}>1</span>
@@ -182,7 +185,6 @@ export default function PaymentPage() {
                     </div>
                     <div className={styles.contactInfo}>
                         <h3 className={styles.contactInfo__title}>Liên hệ với chúng tôi:</h3>
-
                         <div className={styles.flex_contact}>
                             <p className={styles.contactInfo__item}>
                                 <FontAwesomeIcon icon={faPhone} /> (84) 333xxxx92
@@ -206,20 +208,14 @@ export default function PaymentPage() {
                             </span>
                             <span className={styles.summaryDetails__price}>{formatVND(totalWithoutTax)}</span>
                         </div>
-
                         <div className={styles.summaryDetails__row}>
                             <span>
                                 Số tiền thanh toán <p>(Đã bao gồm 10% VAT)</p>
                             </span>
                             <span className={styles.summaryDetails__price__final}>{formatVND(totalWithTax)}</span>
                         </div>
-
                         <div className={styles.summaryDetails__row}>
-                            <input
-                                type="checkbox"
-                                id="vatInfo"
-                                className={styles.summaryDetails__checkbox}
-                            />
+                            <input type="checkbox" id="vatInfo" className={styles.summaryDetails__checkbox} />
                             <label htmlFor="vatInfo" className={styles.summaryDetails__label}>
                                 Tôi đồng ý với{' '}
                                 <a href="#" className={styles.summaryDetails__link}>

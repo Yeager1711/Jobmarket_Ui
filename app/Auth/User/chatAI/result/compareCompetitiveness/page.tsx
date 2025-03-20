@@ -2,152 +2,798 @@
 import { useState, useEffect } from 'react';
 import styles from './compareCompetitiveness.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import {
+    faSpinner,
+    faCheck,
+    faXmark,
+    faChartLine,
+    faUsers,
+    faGraduationCap,
+    faBriefcase,
+    faLightbulb,
+    faTrophy,
+    faFlagCheckered,
+    faList,
+} from '@fortawesome/free-solid-svg-icons';
+import { useSearchParams } from 'next/navigation';
+import ChatPopup from 'app/Auth/User/popup/historyAI/page';
+
+const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
 const ResultCompareCompetitiveness = () => {
-    // State để lưu kết quả từ API và nội dung đang gõ
-    const [result, setResult] = useState<string | null>(null);
-    const [typedText, setTypedText] = useState<string>('');
+    const searchParams = useSearchParams();
+    const jobId = searchParams.get('jobId') ? parseInt(searchParams.get('jobId') as string) : undefined;
+    const resumeCVId = searchParams.get('resumeCVId') ? parseInt(searchParams.get('resumeCVId') as string) : undefined;
 
-    // Giả lập dữ liệu từ log (thay thế bằng API call thực tế nếu cần)
-    useEffect(() => {
-        const mockResult = `
-                  Chào bạn! Mình là AI của JobMarket, sẽ giúp Huỳnh Nam so sánh mức độ cạnh tranh với các ứng viên khác cho công việc "Automation Quality Assurance" (ID: 2035121).
+    const [status, setStatus] = useState<'loading' | 'typing' | 'suggestionsLoading' | 'completed'>('loading');
+    const [typedText, setTypedText] = useState<string>(''); // For suitability
+    const [introductionText, setIntroductionText] = useState<string>('');
+    const [typedIntroduction, setTypedIntroduction] = useState<string>('');
+    const [suggestionsReady, setSuggestionsReady] = useState<boolean>(false);
+    const [fullTextContent, setFullTextContent] = useState<string>('');
+    const [candidateName, setCandidateName] = useState<string>('Ứng viên');
+    const [isPopupOpenHistoryAI, setIsPopupOpenHistoryAI] = useState(false);
 
-        🌟 **Thông tin CV của Huỳnh Nam:**
+    const [currentSection, setCurrentSection] = useState<
+        | 'loading'
+        | 'introduction'
+        | 'suitability'
+        | 'comparison'
+        | 'education'
+        | 'experience'
+        | 'suggestions'
+        | 'ranking'
+        | 'conclusion'
+    >('loading');
 
+    const [typedComparison, setTypedComparison] = useState<string[]>([]);
+    const [typedEducation, setTypedEducation] = useState<string>('');
+    const [typedExperience, setTypedExperience] = useState<string>('');
+    const [typedSuggestions, setTypedSuggestions] = useState<string[]>([]);
+    const [typedRanking, setTypedRanking] = useState<string>('');
+    const [typedConclusion, setTypedConclusion] = useState<string>('');
 
-        🎯 **Yêu cầu công việc:**
-        Working closely with other QA, engineers, analysts, and product owners to identify testing areas across the deliverables. 
-Writing, executing, and maintaining test scripts for automation testing. 
-Running and analyzing automa...
-[compareCompetitiveness] Response from Gemini: Chào Huỳnh Nam! Mình thấy bạn đang quan tâm đến vị trí Automation Quality Assurance (ID: 2035121) đấy nhé! Để mình giúp bạn phân tích tình hình cạnh tranh nha.
-
-**1. Đánh giá mức độ phù hợp của Huỳnh Nam (thang điểm 100%):**
-
-Dựa trên những thông tin bạn cung cấp về kỹ năng và kinh nghiệm, mình đánh giá mức độ phù hợp của bạn với công việc này khoảng **70-80%**.  Bạn có kinh nghiệm thực tế với Automation Testing, Selenium, Java, TestNG, API Testing, CI/CD, Git,  và Agile, những điều này rất quan trọng cho vị trí này. Việc bạn đã từng xây dựng framework từ đầu cũng là một điểm cộng lớn. Tuy nhiên, mình chưa có thông tin về học vấn của bạn, nên điểm số có thể thay đổi một chút nếu có thêm thông tin này.
-
-**2. So sánh mức độ cạnh tranh:**
-
-So với hai ứng viên kia, bạn có lợi thế cạnh tranh rõ rệt. Cụ thể như sau:
-
-* **Huỳnh Nam (Điểm mạnh):** Kinh nghiệm thực tế về Automation Testing, thành thạo các công cụ và framework cần thiết (Selenium, Java, TestNG, API Testing, CI/CD, Git),  đã từng xây dựng framework từ đầu, làm việc theo Agile.
-* **Huỳnh Nam (Điểm yếu):**  Chưa rõ thông tin học vấn.  Cần bổ sung thêm thông tin về các dự án đã tham gia,  đóng góp cụ thể, và kết quả đạt được để làm nổi bật kinh nghiệm của mình.
-* **Ứng viên 1 (Huỳnh Thoại):**  Chưa có thông tin gì nhiều ngoài việc là Thực tập sinh/Sinh viên. Rất khó để đánh giá khả năng cạnh tranh của ứng viên này.  Có thể ứng viên này mới bắt đầu sự nghiệp và đang tìm kiếm cơ hội thực tập.
-
-**3. Gợi ý cải thiện cho Huỳnh Nam:**
-
-Để nâng cao khả năng cạnh tranh và tiến gần hơn đến mức 100%, mình có vài gợi ý nho nhỏ cho bạn nè:
-
-* **Bổ sung thông tin học vấn:** Nếu bạn có bằng cấp liên quan đến CNTT, hãy bổ sung vào CV nhé.
-* **Chi tiết hóa kinh nghiệm:** Mô tả rõ hơn về các dự án bạn đã tham gia, vai trò của bạn trong dự án, những công nghệ bạn sử dụng, và kết quả đạt được.  Ví dụ, thay vì chỉ ghi "Xây dựng framework automation testing", hãy viết "Xây dựng framework automation testing từ đầu sử dụng Selenium và Java, giúp giảm thời gian test regression xuống 50%".  Số liệu cụ thể sẽ gây ấn tượng mạnh hơn với nhà tuyển dụng.
-* **Nắm rõ yêu cầu công việc:**  Đọc kỹ mô tả công việc và điều chỉnh CV,  thư xin việc sao cho phù hợp.  Nhấn mạnh những kỹ năng và kinh nghiệm đáp ứng đúng yêu cầu của nhà tuyển dụng.
-* **Trau dồi thêm kỹ năng:**  Công nghệ luôn thay đổi,  vì vậy hãy liên tục học hỏi và cập nhật kiến thức về các công cụ và framework mới.  Bạn có thể tìm hiểu thêm về các framework automation testing phổ biến khác, hoặc các công cụ hỗ trợ CI/CD.
-* **Chuẩn bị cho buổi phỏng vấn:**  Nghiên cứu kỹ về công ty và vị trí ứng tuyển.  Luyện tập trả lời các câu hỏi phỏng vấn thường gặp.
-
-Mình tin rằng với những kinh nghiệm và kỹ năng hiện có, cùng với một chút tinh chỉnh, bạn hoàn toàn có thể chinh phục vị trí Automation Quality Assurance này. Chúc bạn may mắn nhé!  Nếu có bất kỳ thắc mắc nào, đừng ngần ngại hỏi mình nha!
-        `;
-        setResult(mockResult);
-
-        // Hiệu ứng gõ tay
-        let index = 0;
-        const interval = setInterval(() => {
-            if (index < mockResult.length) {
-                setTypedText((prev) => prev + mockResult.charAt(index));
-                index++;
-            } else {
-                clearInterval(interval);
-            }
-        }, 10); // Tốc độ gõ (10ms mỗi ký tự)
-
-        return () => clearInterval(interval); // Dọn dẹp interval khi unmount
-    }, []);
-
-    // Hàm để phân tích và hiển thị gợi ý cải thiện
-    const getSuggestions = (text: string) => {
-        const suggestionSection = text.split('**3. Gợi ý cải thiện:**')[1]?.split('Chúc bạn may mắn')[0]?.trim();
-        if (!suggestionSection) return [];
-        return suggestionSection
-            .split('-')
-            .map((item) => item.trim())
-            .filter((item) => item);
+    // Hàm loại bỏ dấu ** từ chuỗi
+    const removeMarkdownBold = (text: string) => {
+        return text.replace(/\*\*/g, '');
     };
 
-    // Kiểm tra xem hiệu ứng gõ tay đã hoàn tất chưa
-    const isTypingComplete = typedText === result;
+    const getCandidateName = (introText: string) => {
+        const match = introText.match(/mình sẽ giúp (.*?) so sánh mức độ cạnh tranh/);
+        return match ? match[1].trim() : 'Ứng viên';
+    };
+
+    useEffect(() => {
+        if (introductionText) {
+            const name = getCandidateName(introductionText);
+            setCandidateName(name);
+        }
+    }, [introductionText]);
+
+    useEffect(() => {
+        if (!jobId || !resumeCVId) {
+            setTypedText('Error: jobId or resumeCVId not provided. Please check again!');
+            setStatus('completed');
+            setCurrentSection('conclusion');
+            return;
+        }
+
+        const fetchData = async () => {
+            setStatus('loading');
+            setCurrentSection('loading');
+            try {
+                const storedResponse = await fetch(
+                    `${apiUrl}/users/Getcompare-competitiveness/${jobId}/${resumeCVId}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
+                        },
+                    }
+                );
+
+                let fullText: string;
+                if (storedResponse.ok) {
+                    const storedResult = await storedResponse.json();
+                    if (storedResult.data?.analyze_text) {
+                        const [intro, content] = storedResult.data.analyze_text.split('---\n\n');
+                        setIntroductionText(intro.trim());
+                        fullText = content.trim();
+                        setFullTextContent(content.trim());
+                    } else {
+                        throw new Error('No stored analysis found');
+                    }
+                } else {
+                    const response = await fetch(`${apiUrl}/users/compare-competitiveness/${jobId}/${resumeCVId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    if (!result.data) {
+                        throw new Error('Invalid response data');
+                    }
+                    const [intro, content] = result.data.split('---\n\n');
+                    setIntroductionText(intro.trim());
+                    fullText = content.trim();
+                    setFullTextContent(content.trim());
+                }
+
+                setStatus('typing');
+                setCurrentSection('introduction');
+            } catch (error: any) {
+                setTypedText(`An error occurred: ${error.message}. Please try again later!`);
+                setStatus('completed');
+                setCurrentSection('conclusion');
+            }
+        };
+
+        fetchData();
+    }, [jobId, resumeCVId]);
+
+    // Typing effect for introduction
+    useEffect(() => {
+        if (currentSection === 'introduction' && introductionText) {
+            // Chuẩn hóa chuỗi introductionText: loại bỏ dấu chấm thừa và thêm dấu chấm cuối nếu cần
+            let cleanedText = introductionText.trim();
+
+            // Sửa lỗi thiếu chữ "C" ở đầu
+            if (cleanedText.startsWith('hào')) {
+                cleanedText = 'Ch' + cleanedText.slice(1);
+            }
+
+            if (cleanedText.endsWith('....')) {
+                cleanedText = cleanedText.replace(/\.{3,}$/, ''); // Loại bỏ 3 dấu chấm trở lên ở cuối
+                cleanedText += '.'; // Thêm một dấu chấm duy nhất
+            } else if (!cleanedText.endsWith('.')) {
+                cleanedText += '.'; // Thêm dấu chấm nếu chưa có
+            }
+
+            let introIndex = 0;
+            const introInterval = setInterval(() => {
+                if (introIndex < cleanedText.length) {
+                    setTypedIntroduction((prev) => prev + cleanedText.charAt(introIndex));
+                    introIndex++;
+                } else {
+                    clearInterval(introInterval);
+                    setCurrentSection('suitability');
+                }
+            }, 5);
+            return () => clearInterval(introInterval);
+        }
+    }, [currentSection, introductionText]);
+
+    // Typing effect for suitability
+    useEffect(() => {
+        if (currentSection === 'suitability' && fullTextContent) {
+            const suitabilityText = getEvaluation(fullTextContent);
+            let contentIndex = 0;
+            setTypedText('');
+            const contentInterval = setInterval(() => {
+                if (contentIndex < suitabilityText.length) {
+                    setTypedText((prev) => prev + suitabilityText.charAt(contentIndex));
+                    contentIndex++;
+                } else {
+                    clearInterval(contentInterval);
+                    setCurrentSection('comparison');
+                }
+            }, 5);
+            return () => clearInterval(contentInterval);
+        }
+    }, [currentSection, fullTextContent]);
+
+    // Typing effect for comparison
+    useEffect(() => {
+        if (currentSection === 'comparison') {
+            const comparison = getComparison(fullTextContent);
+            if (comparison) {
+                let currentLineIndex = 0;
+                let currentCharIndex = 0;
+                const comparisonLines = comparison.split('\n').filter((line) => line.trim());
+                const typedComparisonArray: string[] = new Array(comparisonLines.length).fill('');
+
+                const comparisonInterval = setInterval(() => {
+                    if (currentLineIndex < comparisonLines.length) {
+                        const currentLine = comparisonLines[currentLineIndex];
+                        if (currentCharIndex < currentLine.length) {
+                            typedComparisonArray[currentLineIndex] = currentLine.slice(0, currentCharIndex + 1);
+                            setTypedComparison([...typedComparisonArray]);
+                            currentCharIndex++;
+                        } else {
+                            currentLineIndex++;
+                            currentCharIndex = 0;
+                        }
+                    } else {
+                        clearInterval(comparisonInterval);
+                        setCurrentSection('education');
+                    }
+                }, 5);
+                return () => clearInterval(comparisonInterval);
+            } else {
+                setCurrentSection('education');
+            }
+        }
+    }, [currentSection, fullTextContent]);
+
+    // Typing effect for education
+    useEffect(() => {
+        if (currentSection === 'education') {
+            const education = getEducation(fullTextContent);
+            if (education) {
+                let currentCharIndex = 0;
+                const educationInterval = setInterval(() => {
+                    if (currentCharIndex < education.length) {
+                        setTypedEducation(education.slice(0, currentCharIndex + 1));
+                        currentCharIndex++;
+                    } else {
+                        clearInterval(educationInterval);
+                        setCurrentSection('experience');
+                    }
+                }, 5);
+                return () => clearInterval(educationInterval);
+            } else {
+                setCurrentSection('experience');
+            }
+        }
+    }, [currentSection, fullTextContent]);
+
+    // Typing effect for experience
+    useEffect(() => {
+        if (currentSection === 'experience') {
+            const experience = getExperience(fullTextContent);
+            if (experience) {
+                let currentCharIndex = 0;
+                const experienceInterval = setInterval(() => {
+                    if (currentCharIndex < experience.length) {
+                        setTypedExperience(experience.slice(0, currentCharIndex + 1));
+                        currentCharIndex++;
+                    } else {
+                        clearInterval(experienceInterval);
+                        setCurrentSection('suggestions');
+                        setStatus('suggestionsLoading');
+                    }
+                }, 5);
+                return () => clearInterval(experienceInterval);
+            } else {
+                setCurrentSection('suggestions');
+                setStatus('suggestionsLoading');
+            }
+        }
+    }, [currentSection, fullTextContent]);
+
+    // Typing effect for suggestions
+    useEffect(() => {
+        if (currentSection === 'suggestions' && (status === 'suggestionsLoading' || status === 'completed')) {
+            const suggestions = getSuggestions(fullTextContent);
+            if (suggestions.length > 0) {
+                let currentSuggestionIndex = 0;
+                let currentCharIndex = 0;
+                const typedSuggestionsArray: string[] = new Array(suggestions.length).fill('');
+
+                const suggestionInterval = setInterval(() => {
+                    if (currentSuggestionIndex < suggestions.length) {
+                        const currentSuggestion = suggestions[currentSuggestionIndex];
+                        if (currentCharIndex < currentSuggestion.length) {
+                            typedSuggestionsArray[currentSuggestionIndex] = currentSuggestion.slice(
+                                0,
+                                currentCharIndex + 1
+                            );
+                            setTypedSuggestions([...typedSuggestionsArray]);
+                            currentCharIndex++;
+                        } else {
+                            currentSuggestionIndex++;
+                            currentCharIndex = 0;
+                        }
+                    } else {
+                        clearInterval(suggestionInterval);
+                        setSuggestionsReady(true);
+                        setStatus('completed');
+                        setCurrentSection('ranking');
+                    }
+                }, 5);
+                return () => clearInterval(suggestionInterval);
+            } else {
+                setSuggestionsReady(true);
+                setStatus('completed');
+                setCurrentSection('ranking');
+            }
+        }
+    }, [currentSection, status, fullTextContent]);
+
+    // Typing effect for ranking
+    useEffect(() => {
+        if (currentSection === 'ranking') {
+            const ranking = getRanking(fullTextContent);
+            if (ranking) {
+                let currentCharIndex = 0;
+                const rankingInterval = setInterval(() => {
+                    if (currentCharIndex < ranking.length) {
+                        setTypedRanking(ranking.slice(0, currentCharIndex + 1));
+                        currentCharIndex++;
+                    } else {
+                        clearInterval(rankingInterval);
+                        setCurrentSection('conclusion');
+                    }
+                }, 5);
+                return () => clearInterval(rankingInterval);
+            } else {
+                setCurrentSection('conclusion');
+            }
+        }
+    }, [currentSection, fullTextContent]);
+
+    // Typing effect for conclusion
+    useEffect(() => {
+        if (currentSection === 'conclusion' && status === 'completed') {
+            const conclusion = getConclusion(fullTextContent);
+            if (conclusion) {
+                let currentCharIndex = 0;
+                const conclusionInterval = setInterval(() => {
+                    if (currentCharIndex < conclusion.length) {
+                        setTypedConclusion(conclusion.slice(0, currentCharIndex + 1));
+                        currentCharIndex++;
+                    } else {
+                        clearInterval(conclusionInterval);
+                    }
+                }, 5);
+                return () => clearInterval(conclusionInterval);
+            }
+        }
+    }, [currentSection, status, fullTextContent]);
+
+    // Hàm phân tích dữ liệu
+    const getEvaluation = (text: string) =>
+        text.split('## 1. Đánh giá mức độ phù hợp')[1]?.split('## 2. So sánh mức độ cạnh tranh')[0]?.trim() || '';
+    const getComparison = (text: string) =>
+        text.split('## 2. So sánh mức độ cạnh tranh')[1]?.split('## 3. Học vấn')[0]?.trim() || '';
+    const getEducation = (text: string) =>
+        text.split('## 3. Học vấn')[1]?.split('## 4. Phân tích kinh nghiệm')[0]?.trim() || '';
+    const getExperience = (text: string) =>
+        text.split('## 4. Phân tích kinh nghiệm')[1]?.split('## 5. Gợi ý cải thiện')[0]?.trim() || '';
+    const getSuggestions = (text: string) =>
+        text
+            .split('## 5. Gợi ý cải thiện')[1]
+            ?.split('## 6. Xếp hạng chung')[0]
+            ?.trim()
+            .split('\n')
+            .map((item) => item.trim())
+            .filter((item) => item) || [];
+    const getRanking = (text: string) =>
+        text.split('## 6. Xếp hạng chung')[1]?.split('## 7. Kết luận')[0]?.trim() || '';
+    const getConclusion = (text: string) => text.split('## 7. Kết luận')[1]?.trim() || '';
+
+    // Hàm trích xuất dữ liệu cho phần "Đánh giá mức độ phù hợp"
+    const getSuitabilityPercentage = (text: string) => {
+        const match = text.match(/- \*\*Mức độ phù hợp với công việc\*\*: (\d+)%/);
+        return match ? parseInt(match[1]) : 0;
+    };
+
+    const getSuitabilityExplanation = (text: string) =>
+        text.match(/- \*\*Giải thích chi tiết:\*\* ([\s\S]+?)(?=- \*\*So sánh|\n## 2\.)/)?.[1]?.trim() || '';
+
+    const getComparisonWithOthers = (text: string) =>
+        text.match(/- \*\*So sánh với ứng viên khác\*\*: (Xếp hạng \d\/\d)/)?.[1]?.trim() || 'Chưa có dữ liệu';
+
+    const getMarketSalary = (text: string) =>
+        text.match(/- \*\*Mức lương thị trường\*\*: (.*?\/năm)/)?.[1]?.trim() || 'Chưa có dữ liệu';
+
+    const suitabilityPercentage = getSuitabilityPercentage(typedText);
+    const suitabilityExplanation = removeMarkdownBold(getSuitabilityExplanation(typedText));
+    const comparisonWithOthers = removeMarkdownBold(getComparisonWithOthers(typedText));
+    const marketSalary = removeMarkdownBold(getMarketSalary(typedText));
+
+    // Hàm render cho Comparison
+    const renderComparisonLine = (line: string) => {
+        const mainContent = removeMarkdownBold(line.split(': ')[1]?.trim() || line.trim());
+        const hasYes = mainContent.toLowerCase().startsWith('có') || mainContent.toLowerCase().includes('khá tốt');
+        const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().startsWith('không');
+
+        return (
+            <p>
+                {hasYes ? (
+                    <FontAwesomeIcon icon={faCheck} className={styles.check} />
+                ) : hasNo ? (
+                    <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
+                ) : null}
+                {mainContent}
+            </p>
+        );
+    };
+
+    // Hàm render cho Education
+    const renderEducationLine = (line: string) => {
+        const mainContent = removeMarkdownBold(line.split(': ')[1]?.trim() || line.trim());
+        const hasYes = mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('khá tốt');
+        const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('chưa');
+
+        return (
+            <p>
+                {hasYes ? (
+                    <FontAwesomeIcon icon={faCheck} className={styles.check} />
+                ) : hasNo ? (
+                    <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
+                ) : null}
+                {mainContent}
+            </p>
+        );
+    };
+
+    // Hàm render cho Experience
+    const renderExperienceLine = (line: string) => {
+        const mainContent = removeMarkdownBold(line.split(': ')[1]?.trim() || line.trim());
+        const hasYes =
+            mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('ấn tượng');
+        const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('ngắn');
+
+        return (
+            <p>
+                {hasYes ? (
+                    <FontAwesomeIcon icon={faCheck} className={styles.check} />
+                ) : hasNo ? (
+                    <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
+                ) : null}
+                {mainContent}
+            </p>
+        );
+    };
 
     return (
-        <section className={styles.resultContainer}>
-            {/* Header */}
-            <div className={styles.header}>
-                <h1>Kết quả so sánh mức độ cạnh tranh</h1>
-                <p>
-                    Công việc: <strong>Automation Quality Assurance</strong> (ID: 2035121)
-                </p>
-                <p>
-                    Tổng ứng viên: <strong>2</strong>
-                </p>
-            </div>
-
-            {/* AI Message Section */}
-            {result ? (
-                <div className={styles.aiMessage}>
-                    <div className={styles.AI_border}>
-                        <div className={styles.aiAvatar}>
-                            <span>AI</span>
+        <div className={styles.ResultCompareCompetitiveness}>
+            <div className={styles.resultContainer}>
+                <div className={styles.flex_controll__user}>
+                    <div className={styles.ResultCompareCompetitiveness_header}>
+                        <h3>Phân tích báo cáo mức độ cạnh tranh</h3>
+                        <span>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="15"
+                                viewBox="0 0 32 24"
+                                fill="none"
+                            >
+                                <path
+                                    d="M7.00212 3.07087C6.45598 3.25137 6.45598 4.0243 7.00212 4.20326C8.26102 4.61672 9.24839 5.60564 9.66339 6.86453C9.84389 7.41067 10.6168 7.41067 10.7958 6.86453C11.2092 5.60564 12.1981 4.61826 13.457 4.20326C14.0032 4.02276 14.0032 3.24983 13.457 3.07087C12.1981 2.65741 11.2108 1.6685 10.7958 0.409604C10.6153 -0.136535 9.84235 -0.136535 9.66339 0.409604C9.24839 1.67004 8.26102 2.65741 7.00212 3.07087ZM24.3366 2.14521C24.1237 1.49725 23.2058 1.49725 22.9929 2.14521L21.9963 5.17829C21.5057 6.67168 20.3332 7.84264 18.8413 8.33324L15.8082 9.32987C15.1603 9.54277 15.1603 10.4607 15.8082 10.6736L18.8413 11.6702C20.3347 12.1608 21.5057 13.3333 21.9963 14.8252L22.9929 17.8583C23.2058 18.5062 24.1237 18.5062 24.3366 17.8583L25.3348 14.8252C25.8254 13.3318 26.9964 12.1608 28.4898 11.6702L31.5228 10.6736C32.1708 10.4607 32.1708 9.54277 31.5228 9.32987L28.4898 8.3317C26.9964 7.8411 25.8254 6.67014 25.3348 5.17675L24.3366 2.14521ZM13.7301 14.873C13.5172 14.225 12.5993 14.225 12.3864 14.873L12.2645 15.2448C11.7739 16.7382 10.6029 17.9092 9.10954 18.3998L8.73773 18.5216C8.08977 18.7345 8.08977 19.6525 8.73773 19.8654L9.10954 19.9873C10.6029 20.4779 11.7739 21.6488 12.2645 23.1422L12.3864 23.514C12.5993 24.162 13.5172 24.162 13.7301 23.514L13.852 23.1422C14.3426 21.6488 15.5151 20.4779 17.007 19.9873L17.3788 19.8654C18.0267 19.6525 18.0267 18.7345 17.3788 18.5216L17.007 18.3998C15.5136 17.9092 14.3426 16.7367 13.852 15.2448L13.7301 14.873Z"
+                                    fill="url(#paint0_linear_35033_166622)"
+                                ></path>
+                                <path
+                                    d="M0.409604 11.9911C-0.136535 12.1716 -0.136535 12.9446 0.409604 13.1235C1.6685 13.537 2.65587 14.5259 3.07087 15.7848C3.25138 16.3309 4.0243 16.3309 4.20326 15.7848C4.61672 14.5259 5.60563 13.5385 6.86453 13.1235C7.41067 12.943 7.41067 12.1701 6.86453 11.9911C5.60563 11.5777 4.61826 10.5888 4.20326 9.32987C4.02276 8.78373 3.24983 8.78373 3.07087 9.32987C2.65587 10.5903 1.6685 11.5777 0.409604 11.9911Z"
+                                    fill="url(#paint1_linear_35033_166622)"
+                                ></path>
+                                <defs>
+                                    <linearGradient
+                                        id="paint0_linear_35033_166622"
+                                        x1="32.0088"
+                                        y1="12"
+                                        x2="0"
+                                        y2="12"
+                                        gradientUnits="userSpaceOnUse"
+                                    >
+                                        <stop stopColor="#B900F6"></stop>
+                                        <stop offset="0.67" stopColor="#FF3C68" stopOpacity="0.3"></stop>
+                                        <stop offset="1" stopColor="#FF6200" stopOpacity="0"></stop>
+                                    </linearGradient>
+                                    <linearGradient
+                                        id="paint1_linear_35033_166622"
+                                        x1="32.0088"
+                                        y1="12"
+                                        x2="0"
+                                        y2="12"
+                                        gradientUnits="userSpaceOnUse"
+                                    >
+                                        <stop stopColor="#B900F6"></stop>
+                                        <stop offset="0.67" stopColor="#FF3C68" stopOpacity="0.3"></stop>
+                                        <stop offset="1" stopColor="#FF6200" stopOpacity="0"></stop>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            JobMarket AI
+                        </span>
+                    </div>
+                    <ChatPopup isOpen={isPopupOpenHistoryAI} onClose={() => setIsPopupOpenHistoryAI(false)} />
+                    <div className={styles.control_user}>
+                        <div className={styles.control}>
+                            <FontAwesomeIcon icon={faList} onClick={() => setIsPopupOpenHistoryAI(true)} />
                         </div>
-                        <div className={styles.aiContent}>
-                            {/* Hiển thị nội dung với hiệu ứng gõ tay */}
-                            <div className={styles.typingText}>
-                                {typedText
-                                    .split('\n')
-                                    .map((line, index) =>
-                                        line.trim() ? (
-                                            <p key={index}>
-                                                {line.includes('**') ? (
-                                                    <strong>{line.replace(/\*\*/g, '')}</strong>
-                                                ) : (
-                                                    line
-                                                )}
-                                            </p>
-                                        ) : null
-                                    )}
-                                <span className={styles.cursor}>|</span>
-                            </div>
+                        <div className={styles.user}>
+                            <span className={styles.name}>Huỳnh Nam</span>
+                            <img src="http://localhost:5000/uploads/images/1741840745566-831657183.jpg" alt="" />
                         </div>
                     </div>
                 </div>
-            ) : (
-                <div className={styles.loading}>
-                    <p>Đang phân tích mức độ cạnh tranh...</p>
-                </div>
-            )}
 
-            {/* Suggestions Section - Chỉ hiển thị khi gõ tay hoàn tất */}
-            {result && isTypingComplete && (
-                <div className={styles.suggestions}>
-                    <h2>Gợi ý cải thiện</h2>
-                    <ul>
-                        {getSuggestions(result).map((suggestion, index) => (
-                            <li key={index}>
-                                <FontAwesomeIcon icon={faCheckCircle} className={styles.icon} />
-                                {suggestion}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+                {currentSection === 'loading' && (
+                    <div className={styles.AI_reply_text}>
+                        <div className={styles.logo_AI}>AI</div>
+                        <div className={styles.analyzing}>
+                            <FontAwesomeIcon icon={faSpinner} spin className={styles.spinner} />
+                            <p>Đang phân tích mức độ cạnh tranh...</p>
+                        </div>
+                    </div>
+                )}
 
-            {/* Call-to-Action Button - Chỉ hiển thị khi gõ tay hoàn tất */}
-            {result && isTypingComplete && (
-                <div className={styles.cta}>
-                    <button>
-                        Quay lại danh sách công việc
-                        <FontAwesomeIcon icon={faArrowRight} className={styles.arrowIcon} />
-                    </button>
+                <div
+                    className={`${styles.wrapper_flex} ${
+                        ['loading', 'introduction'].includes(currentSection) ? styles.full_width : styles.partial_width
+                    }`}
+                >
+                    <div className={styles.flex_left}>
+                        {currentSection !== 'loading' && (
+                            <div className={styles.AI_reply_text}>
+                                <div className={styles.logo_AI}>AI</div>
+                                <div className={styles.typingText}>
+                                    {typedIntroduction
+                                        .split('\n')
+                                        .map((line, index) =>
+                                            line.trim() ? <p key={index}>{removeMarkdownBold(line)}</p> : null
+                                        )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className={styles.flex_right}>
+                        {currentSection !== 'loading' &&
+                            [
+                                'suitability',
+                                'comparison',
+                                'education',
+                                'experience',
+                                'suggestions',
+                                'ranking',
+                                'conclusion',
+                            ].includes(currentSection) && (
+                                <div className={styles.appropriate_slevel}>
+                                    <h4 className={styles.sectionTitle}>
+                                        <FontAwesomeIcon icon={faChartLine} className={styles.sectionIcon} />
+                                        Đánh giá mức độ phù hợp theo thang điểm 100%
+                                    </h4>
+                                    <div className={styles.appropriate_slevel__container}>
+                                        <div className={styles.appropriate_slevel__box}>
+                                            Mức độ phù hợp với công việc
+                                            <svg
+                                                className={styles.circularProgress}
+                                                width="100"
+                                                height="100"
+                                                viewBox="0 0 100 100"
+                                            >
+                                                {/* Vòng tròn nền (màu xám nhạt) */}
+                                                <circle
+                                                    className={styles.progressBackground}
+                                                    cx="50"
+                                                    cy="50"
+                                                    r="45"
+                                                    strokeWidth="10"
+                                                />
+                                                {/* Vòng tròn tiến trình (màu xanh) */}
+                                                <circle
+                                                    className={styles.progressFill}
+                                                    cx="50"
+                                                    cy="50"
+                                                    r="45"
+                                                    strokeWidth="10"
+                                                    style={{
+                                                        strokeDasharray: 283, // Chu vi của vòng tròn (2 * π * r = 2 * 3.14 * 45 ≈ 283)
+                                                        strokeDashoffset: 283 - (283 * suitabilityPercentage) / 100, // Tính offset dựa trên phần trăm
+                                                    }}
+                                                />
+                                                {/* Giá trị phần trăm ở giữa */}
+                                                <text
+                                                    x="50"
+                                                    y="50"
+                                                    textAnchor="middle"
+                                                    dy=".3em"
+                                                    className={styles.progressValue}
+                                                >
+                                                    {suitabilityPercentage}%
+                                                </text>
+                                            </svg>
+                                            <span className={styles.span_1}>
+                                                <p>{suitabilityExplanation}</p>
+                                            </span>
+                                        </div>
+                                        <div className={styles.appropriate_slevel__box}>
+                                            So với ứng viên đã ứng tuyển khác
+                                            <span className={styles.span_2}>
+                                                <p>{comparisonWithOthers}</p>
+                                            </span>
+                                        </div>
+                                        <div className={styles.appropriate_slevel__box}>
+                                            Mức lương thị trường đang trả
+                                            <span className={styles.span_3}>
+                                                <p>{marketSalary}</p>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        {currentSection !== 'loading' &&
+                            ['comparison', 'education', 'experience', 'suggestions', 'ranking', 'conclusion'].includes(
+                                currentSection
+                            ) && (
+                                <div className={styles.Compare_the_level_of_competition}>
+                                    <h4 className={styles.sectionTitle}>
+                                        <FontAwesomeIcon icon={faUsers} className={styles.sectionIcon} />
+                                        So sánh mức độ cạnh tranh
+                                    </h4>
+
+                                    {[
+                                        'comparison',
+                                        'education',
+                                        'experience',
+                                        'suggestions',
+                                        'ranking',
+                                        'conclusion',
+                                    ].includes(currentSection) && (
+                                        <div className={styles.comparison_box}>
+                                            <div className={styles.specific_information}>
+                                                <div className={styles.AI_reply_text}>
+                                                    <div className={styles.typingText}>
+                                                        {typedComparison.length > 0 ? (
+                                                            typedComparison.map((line, index) => (
+                                                                <div key={index} className={styles.comparison_item}>
+                                                                    {renderComparisonLine(line)}
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <p>Đang tải dữ liệu...</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {['education', 'experience', 'suggestions', 'ranking', 'conclusion'].includes(
+                                        currentSection
+                                    ) && (
+                                        <div className={styles.education}>
+                                            <div className={styles.specific_information}>
+                                                <div className={styles.AI_reply_text}>
+                                                    <div className={styles.typingText}>
+                                                        <h4 className={styles.sectionTitle}>
+                                                            <FontAwesomeIcon
+                                                                icon={faGraduationCap}
+                                                                className={styles.sectionIcon}
+                                                            />
+                                                            Học vấn
+                                                        </h4>
+                                                        {typedEducation ? (
+                                                            typedEducation
+                                                                .split('\n')
+                                                                .map((line, index) =>
+                                                                    line.trim() ? (
+                                                                        <div key={index}>
+                                                                            {renderEducationLine(line)}
+                                                                        </div>
+                                                                    ) : null
+                                                                )
+                                                        ) : (
+                                                            <p>Đang tải dữ liệu...</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {['experience', 'suggestions', 'ranking', 'conclusion'].includes(
+                                        currentSection
+                                    ) && (
+                                        <div className={styles.experience}>
+                                            <div className={styles.AI_reply_text}>
+                                                <div className={styles.typingText}>
+                                                    <h4 className={styles.sectionTitle}>
+                                                        <FontAwesomeIcon
+                                                            icon={faBriefcase}
+                                                            className={styles.sectionIcon}
+                                                        />
+                                                        Phân tích kinh nghiệm
+                                                    </h4>
+                                                    {typedExperience ? (
+                                                        typedExperience
+                                                            .split('\n')
+                                                            .map((line, index) =>
+                                                                line.trim() ? (
+                                                                    <div key={index}>{renderExperienceLine(line)}</div>
+                                                                ) : null
+                                                            )
+                                                    ) : (
+                                                        <p>Đang tải dữ liệu...</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {['suggestions', 'ranking', 'conclusion'].includes(currentSection) && (
+                                        <div className={styles.suggests_good_argument}>
+                                            <h4 className={styles.sectionTitle}>
+                                                <FontAwesomeIcon icon={faLightbulb} className={styles.sectionIcon} />
+                                                Gợi ý cải thiện
+                                            </h4>
+                                            <div className={styles.AI_reply_text}>
+                                                <div className={styles.logo_AI}>AI</div>
+                                                <div className={styles.suggests_good_argument__text}>
+                                                    {status === 'suggestionsLoading' && !suggestionsReady ? (
+                                                        <div className={styles.analyzing}>
+                                                            <FontAwesomeIcon
+                                                                icon={faSpinner}
+                                                                spin
+                                                                className={styles.spinner}
+                                                            />
+                                                            <p>Đang chuẩn bị gợi ý cải thiện...</p>
+                                                        </div>
+                                                    ) : (
+                                                        typedSuggestions.map((suggestion, index) => (
+                                                            <p key={index} className={styles.suggestion_item}>
+                                                                {removeMarkdownBold(suggestion)}
+                                                            </p>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {['ranking', 'conclusion'].includes(currentSection) && (
+                                        <div className={styles.ranking}>
+                                            <h4 className={styles.sectionTitle}>
+                                                <FontAwesomeIcon icon={faTrophy} className={styles.sectionIcon} />
+                                                Xếp hạng chung
+                                            </h4>
+                                            <div className={styles.AI_reply_text}>
+                                                <div className={styles.logo_AI}>AI</div>
+                                                <div className={styles.typingText}>
+                                                    {typedRanking
+                                                        .split('\n')
+                                                        .map((rank, index) =>
+                                                            rank.trim() ? (
+                                                                <p key={index}>{removeMarkdownBold(rank)}</p>
+                                                            ) : null
+                                                        )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {currentSection === 'conclusion' && status === 'completed' && (
+                                        <div className={styles.conclude}>
+                                            <h4 className={styles.sectionTitle}>
+                                                <FontAwesomeIcon
+                                                    icon={faFlagCheckered}
+                                                    className={styles.sectionIcon}
+                                                />
+                                                Kết luận
+                                            </h4>
+                                            <div className={styles.AI_reply_text}>
+                                                <div className={styles.logo_AI}>AI</div>
+                                                <div className={styles.typingText}>
+                                                    {typedConclusion.split('\n').map((line, index) =>
+                                                        line.trim() ? (
+                                                            <p className={styles.conclude_text} key={index}>
+                                                                {removeMarkdownBold(line)}
+                                                            </p>
+                                                        ) : null
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                    </div>
                 </div>
-            )}
-        </section>
+            </div>
+        </div>
     );
 };
 

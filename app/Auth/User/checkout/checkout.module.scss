@@ -5,7 +5,7 @@
 
     .paymentSection__title {
         position: absolute;
-        top: 42%;
+        top: 32%;
         font-size: 4rem;
         color: #fff;
         margin-bottom: 1rem;
@@ -13,11 +13,11 @@
 
     .paymentSection__text {
         position: absolute;
-        top: 58%;
+        top: 48%;
         left: 5%;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         color: #fff;
-        margin-bottom: 1rem;
+        margin-bottom: .7rem;
     }
 
     .container {
@@ -29,7 +29,7 @@
         gap: 2rem;
         background: #f3f3f4;
         position: absolute;
-        top: 70%;
+        top: 60%;
         left: 5%;
         right: 5%;
         border-radius: 1rem;
@@ -45,7 +45,7 @@
             }
 
             .orderInfo__title {
-                font-size: 1.7rem;
+                font-size: 1.5rem;
                 color: #333;
                 margin-bottom: 1rem;
             }
@@ -57,7 +57,7 @@
                 .user_infomation__item {
                     display: flex;
                     padding: .5rem 0;
-                    font-size: 1.4rem;
+                    font-size: 1.35rem;
 
                     &:nth-child(1) {
                         font-weight: var(--weight550);
@@ -77,7 +77,7 @@
 
                 .orderDetails__row {
                     display: grid;
-                    grid-template-columns: 3fr 1fr 1fr 1fr;
+                    grid-template-columns: 2fr 1fr 1fr 1fr;
                     gap: 1rem;
                     padding: 0.5rem 0;
                     border-bottom: 1px solid #eee;
@@ -91,6 +91,7 @@
                         font-size: 1.4rem;
                         color: #333;
                         padding: 2rem 0;
+                        line-height: 1.6;
 
                         p {
                             font-weight: var(--weight550);
@@ -104,7 +105,7 @@
                     }
 
                     .orderDetails__cell__item {
-                        font-size: 1.4rem;
+                        font-size: 1.3rem;
                         color: #333;
                         padding: 1rem 0;
 
@@ -303,13 +304,13 @@
                     .summaryDetails__price {
                         font-weight: bold;
                         color: var(--colorBlackText) !important;
-                        font-size: 1.6rem;
+                        font-size: 1.5rem;
                     }
 
                     .summaryDetails__price__final {
                         font-weight: bold;
                         color: #ff6200;
-                        font-size: 2.2rem;
+                        font-size: 2rem;
                     }
 
                     .summaryDetails__checkbox {
@@ -341,9 +342,9 @@
                 background: #ff6200;
                 color: #fff;
                 border: none;
-                padding: 1.5rem 2rem;
+                padding: 1.3rem 2rem;
                 border-radius: 0.5rem;
-                font-size: 1.4rem;
+                font-size: 1.35rem;
                 width: 100%;
                 cursor: pointer;
                 transition: background 0.3s;

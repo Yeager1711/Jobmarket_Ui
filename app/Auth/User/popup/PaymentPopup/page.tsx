@@ -6,6 +6,14 @@ import { useRouter } from 'next/navigation';
 import { Job } from '../../../../interface/Job';
 import { showToastError, showToastSuccess } from '../../../../Ultils/toast';
 
+// Định nghĩa interface cho CV
+interface CV {
+    resumeCVId: number;
+    name_file?: string;
+    isDefault: boolean;
+    updatedAt: string;
+}
+
 const PaymentPopup = ({
     isOpen,
     onClose,
@@ -18,9 +26,9 @@ const PaymentPopup = ({
     jobId?: number;
 }) => {
     const { fetchCVs, user } = useApi();
-    const [cvs, setCvs] = useState<any[]>([]);
+    const [cvs, setCvs] = useState<CV[]>([]);
     const router = useRouter();
-    const [selectedCVId, setSelectedCVId] = useState<string | null>(null); // Theo dõi CV được chọn
+    const [selectedCVId, setSelectedCVId] = useState<string | null>(null);
 
     useEffect(() => {
         const loadCVs = async () => {
@@ -28,13 +36,13 @@ const PaymentPopup = ({
                 try {
                     const data = await fetchCVs(user.userId);
                     setCvs(data);
-                    // Nếu có CV mặc định, tự động chọn nó
-                    const defaultCV = data.find((cv: any) => cv.isDefault);
+                    const defaultCV = data.find((cv: CV) => cv.isDefault);
                     if (defaultCV) {
                         setSelectedCVId(defaultCV.resumeCVId.toString());
                     }
                 } catch (error) {
                     console.error('Lỗi khi lấy danh sách CV:', error);
+                    showToastError('Không thể tải danh sách CV. Vui lòng thử lại sau.');
                 }
             }
         };
@@ -45,19 +53,19 @@ const PaymentPopup = ({
 
     const handlePayClick = () => {
         onClose();
-        if (!jobId || jobId === 0) {
-            showToastError('Không có jobId hợp lệ để thực hiện thanh toán!');
+
+        if (!jobId) {
             showToastError('Không tìm thấy Job ID hợp lệ. Vui lòng thử lại hoặc liên hệ hỗ trợ.');
             return;
         }
+
         if (!selectedCVId) {
-            showToastError('Vui lòng chọn một hồ sơ trước khi thanh toán!');
             showToastError('Vui lòng chọn một hồ sơ để tiếp tục.');
             return;
         }
-        router.push(`/Auth/User/checkout?jobId=${jobId}`);
-    };
 
+        router.push(`/Auth/User/checkout?jobId=${jobId}&resumeCVId=${selectedCVId}`);
+    };
 
     return (
         <div className={styles.popupOverlay} onClick={onClose}>
@@ -77,8 +85,8 @@ const PaymentPopup = ({
                                         id={`cv-${cv.resumeCVId}`}
                                         name="source"
                                         value={cv.resumeCVId}
-                                        checked={selectedCVId === cv.resumeCVId.toString()} // Đồng bộ checked với state
-                                        onChange={() => setSelectedCVId(cv.resumeCVId.toString())} // Cập nhật state khi chọn
+                                        checked={selectedCVId === cv.resumeCVId.toString()}
+                                        onChange={() => setSelectedCVId(cv.resumeCVId.toString())}
                                     />
                                     <label htmlFor={`cv-${cv.resumeCVId}`}>
                                         {cv.name_file || `CV ${cv.resumeCVId}`}
@@ -87,9 +95,17 @@ const PaymentPopup = ({
                                 <div className={styles.content_history}>
                                     <p>Hồ sơ {cv.isDefault ? 'mặc định' : 'đính kèm'}</p>
                                     <p>•</p>
-                                    <p>Đã tải lên: {new Date(cv.updatedAt).toLocaleDateString()}</p>
+                                    <p>Đã tải lên: {new Date(cv.updatedAt).toLocaleDateString('vi-VN')}</p>
                                     <p>•</p>
-                                    <p>Trạng thái: {cv.isDefault ? 'được phê duyệt' : 'sẵn sàng'}</p>
+                                    <p>
+                                        Trạng thái:
+                                        {cv.isDefault ? (
+                                            <span style={{ color: '#24c724' }}> Được chọn để phân tích </span>
+                                        ) : (
+                                            ' sẵn sàng'
+                                        )}
+                                    </p>
+                                    <p>CV ID: {cv.resumeCVId}</p>
                                 </div>
                                 {cv.isDefault && <div className={styles.CV_default}>CV được chọn làm mặc định</div>}
                             </div>
@@ -97,11 +113,8 @@ const PaymentPopup = ({
                     </div>
                 </div>
 
-                <div className={styles.PaymentPopup_footers} onClick={handlePayClick}>
-                    <button
-                        className={styles.payButton}
-                        disabled={!selectedCVId} // Vô hiệu hóa nút nếu không chọn CV
-                    >
+                <div className={styles.PaymentPopup_footers}>
+                    <button className={styles.payButton} onClick={handlePayClick} disabled={!selectedCVId}>
                         Thanh toán để xem kết quả
                     </button>
                 </div>
