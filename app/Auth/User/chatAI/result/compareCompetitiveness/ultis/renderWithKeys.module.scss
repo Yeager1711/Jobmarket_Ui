@@ -1,0 +1,15 @@
+.keyword {
+    font-weight: bold;
+    color: #ffd085 !important; // Màu xanh để nổi bật
+    cursor: pointer;
+    transition: color 0.2s;
+    background: #ffd0851a !important;
+    padding: .15rem 1rem;
+    line-height: 2.3;
+    border-radius: .3rem;
+
+    &:hover {
+        color: #ffd085 !important; // Màu đậm hơn khi hover
+        text-decoration: underline;
+    }
+}

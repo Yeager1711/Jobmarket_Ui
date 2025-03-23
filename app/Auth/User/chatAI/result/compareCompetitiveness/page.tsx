@@ -14,13 +14,26 @@ import {
     faTrophy,
     faFlagCheckered,
     faList,
+    faSun,
+    faMoon,
+    faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ChatPopup from 'app/Auth/User/popup/historyAI/page';
+import { renderWithKeys } from './ultis/renderWithKeys';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+import { useApi } from '../../../../../Context/ApiContext/ApiContext';
 
 const ResultCompareCompetitiveness = () => {
+    const router = useRouter();
+
+    // Hàm xử lý khi click vào từ khóa
+    const handleKeywordClick = (keyword: string) => {
+        const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(keyword)}`;
+        window.open(searchUrl, '_blank'); // Mở tab mới với URL tìm kiếm Google
+    };
+
     const searchParams = useSearchParams();
     const jobId = searchParams.get('jobId') ? parseInt(searchParams.get('jobId') as string) : undefined;
     const resumeCVId = searchParams.get('resumeCVId') ? parseInt(searchParams.get('resumeCVId') as string) : undefined;
@@ -33,6 +46,31 @@ const ResultCompareCompetitiveness = () => {
     const [fullTextContent, setFullTextContent] = useState<string>('');
     const [candidateName, setCandidateName] = useState<string>('Ứng viên');
     const [isPopupOpenHistoryAI, setIsPopupOpenHistoryAI] = useState(false);
+
+    // Chuyển đổi trạng thái ngày đêm
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    // Đọc giá trị từ session
+    useEffect(() => {
+        const savedMode = sessionStorage.getItem('darkMode');
+        if (savedMode) {
+            setIsDarkMode(JSON.parse(savedMode));
+        }
+    }, []); // Chỉ chạy một lần khi component mount
+
+    // Lưu isDarkMode vào sessionStorage mỗi khi nó thay đổi
+    useEffect(() => {
+        sessionStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+    }, [isDarkMode]);
+
+    // Hàm xử lý back page
+    const handleBack = () => {
+        if (jobId && resumeCVId) {
+            router.push(`/Auth/User/checkout?jobId=${jobId}&resumeCVId=${resumeCVId}`);
+        } else {
+            router.push('/Auth/User/checkout');
+        }
+    };
 
     const [currentSection, setCurrentSection] = useState<
         | 'loading'
@@ -52,6 +90,10 @@ const ResultCompareCompetitiveness = () => {
     const [typedSuggestions, setTypedSuggestions] = useState<string[]>([]);
     const [typedRanking, setTypedRanking] = useState<string>('');
     const [typedConclusion, setTypedConclusion] = useState<string>('');
+
+    const toggleDarkMode = () => {
+        setIsDarkMode((prev: any) => !prev); // Chuyển đổi giữa sáng và tối
+    };
 
     // Hàm loại bỏ dấu ** từ chuỗi
     const removeMarkdownBold = (text: string) => {
@@ -77,85 +119,71 @@ const ResultCompareCompetitiveness = () => {
             setCurrentSection('conclusion');
             return;
         }
-
+    
         const fetchData = async () => {
             setStatus('loading');
             setCurrentSection('loading');
+    
             try {
-                const storedResponse = await fetch(
-                    `${apiUrl}/users/Getcompare-competitiveness/${jobId}/${resumeCVId}`,
+                // Kiểm tra token trước khi gọi API
+                const accessToken = localStorage.getItem('access_token');
+                if (!accessToken) {
+                    throw new Error('Access token not found. Please log in again.');
+                }
+    
+                // Gọi API mới để phân tích mức độ cạnh tranh
+                const response = await fetch(
+                    `${apiUrl}/users/analyze-competitiveness/${jobId}/${resumeCVId}`,
                     {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
-                        },
-                    }
-                );
-
-                let fullText: string;
-                if (storedResponse.ok) {
-                    const storedResult = await storedResponse.json();
-                    if (storedResult.data?.analyze_text) {
-                        const [intro, content] = storedResult.data.analyze_text.split('---\n\n');
-                        setIntroductionText(intro.trim());
-                        fullText = content.trim();
-                        setFullTextContent(content.trim());
-                    } else {
-                        throw new Error('No stored analysis found');
-                    }
-                } else {
-                    const response = await fetch(`${apiUrl}/users/compare-competitiveness/${jobId}/${resumeCVId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
+                            Authorization: `Bearer ${accessToken}`,
                         },
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
                     }
-
-                    const result = await response.json();
-                    if (!result.data) {
-                        throw new Error('Invalid response data');
-                    }
-                    const [intro, content] = result.data.split('---\n\n');
-                    setIntroductionText(intro.trim());
-                    fullText = content.trim();
-                    setFullTextContent(content.trim());
+                );
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(
+                        errorData.message || `Error ${response.status}: ${response.statusText}`
+                    );
                 }
-
+    
+                const result = await response.json();
+                if (!result.data) {
+                    throw new Error('Invalid response data');
+                }
+    
+                // Tách phần introduction và content từ dữ liệu trả về
+                const [intro, content] = result.data.split('---\n\n');
+                setIntroductionText(intro.trim());
+                setFullTextContent(content.trim());
+    
                 setStatus('typing');
                 setCurrentSection('introduction');
             } catch (error: any) {
-                setTypedText(`An error occurred: ${error.message}. Please try again later!`);
+                setTypedText(`An error occurred: ${error.message}. Please try again later or contact support.`);
                 setStatus('completed');
                 setCurrentSection('conclusion');
             }
         };
-
+    
         fetchData();
     }, [jobId, resumeCVId]);
 
     // Typing effect for introduction
     useEffect(() => {
         if (currentSection === 'introduction' && introductionText) {
-            // Chuẩn hóa chuỗi introductionText: loại bỏ dấu chấm thừa và thêm dấu chấm cuối nếu cần
             let cleanedText = introductionText.trim();
-
-            // Sửa lỗi thiếu chữ "C" ở đầu
             if (cleanedText.startsWith('hào')) {
                 cleanedText = 'Ch' + cleanedText.slice(1);
             }
-
             if (cleanedText.endsWith('....')) {
-                cleanedText = cleanedText.replace(/\.{3,}$/, ''); // Loại bỏ 3 dấu chấm trở lên ở cuối
-                cleanedText += '.'; // Thêm một dấu chấm duy nhất
+                cleanedText = cleanedText.replace(/\.{3,}$/, '');
+                cleanedText += '.';
             } else if (!cleanedText.endsWith('.')) {
-                cleanedText += '.'; // Thêm dấu chấm nếu chưa có
+                cleanedText += '.';
             }
 
             let introIndex = 0;
@@ -392,8 +420,8 @@ const ResultCompareCompetitiveness = () => {
     const marketSalary = removeMarkdownBold(getMarketSalary(typedText));
 
     // Hàm render cho Comparison
-    const renderComparisonLine = (line: string) => {
-        const mainContent = removeMarkdownBold(line.split(': ')[1]?.trim() || line.trim());
+    const renderComparisonLine = (content: React.ReactNode, originalLine: string) => {
+        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
         const hasYes = mainContent.toLowerCase().startsWith('có') || mainContent.toLowerCase().includes('khá tốt');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().startsWith('không');
 
@@ -404,14 +432,14 @@ const ResultCompareCompetitiveness = () => {
                 ) : hasNo ? (
                     <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
                 ) : null}
-                {mainContent}
+                {content}
             </p>
         );
     };
 
     // Hàm render cho Education
-    const renderEducationLine = (line: string) => {
-        const mainContent = removeMarkdownBold(line.split(': ')[1]?.trim() || line.trim());
+    const renderEducationLine = (content: React.ReactNode, originalLine: string) => {
+        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
         const hasYes = mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('khá tốt');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('chưa');
 
@@ -422,14 +450,14 @@ const ResultCompareCompetitiveness = () => {
                 ) : hasNo ? (
                     <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
                 ) : null}
-                {mainContent}
+                {content}
             </p>
         );
     };
 
     // Hàm render cho Experience
-    const renderExperienceLine = (line: string) => {
-        const mainContent = removeMarkdownBold(line.split(': ')[1]?.trim() || line.trim());
+    const renderExperienceLine = (content: React.ReactNode, originalLine: string) => {
+        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
         const hasYes =
             mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('ấn tượng');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('ngắn');
@@ -441,14 +469,17 @@ const ResultCompareCompetitiveness = () => {
                 ) : hasNo ? (
                     <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
                 ) : null}
-                {mainContent}
+                {content}
             </p>
         );
     };
 
     return (
-        <div className={styles.ResultCompareCompetitiveness}>
+        <div className={`${styles.ResultCompareCompetitiveness} ${isDarkMode ? styles['dark-theme'] : ''}`}>
             <div className={styles.resultContainer}>
+                <div className={styles.btn_backPage} onClick={handleBack}>
+                    <FontAwesomeIcon icon={faArrowLeft} />
+                </div>
                 <div className={styles.flex_controll__user}>
                     <div className={styles.ResultCompareCompetitiveness_header}>
                         <h3>Phân tích báo cáo mức độ cạnh tranh</h3>
@@ -501,6 +532,7 @@ const ResultCompareCompetitiveness = () => {
                     <ChatPopup isOpen={isPopupOpenHistoryAI} onClose={() => setIsPopupOpenHistoryAI(false)} />
                     <div className={styles.control_user}>
                         <div className={styles.control}>
+                            <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} onClick={toggleDarkMode} />
                             <FontAwesomeIcon icon={faList} onClick={() => setIsPopupOpenHistoryAI(true)} />
                         </div>
                         <div className={styles.user}>
@@ -530,11 +562,17 @@ const ResultCompareCompetitiveness = () => {
                             <div className={styles.AI_reply_text}>
                                 <div className={styles.logo_AI}>AI</div>
                                 <div className={styles.typingText}>
-                                    {typedIntroduction
-                                        .split('\n')
-                                        .map((line, index) =>
-                                            line.trim() ? <p key={index}>{removeMarkdownBold(line)}</p> : null
-                                        )}
+                                    {typedIntroduction.split('\n').map((line, index) =>
+                                        line.trim() ? (
+                                            <p key={index}>
+                                                {renderWithKeys({
+                                                    text: removeMarkdownBold(line),
+                                                    onKeywordClick: handleKeywordClick,
+                                                    className: styles.keyword,
+                                                })}
+                                            </p>
+                                        ) : null
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -564,7 +602,6 @@ const ResultCompareCompetitiveness = () => {
                                                 height="100"
                                                 viewBox="0 0 100 100"
                                             >
-                                                {/* Vòng tròn nền (màu xám nhạt) */}
                                                 <circle
                                                     className={styles.progressBackground}
                                                     cx="50"
@@ -572,7 +609,6 @@ const ResultCompareCompetitiveness = () => {
                                                     r="45"
                                                     strokeWidth="10"
                                                 />
-                                                {/* Vòng tròn tiến trình (màu xanh) */}
                                                 <circle
                                                     className={styles.progressFill}
                                                     cx="50"
@@ -580,11 +616,10 @@ const ResultCompareCompetitiveness = () => {
                                                     r="45"
                                                     strokeWidth="10"
                                                     style={{
-                                                        strokeDasharray: 283, // Chu vi của vòng tròn (2 * π * r = 2 * 3.14 * 45 ≈ 283)
-                                                        strokeDashoffset: 283 - (283 * suitabilityPercentage) / 100, // Tính offset dựa trên phần trăm
+                                                        strokeDasharray: 283,
+                                                        strokeDashoffset: 283 - (283 * suitabilityPercentage) / 100,
                                                     }}
                                                 />
-                                                {/* Giá trị phần trăm ở giữa */}
                                                 <text
                                                     x="50"
                                                     y="50"
@@ -596,19 +631,37 @@ const ResultCompareCompetitiveness = () => {
                                                 </text>
                                             </svg>
                                             <span className={styles.span_1}>
-                                                <p>{suitabilityExplanation}</p>
+                                                <p>
+                                                    {renderWithKeys({
+                                                        text: suitabilityExplanation,
+                                                        onKeywordClick: handleKeywordClick,
+                                                        className: styles.keyword,
+                                                    })}
+                                                </p>
                                             </span>
                                         </div>
                                         <div className={styles.appropriate_slevel__box}>
                                             So với ứng viên đã ứng tuyển khác
                                             <span className={styles.span_2}>
-                                                <p>{comparisonWithOthers}</p>
+                                                <p>
+                                                    {renderWithKeys({
+                                                        text: comparisonWithOthers,
+                                                        onKeywordClick: handleKeywordClick,
+                                                        className: styles.keyword,
+                                                    })}
+                                                </p>
                                             </span>
                                         </div>
                                         <div className={styles.appropriate_slevel__box}>
                                             Mức lương thị trường đang trả
                                             <span className={styles.span_3}>
-                                                <p>{marketSalary}</p>
+                                                <p>
+                                                    {renderWithKeys({
+                                                        text: marketSalary,
+                                                        onKeywordClick: handleKeywordClick,
+                                                        className: styles.keyword,
+                                                    })}
+                                                </p>
                                             </span>
                                         </div>
                                     </div>
@@ -640,7 +693,14 @@ const ResultCompareCompetitiveness = () => {
                                                         {typedComparison.length > 0 ? (
                                                             typedComparison.map((line, index) => (
                                                                 <div key={index} className={styles.comparison_item}>
-                                                                    {renderComparisonLine(line)}
+                                                                    {renderComparisonLine(
+                                                                        renderWithKeys({
+                                                                            text: line,
+                                                                            onKeywordClick: handleKeywordClick,
+                                                                            className: styles.keyword,
+                                                                        }),
+                                                                        line
+                                                                    )}
                                                                 </div>
                                                             ))
                                                         ) : (
@@ -667,15 +727,20 @@ const ResultCompareCompetitiveness = () => {
                                                             Học vấn
                                                         </h4>
                                                         {typedEducation ? (
-                                                            typedEducation
-                                                                .split('\n')
-                                                                .map((line, index) =>
-                                                                    line.trim() ? (
-                                                                        <div key={index}>
-                                                                            {renderEducationLine(line)}
-                                                                        </div>
-                                                                    ) : null
-                                                                )
+                                                            typedEducation.split('\n').map((line, index) =>
+                                                                line.trim() ? (
+                                                                    <div key={index}>
+                                                                        {renderEducationLine(
+                                                                            renderWithKeys({
+                                                                                text: line,
+                                                                                onKeywordClick: handleKeywordClick,
+                                                                                className: styles.keyword,
+                                                                            }),
+                                                                            line
+                                                                        )}
+                                                                    </div>
+                                                                ) : null
+                                                            )
                                                         ) : (
                                                             <p>Đang tải dữ liệu...</p>
                                                         )}
@@ -699,13 +764,20 @@ const ResultCompareCompetitiveness = () => {
                                                         Phân tích kinh nghiệm
                                                     </h4>
                                                     {typedExperience ? (
-                                                        typedExperience
-                                                            .split('\n')
-                                                            .map((line, index) =>
-                                                                line.trim() ? (
-                                                                    <div key={index}>{renderExperienceLine(line)}</div>
-                                                                ) : null
-                                                            )
+                                                        typedExperience.split('\n').map((line, index) =>
+                                                            line.trim() ? (
+                                                                <div key={index}>
+                                                                    {renderExperienceLine(
+                                                                        renderWithKeys({
+                                                                            text: line,
+                                                                            onKeywordClick: handleKeywordClick,
+                                                                            className: styles.keyword,
+                                                                        }),
+                                                                        line
+                                                                    )}
+                                                                </div>
+                                                            ) : null
+                                                        )
                                                     ) : (
                                                         <p>Đang tải dữ liệu...</p>
                                                     )}
@@ -735,7 +807,11 @@ const ResultCompareCompetitiveness = () => {
                                                     ) : (
                                                         typedSuggestions.map((suggestion, index) => (
                                                             <p key={index} className={styles.suggestion_item}>
-                                                                {removeMarkdownBold(suggestion)}
+                                                                {renderWithKeys({
+                                                                    text: removeMarkdownBold(suggestion),
+                                                                    onKeywordClick: handleKeywordClick,
+                                                                    className: styles.keyword,
+                                                                })}
                                                             </p>
                                                         ))
                                                     )}
@@ -753,13 +829,17 @@ const ResultCompareCompetitiveness = () => {
                                             <div className={styles.AI_reply_text}>
                                                 <div className={styles.logo_AI}>AI</div>
                                                 <div className={styles.typingText}>
-                                                    {typedRanking
-                                                        .split('\n')
-                                                        .map((rank, index) =>
-                                                            rank.trim() ? (
-                                                                <p key={index}>{removeMarkdownBold(rank)}</p>
-                                                            ) : null
-                                                        )}
+                                                    {typedRanking.split('\n').map((rank, index) =>
+                                                        rank.trim() ? (
+                                                            <p key={index}>
+                                                                {renderWithKeys({
+                                                                    text: removeMarkdownBold(rank),
+                                                                    onKeywordClick: handleKeywordClick,
+                                                                    className: styles.keyword,
+                                                                })}
+                                                            </p>
+                                                        ) : null
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -780,7 +860,11 @@ const ResultCompareCompetitiveness = () => {
                                                     {typedConclusion.split('\n').map((line, index) =>
                                                         line.trim() ? (
                                                             <p className={styles.conclude_text} key={index}>
-                                                                {removeMarkdownBold(line)}
+                                                                {renderWithKeys({
+                                                                    text: removeMarkdownBold(line),
+                                                                    onKeywordClick: handleKeywordClick,
+                                                                    className: styles.keyword,
+                                                                })}
                                                             </p>
                                                         ) : null
                                                     )}

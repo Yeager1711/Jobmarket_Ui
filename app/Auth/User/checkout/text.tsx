@@ -8,7 +8,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
 import { showToastError, showToastSuccess } from 'app/Ultils/toast';
-const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
+
+// Hàm định dạng tiền tệ VND
 const formatVND = (amount: number): string => {
     return new Intl.NumberFormat('vi-VN', {
         style: 'currency',
@@ -16,6 +17,7 @@ const formatVND = (amount: number): string => {
     }).format(amount);
 };
 
+// Interface cho CV
 interface CV {
     resumeCVId: number;
     name_file?: string;
@@ -29,6 +31,7 @@ export default function Checkout() {
     const { accessToken, fetchUser, fetchCVs, fetchJobDetails } = useApi();
     const router = useRouter();
 
+    // Lấy jobId và resumeCVId từ query parameter
     const jobId = searchParams.get('jobId') ? parseInt(searchParams.get('jobId') as string) : 0;
     const resumeCVId = searchParams.get('resumeCVId') ? parseInt(searchParams.get('resumeCVId') as string) : 0;
 
@@ -37,28 +40,41 @@ export default function Checkout() {
     const [jobDetails, setJobDetails] = useState<any | null>(null);
     const [selectedCV, setSelectedCV] = useState<CV | null>(null);
 
+    // Lấy thông tin người dùng, CV, và job khi component mount
     useEffect(() => {
         const loadData = async () => {
             try {
+                // Lấy thông tin người dùng
                 const userData = await fetchUser();
                 setUser(userData);
 
+                // Lấy danh sách CV
                 if (userData?.userId) {
                     const cvData = await fetchCVs(userData.userId);
                     setCvs(cvData);
+
+                    // Chỉ chọn CV nếu resumeCVId được cung cấp
                     if (resumeCVId) {
                         const selected = cvData.find((cv: CV) => cv.resumeCVId === resumeCVId);
                         setSelectedCV(selected || null);
                     }
                 }
 
+                // Lấy thông tin job
                 if (jobId) {
                     const jobData = await fetchJobDetails(jobId);
                     setJobDetails(jobData);
                 }
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
-                toast.error('Có lỗi xảy ra khi tải dữ liệu');
+                toast.error('Có lỗi xảy ra khi tải dữ liệu', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                });
             }
         };
         loadData();
@@ -78,41 +94,43 @@ export default function Checkout() {
         setIsProcessing(true);
 
         try {
+            console.log('jobId gửi đi:', jobId);
+            console.log('resumeCVId gửi đi:', selectedCV.resumeCVId);
+
             const headers = {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${accessToken}`,
             };
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_APP_API_BASE_URL}/users/compare-competitiveness/${jobId}/${selectedCV.resumeCVId}`,
+                {
+                    resumeCVId: selectedCV.resumeCVId,
+                },
+                { headers }
+            );
 
-            const basePrice = parseInt(process.env.NEXT_PUBLIC_APP_PRICE_AI || '25000');
-            const taxRate = 0.1;
-            const totalWithTax = basePrice;
-
-            const paymentData = {
-                userId: user.userId,
-                jobId,
-                resumeCVId: selectedCV.resumeCVId,
-                totalAmount: totalWithTax,
-            };
-            console.log('paymentData', paymentData);
-
-            const response = await axios.post(`${apiUrl}/users/create-payment-link`, paymentData, { headers });
-
-            const { checkoutUrl } = response.data;
-            if (checkoutUrl) {
-                window.location.href = checkoutUrl; // Chuyển hướng đến PayOS checkout
-            } else {
-                throw new Error('Không nhận được URL thanh toán');
-            }
+            showToastSuccess('Thanh toán và phân tích thành công!');
+            router.push(
+                `/Auth/User/chatAI/result/compareCompetitiveness?jobId=${jobId}&resumeCVId=${selectedCV.resumeCVId}`
+            );
         } catch (error: any) {
-            console.error('Lỗi khi tạo liên kết thanh toán:', error);
-            toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi tạo liên kết thanh toán');
+            console.error('Lỗi khi gọi API:', error);
+            toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi phân tích mức độ cạnh tranh', {
+                position: 'top-right',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
         } finally {
             setIsProcessing(false);
         }
     };
 
+    // Tính toán giá tiền
     const basePrice = parseInt(process.env.NEXT_PUBLIC_APP_PRICE_AI || '25000');
-    const taxRate = 0.1;
+    const taxRate = 0.1; // 10% VAT
     const totalWithoutTax = Math.round(basePrice / (1 + taxRate));
     const totalWithTax = basePrice;
 
@@ -138,7 +156,7 @@ export default function Checkout() {
                             </span>
                             <span className={styles.user_infomation__item}>
                                 <p style={{ marginRight: '.5rem' }}>Nội dung: </p>
-                                "AI Analytics {jobId}"
+                                "Thanh toán sử dụng dịch vụ phân tích hồ sơ xin việc bằng AI"
                             </span>
                         </div>
                         <div className={styles.orderDetails}>
@@ -150,7 +168,7 @@ export default function Checkout() {
                             </div>
                             <div className={styles.orderDetails__row}>
                                 <span className={styles.orderDetails__cell}>
-                                    Báo Cáo Phân Tích Mức Độ Cạnh Tranh CV{' '}
+                                    Báo Cáo Phân Tích Mức Độ Cạnh Tranh Phần Cứng CV{' '}
                                     <p>
                                         {selectedCV?.name_file || 'Chưa chọn CV'} (ID: {selectedCV?.resumeCVId || 'N/A'}
                                         )

@@ -2,28 +2,324 @@
     background: #f7f8fa;
     min-height: 100vh;
     display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999999 !important;
+
+    .keyword {
+        font-weight: var(--weight500);
+        color: #b54606; // Màu xanh để nổi bật
+        cursor: pointer;
+        transition: color 0.2s;
+        background: #ff63081a;
+        padding: .15rem 1rem;
+        line-height: 2.3;
+        border-radius: .3rem;
+
+        &:hover {
+            color: #b54606; // Màu đậm hơn khi hover
+            text-decoration: underline;
+        }
+    }
+
+    &.dark-theme {
+        background: #1a1a1a;
+        transition: .3s linear;
+
+        .keyword {
+            font-weight: var(--weight500);
+            color: #ffd085; // Màu xanh để nổi bật
+            cursor: pointer;
+            transition: color 0.2s;
+            background: #ffd0851a;
+            padding: .15rem 1rem;
+            line-height: 2.3;
+            border-radius: .3rem;
+            transition: .3s linear;
+
+            &:hover {
+                color: #ffd085; // Màu đậm hơn khi hover
+                text-decoration: underline;
+            }
+        }
+
+        .resultContainer {
+            background: #2c2c2c;
+            box-shadow: 0 0.5rem 1rem rgba(255, 255, 255, 0.1);
+            transition: .3s linear;
+
+            .flex_controll__user {
+                .ResultCompareCompetitiveness_header {
+                    h3 {
+                        transition: .3s linear;
+                        color: #e0e0e0;
+                    }
+
+                    span {
+                        transition: .3s linear;
+                        color: #b0b0b0;
+                    }
+                }
+
+                .control_user {
+                    border: 0.2rem solid #6b6bff;
+                    transition: .3s linear;
+                    background: #333;
+
+                    .control {
+                        svg {
+                            font-size: 1.7rem;
+                            cursor: pointer;
+                            margin-right: 2rem;
+                            transition: .3s linear;
+                            color: #fff;
+                        }
+                    }
+
+                    .user {
+                        .name {
+                            transition: .3s linear;
+                            color: #e0e0e0;
+                        }
+
+                        img {
+                            transition: .3s linear;
+                            border: 0.2rem solid #6b6bff;
+                        }
+                    }
+                }
+            }
+
+            .AI_reply_text {
+                transition: .3s linear;
+                background: #3a3a3a;
+
+                .suggests_good_argument__text {
+                    .suggestion_item {
+                        padding: 0.7rem 0;
+                        transition: .3s linear;
+                        color: #dad8d8;
+
+                    }
+                }
+
+                .logo_AI {
+                    background: #555;
+                    transition: .3s linear;
+                    color: #fff;
+                }
+
+                .analyzing {
+                    p {
+                        transition: .3s linear;
+                        color: #e0e0e0;
+                    }
+
+                    .spinner {
+                        transition: .3s linear;
+                        color: #6b6bff;
+                    }
+                }
+
+                .typingText {
+                    p {
+                        transition: .3s linear;
+                        color: #e0e0e0;
+
+                        strong {
+                            transition: .3s linear;
+                            color: #6b6bff;
+                        }
+                    }
+
+                    .cursor {
+                        transition: .3s linear;
+                        color: #6b6bff;
+                    }
+
+                    ul {
+                        li {
+                            transition: .3s linear;
+                            color: #e0e0e0;
+
+                            .icon {
+                                transition: .3s linear;
+                                color: #28a745;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            .appropriate_slevel,
+            .Compare_the_level_of_competition,
+            .ranking {
+                .sectionTitle {
+                    color: #e0e0e0;
+                    transition: .3s linear;
+                }
+
+                .appropriate_slevel__container {
+                    .appropriate_slevel__box {
+                        background: #3a3a3a;
+                        transition: .3s linear;
+                        color: var(--viewDetails);
+
+                        .progressBackground {
+                            transition: .3s linear;
+                            stroke: #555;
+                        }
+
+                        .progressFill {
+                            transition: .3s linear;
+                            stroke: #6b6bff;
+                        }
+
+                        .progressValue {
+                            transition: .3s linear;
+                            fill: #6b6bff;
+                        }
+
+                        span {
+                            transition: .3s linear;
+                            color: #60ef6c;
+                        }
+
+                        .span_1 {
+                            transition: .3s linear;
+                            color: #6b6bff;
+                        }
+
+                        .span_2,
+                        .span_3 {
+                            transition: .3s linear;
+                            color: #b0b0b0;
+                        }
+
+                        .progressBar {
+                            transition: .3s linear;
+                            background: #555;
+
+                            .progressFill {
+                                transition: .3s linear;
+                                background: #6b6bff;
+                            }
+                        }
+                    }
+                }
+
+                .strengths_weaknesses {
+
+                    .strengths_box,
+                    .weaknesses_box {
+                        transition: .3s linear;
+                        background: #3a3a3a;
+
+                        span {
+                            transition: .3s linear;
+                            color: #6b6bff;
+                        }
+
+                        .strengths_box__text {
+                            ul {
+                                li {
+                                    transition: .3s linear;
+                                    color: #e0e0e0;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .candidates_apply {
+                    transition: .3s linear;
+                    background: #3a3a3a;
+
+                    .candidates_apply_title {
+                        transition: .3s linear;
+                        color: #e0e0e0;
+                    }
+
+                    li {
+                        transition: .3s linear;
+                        color: #e0e0e0;
+
+                        &:before {
+                            transition: .3s linear;
+                            color: #6b6bff;
+                        }
+                    }
+                }
+
+                .suggests_good_argument,
+                .conclude,
+                .ranking,
+                .education,
+                .experience_analysis {
+                    .conclude_text {
+                        transition: .3s linear;
+                        color: #6b6bff;
+                    }
+
+                    ul {
+                        li {
+                            transition: .3s linear;
+                            color: #e0e0e0;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     .check {
         color: #28a745;
         font-size: 2.3rem;
-        margin-right: .5rem;
+        margin-right: 0.5rem;
     }
 
     .xmark {
         color: red;
         font-size: 2.3rem;
-        margin-right: .5rem;
+        margin-right: 0.5rem;
     }
 
     .resultContainer {
         background: #f8f7f1;
-        padding: 7rem 5% 5rem 5%;
+        padding: 2% 5% 30% 5%;
         border-radius: 0.5rem;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        box-shadow: 0 0.5rem 1rem rgba(20, 8, 8, 0.1);
         height: 120rem;
         width: 100%;
         margin: auto;
         overflow: auto;
+        transition: .3s linear;
+
+        .btn_backPage {
+            display: inline-block;
+            padding: .8rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5rem;
+            margin-bottom: 4rem;
+
+            svg {
+                font-size: 1.9rem;
+            }
+
+            &:hover {
+                padding: .8rem 1.5rem;
+                border-radius: .5rem;
+                transition: .2s linear;
+                cursor: pointer;
+                background: rgba(255, 255, 255, 0.7);
+            }
+        }
+
+
 
         .flex_controll__user {
             display: flex;
@@ -50,17 +346,18 @@
             }
 
             .control_user {
-                border: .2rem solid #9494ff;
-                padding: .5rem .5rem .5rem 1rem;
+                border: 0.2rem solid #9494ff;
+                padding: 0.5rem 0.5rem 0.5rem 1rem;
                 border-radius: 5rem;
                 display: flex;
                 align-items: center;
-                gap: 1.5rem;
+                gap: 1rem;
 
                 .control {
                     svg {
                         font-size: 1.7rem;
                         cursor: pointer;
+                        margin-right: 2rem;
                     }
                 }
 
@@ -79,7 +376,7 @@
                         border-radius: 50%;
                         overflow: hidden;
                         object-fit: cover;
-                        border: .2rem solid #9494ff;
+                        border: 0.2rem solid #9494ff;
                     }
                 }
             }
@@ -123,10 +420,8 @@
             }
         }
 
-
-
         .AI_reply_text {
-            padding: .8rem 1.5rem 1.5rem 1.5rem;
+            padding: 0.8rem 1.5rem 1.5rem 1.5rem;
             margin-top: 1rem;
             font-size: 1.4rem;
             background: #f0efef;
@@ -137,12 +432,12 @@
 
             .suggests_good_argument__text {
                 .suggestion_item {
-                    padding: .7rem 0;
+                    padding: 0.7rem 0;
                 }
             }
 
             .logo_AI {
-                padding: .6rem 1rem;
+                padding: 0.6rem 1rem;
                 background: #111;
                 color: #fff;
                 height: 3.6rem;
@@ -183,7 +478,7 @@
                     font-size: 1.4rem;
                     color: #333;
                     line-height: 1.8;
-                    padding: .5rem 0;
+                    padding: 0.5rem 0;
 
                     strong {
                         font-weight: bold;
@@ -230,8 +525,6 @@
                 font-size: 1.5rem;
                 font-weight: bold;
                 margin-bottom: 1rem;
-
-
             }
 
             .sectionIcon {
@@ -248,7 +541,6 @@
                 .appropriate_slevel__box {
                     flex: 1 1 26rem;
                     padding: 2rem;
-                    // background: #f1eee3;
                     background: #fff;
                     border-radius: 1rem;
                     font-size: 1.5rem;
@@ -256,29 +548,29 @@
 
                     .circularProgress {
                         display: block;
-                        margin: 10px auto; // Căn giữa SVG
+                        margin: 10px auto;
                     }
 
                     .progressBackground {
                         fill: none;
-                        stroke: #e0e0e0; // Màu xám nhạt cho vòng tròn nền
+                        stroke: #e0e0e0;
                         stroke-width: 10;
                     }
 
                     .progressFill {
                         fill: none;
-                        stroke: #5b5bff; // Màu xanh cho vòng tròn tiến trình
+                        stroke: #5b5bff;
                         stroke-width: 10;
-                        stroke-linecap: round; // Bo tròn đầu mút của vòng tròn
-                        transform: rotate(-90deg); // Xoay vòng tròn để bắt đầu từ đỉnh
-                        transform-origin: 50% 50%; // Điểm xoay là trung tâm
-                        transition: stroke-dashoffset 1s ease-in-out; // Hiệu ứng mượt mà
+                        stroke-linecap: round;
+                        transform: rotate(-90deg);
+                        transform-origin: 50% 50%;
+                        transition: stroke-dashoffset 1s ease-in-out;
                     }
 
                     .progressValue {
                         font-size: 20px;
                         font-weight: bold;
-                        fill: #5b5bff; // Màu chữ giống màu vòng tròn
+                        fill: #5b5bff;
                     }
 
                     span {
@@ -393,7 +685,7 @@
 
                 ul {
                     li {
-                        padding: .5rem 0;
+                        padding: 0.5rem 0;
                     }
                 }
             }

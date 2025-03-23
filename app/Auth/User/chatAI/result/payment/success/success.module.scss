@@ -1,0 +1,83 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #E6F0FA 0%, #F3E8FF 100%); // Gradient pastel nhẹ nhàng
+    padding: 2rem;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 2rem;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1); // Bóng đổ nhẹ
+    padding: 4rem;
+    text-align: center;
+    max-width: 50rem;
+    width: 100%;
+    animation: fadeIn 0.5s ease-in-out; // Hiệu ứng fade-in
+
+    @keyframes fadeIn {
+        0% {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+.successIcon {
+    font-size: 6rem;
+    color: #A3BFFA; // Xanh dương nhẹ
+    margin-bottom: 20px;
+}
+
+.title {
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: #2D3748; // Xám đậm
+    margin-bottom: 1rem;
+}
+
+.message {
+    font-size: 1.6rem;
+    color: #4A5568; // Xám trung bình
+    margin-bottom: 2rem;
+
+    .orderCode {
+        font-weight: 600;
+        color: #A3BFFA; // Xanh dương nhẹ
+    }
+}
+
+.thankYou {
+    font-size: 1.4rem;
+    color: #718096; // Xám nhạt
+    margin-bottom: 3rem;
+}
+
+.backButton {
+    background: #A3BFFA; // Xanh dương nhẹ
+    color: #ffffff;
+    border: none;
+    border-radius: 5rem;
+    padding: 1.2rem 3rem;
+    font-size: 1.6rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease; // Hiệu ứng chuyển động mượt mà
+
+    &:hover {
+        background: #FFD1DC; // Hồng nhạt khi hover
+        transform: translateY(-.2rem); // Nâng nhẹ nút khi hover
+        box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, 0.1); // Bóng đổ khi hover
+    }
+
+    &:active {
+        transform: translateY(0); // Trở lại vị trí ban đầu khi nhấn
+        box-shadow: none;
+    }
+}

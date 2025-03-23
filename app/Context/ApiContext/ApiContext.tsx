@@ -27,6 +27,9 @@ interface ApiContextType {
     addFavoriteJob: (jobId: number) => Promise<any>;
     getUserFavoriteJobs: () => Promise<any>;
     deleteAccountCurrent: () => Promise<boolean>;
+
+    // AI: Hàm mới thay thế hai hàm cũ
+    analyzeCompetitiveness: (jobId: number, resumeCVId: number) => Promise<any>;
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -50,7 +53,6 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Check Auth Header
     const getAuthHeaders = () => {
         if (!accessToken) {
-            // showToastError('Không tìm thấy token, vui lòng đăng nhập lại');
             throw new Error('No token');
         }
         if (isTokenExpired(accessToken)) {
@@ -339,6 +341,44 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     }, []);
 
+    // API AI: Hàm mới để phân tích mức độ cạnh tranh
+    const analyzeCompetitiveness = useCallback(
+        async (jobId: number, resumeCVId: number) => {
+            if (!isReady) {
+                console.warn('analyzeCompetitiveness: Context chưa sẵn sàng, bỏ qua fetch.');
+                throw new Error('Context not ready');
+            }
+
+            if (!accessToken) {
+                console.warn('analyzeCompetitiveness: Không có accessToken, bỏ qua fetch.');
+                showToastError('Vui lòng đăng nhập để tiếp tục');
+                throw new Error('No access token');
+            }
+
+            try {
+                const headers = getAuthHeaders();
+                const response = await axios.post(
+                    `${apiUrl}/users/analyze-competitiveness/${jobId}/${resumeCVId}`,
+                    {},
+                    { headers }
+                );
+                if (!response.data) {
+                    throw new Error('Dữ liệu trả về từ API không hợp lệ');
+                }
+                return response.data;
+            } catch (error: any) {
+                console.error('Lỗi khi phân tích mức độ cạnh tranh:', {
+                    message: error.message,
+                    status: error.response?.status,
+                    data: error.response?.data,
+                });
+                showToastError('Không thể thực hiện phân tích mức độ cạnh tranh');
+                throw error;
+            }
+        },
+        [accessToken, isReady]
+    );
+
     return (
         <ApiContext.Provider
             value={{
@@ -362,6 +402,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 addFavoriteJob,
                 getUserFavoriteJobs,
                 deleteAccountCurrent,
+                analyzeCompetitiveness, // Thêm hàm mới vào context
             }}
         >
             {children}

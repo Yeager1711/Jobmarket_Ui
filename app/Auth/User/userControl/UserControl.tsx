@@ -238,19 +238,18 @@ export default function UserControl() {
                     </a>
 
                     <a
-                        href={`/Auth/User/quan_ly_tai_khoan`}
-                        className={pathname.includes('quan_ly_tai_khoan') ? styles.active : ''}
+                        href={`/Auth/User/don_hang_cua_toi`}
+                        className={pathname.includes('don_hang_cua_toi') ? styles.active : ''}
                     >
                         Đơn hàng của tôi
                     </a>
 
                     <a
-                        href={`/Auth/User/quan_ly_don_hang`}
-                        className={pathname.includes('quan_ly_don_hang') ? styles.active : ''}
+                        href={`/Auth/User/quan_ly_tai_khoan`}
+                        className={pathname.includes('quan_ly_tai_khoan') ? styles.active : ''}
                     >
                         Quản lý tài khoản
                     </a>
-                    
                 </div>
 
                 <>
