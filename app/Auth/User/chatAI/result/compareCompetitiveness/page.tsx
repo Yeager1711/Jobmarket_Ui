@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './compareCompetitiveness.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -17,21 +17,29 @@ import {
     faSun,
     faMoon,
     faArrowLeft,
+    faChevronLeft
 } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ChatPopup from 'app/Auth/User/popup/historyAI/page';
-import { renderWithKeys } from './ultis/renderWithKeys';
+import { renderWithKeys } from '../../../ultis/renderWithKeys';
+import { User } from 'app/interface/User';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 import { useApi } from '../../../../../Context/ApiContext/ApiContext';
+import { showToastError } from 'app/Ultils/toast';
 
 const ResultCompareCompetitiveness = () => {
     const router = useRouter();
+    const { fetchUser, isReady, accessToken } = useApi();
+    const [loading, setLoading] = useState(true);
+    // Thêm state để theo dõi trạng thái iframe
+    const [searchQuery, setSearchQuery] = useState<string | null>(null);
+    const [isIframeBlocked, setIsIframeBlocked] = useState<boolean>(false);
 
-    // Hàm xử lý khi click vào từ khóa
+    // Cập nhật handleKeywordClick
     const handleKeywordClick = (keyword: string) => {
-        const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(keyword)}`;
-        window.open(searchUrl, '_blank'); // Mở tab mới với URL tìm kiếm Google
+        setSearchQuery(keyword);
+        setIsIframeBlocked(false); // Reset trạng thái kiểm tra
     };
 
     const searchParams = useSearchParams();
@@ -46,9 +54,40 @@ const ResultCompareCompetitiveness = () => {
     const [fullTextContent, setFullTextContent] = useState<string>('');
     const [candidateName, setCandidateName] = useState<string>('Ứng viên');
     const [isPopupOpenHistoryAI, setIsPopupOpenHistoryAI] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
 
     // Chuyển đổi trạng thái ngày đêm
     const [isDarkMode, setIsDarkMode] = useState(false);
+
+    // Tải thông tin người dùng từ API /users/me
+    const fetchUserData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const userData = await fetchUser();
+            console.log('Dữ liệu user từ fetchUser:', userData); // Thêm logging để kiểm tra
+            setUser(userData);
+        } catch (error: any) {
+            console.error('Lỗi khi lấy dữ liệu user:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+            });
+            showToastError(error.response?.data?.message || 'Không thể tải thông tin người dùng do lỗi không xác định');
+            setUser(null);
+        } finally {
+            setLoading(false);
+        }
+    }, [fetchUser]);
+
+    // Gọi fetchUserData khi component mount và khi isReady thay đổi
+    useEffect(() => {
+        if (isReady && accessToken) {
+            fetchUserData();
+        } else if (!accessToken) {
+            setLoading(false);
+            setUser(null);
+        }
+    }, [fetchUserData, isReady, accessToken]);
 
     // Đọc giá trị từ session
     useEffect(() => {
@@ -119,47 +158,42 @@ const ResultCompareCompetitiveness = () => {
             setCurrentSection('conclusion');
             return;
         }
-    
+
         const fetchData = async () => {
             setStatus('loading');
             setCurrentSection('loading');
-    
+
             try {
                 // Kiểm tra token trước khi gọi API
                 const accessToken = localStorage.getItem('access_token');
                 if (!accessToken) {
                     throw new Error('Access token not found. Please log in again.');
                 }
-    
+
                 // Gọi API mới để phân tích mức độ cạnh tranh
-                const response = await fetch(
-                    `${apiUrl}/users/analyze-competitiveness/${jobId}/${resumeCVId}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    }
-                );
-    
+                const response = await fetch(`${apiUrl}/users/analyze-competitiveness/${jobId}/${resumeCVId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(
-                        errorData.message || `Error ${response.status}: ${response.statusText}`
-                    );
+                    throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
                 }
-    
+
                 const result = await response.json();
                 if (!result.data) {
                     throw new Error('Invalid response data');
                 }
-    
+
                 // Tách phần introduction và content từ dữ liệu trả về
                 const [intro, content] = result.data.split('---\n\n');
                 setIntroductionText(intro.trim());
                 setFullTextContent(content.trim());
-    
+
                 setStatus('typing');
                 setCurrentSection('introduction');
             } catch (error: any) {
@@ -168,7 +202,7 @@ const ResultCompareCompetitiveness = () => {
                 setCurrentSection('conclusion');
             }
         };
-    
+
         fetchData();
     }, [jobId, resumeCVId]);
 
@@ -535,9 +569,14 @@ const ResultCompareCompetitiveness = () => {
                             <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} onClick={toggleDarkMode} />
                             <FontAwesomeIcon icon={faList} onClick={() => setIsPopupOpenHistoryAI(true)} />
                         </div>
-                        <div className={styles.user}>
-                            <span className={styles.name}>Huỳnh Nam</span>
-                            <img src="http://localhost:5000/uploads/images/1741840745566-831657183.jpg" alt="" />
+                        <div className={styles.user} onClick={() => router.push(`/Auth/User/tong_quan_tai_khoan`)}>
+                            <span className={styles.name}>
+                                {user?.firstName} {user?.lastName}
+                            </span>
+                            <img
+                                src={user?.image ? `${apiUrl}${user?.image}` : '/images/user/user_default.png'}
+                                alt={`${user?.firstName} ${user?.lastName}`}
+                            />
                         </div>
                     </div>
                 </div>
@@ -558,24 +597,40 @@ const ResultCompareCompetitiveness = () => {
                     }`}
                 >
                     <div className={styles.flex_left}>
-                        {currentSection !== 'loading' && (
-                            <div className={styles.AI_reply_text}>
-                                <div className={styles.logo_AI}>AI</div>
-                                <div className={styles.typingText}>
-                                    {typedIntroduction.split('\n').map((line, index) =>
-                                        line.trim() ? (
-                                            <p key={index}>
-                                                {renderWithKeys({
-                                                    text: removeMarkdownBold(line),
-                                                    onKeywordClick: handleKeywordClick,
-                                                    className: styles.keyword,
-                                                })}
-                                            </p>
-                                        ) : null
-                                    )}
+                        {currentSection !== 'loading' &&
+                            (searchQuery ? (
+                                <div className={styles.search_preview}>
+                                    <h4>
+                                        <button onClick={() => setSearchQuery(null)} style={{marginRight: '1rem', background: 'none'}}>
+                                            <FontAwesomeIcon icon={faChevronLeft} />
+                                        </button>
+                                        AI Google Search: {searchQuery}
+                                    </h4>
+                                    {/* Giao diện tìm kiếm thu nhỏ */}
+                                    <iframe
+                                        src={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&igu=1`}
+                                        title={`Tìm kiếm ${searchQuery}`}
+                                        className={styles.search_iframe}
+                                    />
                                 </div>
-                            </div>
-                        )}
+                            ) : (
+                                <div className={styles.AI_reply_text}>
+                                    <div className={styles.logo_AI}>AI</div>
+                                    <div className={styles.typingText}>
+                                        {typedIntroduction.split('\n').map((line, index) =>
+                                            line.trim() ? (
+                                                <p key={index}>
+                                                    {renderWithKeys({
+                                                        text: removeMarkdownBold(line),
+                                                        onKeywordClick: handleKeywordClick,
+                                                        className: styles.keyword,
+                                                    })}
+                                                </p>
+                                            ) : null
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                     </div>
                     <div className={styles.flex_right}>
                         {currentSection !== 'loading' &&
@@ -641,7 +696,7 @@ const ResultCompareCompetitiveness = () => {
                                             </span>
                                         </div>
                                         <div className={styles.appropriate_slevel__box}>
-                                            So với ứng viên đã ứng tuyển khác
+                                            Hạng ứng viên đã ứng tuyển
                                             <span className={styles.span_2}>
                                                 <p>
                                                     {renderWithKeys({

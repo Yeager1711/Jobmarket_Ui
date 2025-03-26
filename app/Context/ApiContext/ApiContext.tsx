@@ -27,9 +27,8 @@ interface ApiContextType {
     addFavoriteJob: (jobId: number) => Promise<any>;
     getUserFavoriteJobs: () => Promise<any>;
     deleteAccountCurrent: () => Promise<boolean>;
-
-    // AI: Hàm mới thay thế hai hàm cũ
     analyzeCompetitiveness: (jobId: number, resumeCVId: number) => Promise<any>;
+    fetchOrdersByUserId: () => Promise<any>; // New function to fetch orders
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -125,6 +124,37 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             fetchUser();
         }
     }, [accessToken, user, isReady, fetchUser]);
+
+    // Fetch Orders
+    const fetchOrdersByUserId = useCallback(async () => {
+        if (!isReady) {
+            console.warn('fetchOrdersByUserId: Context chưa sẵn sàng, bỏ qua fetch.');
+            throw new Error('Context not ready');
+        }
+
+        if (!accessToken) {
+            console.warn('fetchOrdersByUserId: Không có accessToken, bỏ qua fetch.');
+            showToastError('Vui lòng đăng nhập để tiếp tục');
+            throw new Error('No access token');
+        }
+
+        try {
+            const headers = getAuthHeaders();
+            const response = await axios.get(`${apiUrl}/orders/user-orders`, { headers });
+            if (!response.data) {
+                throw new Error('Dữ liệu trả về từ API không hợp lệ');
+            }
+            return response.data;
+        } catch (error: any) {
+            console.error('Lỗi khi lấy danh sách đơn hàng:', {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data,
+            });
+            showToastError('Không thể tải danh sách đơn hàng');
+            throw error;
+        }
+    }, [accessToken, isReady]);
 
     // Các API khác giữ nguyên
     const fetchCVs = useCallback(
@@ -402,7 +432,8 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 addFavoriteJob,
                 getUserFavoriteJobs,
                 deleteAccountCurrent,
-                analyzeCompetitiveness, // Thêm hàm mới vào context
+                analyzeCompetitiveness,
+                fetchOrdersByUserId,
             }}
         >
             {children}

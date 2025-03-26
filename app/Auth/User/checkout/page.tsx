@@ -142,22 +142,21 @@ export default function Checkout() {
                             </span>
                         </div>
                         <div className={styles.orderDetails}>
-                            <div className={styles.orderDetails__row}>
+                            <div className={styles.orderDetails__row__1}>
                                 <span className={styles.orderDetails__cell}>Tên sản phẩm</span>
-                                <span className={styles.orderDetails__cell}>Đơn giá (đồng)</span>
+                                <span className={styles.orderDetails__cell}>Đơn giá </span>
                                 <span className={styles.orderDetails__cell}>Số lượng</span>
-                                <span className={styles.orderDetails__cell}>Tổng cộng (đồng)</span>
+                                <span className={styles.orderDetails__cell}>Tổng cộng</span>
                             </div>
-                            <div className={styles.orderDetails__row}>
+                            <div className={styles.orderDetails__row__2}>
                                 <span className={styles.orderDetails__cell}>
                                     Báo Cáo Phân Tích Mức Độ Cạnh Tranh CV{' '}
                                     <p>
-                                        {selectedCV?.name_file || 'Chưa chọn CV'} (ID: {selectedCV?.resumeCVId || 'N/A'}
-                                        )
+                                        {selectedCV?.name_file
+                                            ? decodeURIComponent(selectedCV.name_file)
+                                            : 'Chưa chọn CV'}
                                     </p>
-                                    <p>
-                                        Vị trí: {jobDetails?.title || 'Chưa tải job'} (ID: {jobId})
-                                    </p>
+                                    <p>Vị trí: {jobDetails?.title || 'Chưa tải job'}</p>
                                 </span>
                                 <span className={styles.orderDetails__cell__item}>{formatVND(totalWithoutTax)}</span>
                                 <span className={styles.orderDetails__cell__item}>1</span>

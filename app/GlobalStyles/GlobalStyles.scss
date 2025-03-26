@@ -74,6 +74,22 @@ html {
     }
 
 }
+.keyword {
+    font-weight: var(--weight500);
+    color: #ffd085; // Màu xanh để nổi bật
+    cursor: pointer;
+    transition: color 0.2s;
+    background: #ffd0851a;
+    padding: .15rem 1rem;
+    line-height: 2.3;
+    border-radius: .3rem;
+    transition: .3s linear;
+
+    &:hover {
+        color: #ffd085; // Màu đậm hơn khi hover
+        text-decoration: underline;
+    }
+}
 
 
 .container {

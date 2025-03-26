@@ -13,8 +13,9 @@ export default function PaymentSuccess() {
     const { analyzeCompetitiveness } = useApi();
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // Lấy query parameters
+    // Lấy query parameters, thêm orderId
     const orderCode = searchParams.get('orderCode');
+    const orderId = searchParams.get('orderId') ? parseInt(searchParams.get('orderId') as string) : 0;
     const jobId = searchParams.get('jobId') ? parseInt(searchParams.get('jobId') as string) : 0;
     const resumeCVId = searchParams.get('resumeCVId')
         ? parseInt(searchParams.get('resumeCVId') as string)
@@ -24,7 +25,6 @@ export default function PaymentSuccess() {
     // Hiển thị thông báo thanh toán
     useEffect(() => {
         if (status === 'PAID' && orderCode) {
-            toast.success(`Thanh toán thành công! Mã đơn hàng: ${orderCode}`);
         } else if (status === 'CANCELLED') {
             toast.error('Thanh toán đã bị hủy.');
         } else {
@@ -34,28 +34,27 @@ export default function PaymentSuccess() {
 
     // Hàm xử lý khi nhấn "Xem kết quả"
     const handleViewResult = async () => {
-        if (!jobId || !resumeCVId) {
-            toast.error('Không tìm thấy thông tin jobId hoặc resumeCVId.');
+        if (!jobId || !resumeCVId || !orderCode) {
+            toast.error('Không tìm thấy thông tin jobId, resumeCVId hoặc orderId.');
             router.push('/'); // Chuyển về trang chủ nếu thiếu thông tin
             return;
         }
 
         setIsAnalyzing(true);
         try {
-
+            console.log('orderId gửi đi:', orderId);
             console.log('jobId gửi đi:', jobId);
             console.log('resumeCVId gửi đi:', resumeCVId);
 
             // Gọi API phân tích AI từ ApiContext
-            await analyzeCompetitiveness(jobId, resumeCVId);
+            await analyzeCompetitiveness(jobId, resumeCVId); // Giả sử API chưa cần orderId
             toast.success('Phân tích AI thành công!');
 
-            // Chuyển hướng đến trang compareCompetitiveness sau khi phân tích thành công
+            // Chuyển hướng đến trang compareCompetitiveness với orderId bổ sung
             router.push(
-                `/Auth/User/chatAI/result/compareCompetitiveness?jobId=${jobId}&resumeCVId=${resumeCVId}`
+                `/Auth/User/chatAI/result/compareCompetitiveness?orderCode=${orderCode}&jobId=${jobId}&resumeCVId=${resumeCVId}`
             );
         } catch (error: any) {
-            // Lỗi đã được xử lý trong compareCompetitiveness (showToastError)
             console.error('Lỗi khi gọi API phân tích AI:', error);
         } finally {
             setIsAnalyzing(false);

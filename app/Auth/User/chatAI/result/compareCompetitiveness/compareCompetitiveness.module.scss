@@ -52,7 +52,16 @@
             transition: .3s linear;
 
             .flex_controll__user {
+                display: flex;
+                flex-wrap: wrap-reverse;
+                align-items: center;
+                gap: 2rem;
+                margin-bottom: 2rem;
+
                 .ResultCompareCompetitiveness_header {
+                    flex: 1 1;
+                    height: 5rem;
+
                     h3 {
                         transition: .3s linear;
                         color: #e0e0e0;
@@ -65,9 +74,13 @@
                 }
 
                 .control_user {
-                    border: 0.2rem solid #6b6bff;
-                    transition: .3s linear;
-                    background: #333;
+                    border: 0.2rem solid #9494ff;
+                    padding: 0.5rem 0.5rem 0.5rem 1rem;
+                    border-radius: 5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    height: 5rem;
 
                     .control {
                         svg {
@@ -290,7 +303,7 @@
 
     .resultContainer {
         background: #f8f7f1;
-        padding: 2% 5% 30% 5%;
+        padding: 2% 2% 30% 2%;
         border-radius: 0.5rem;
         box-shadow: 0 0.5rem 1rem rgba(20, 8, 8, 0.1);
         height: 120rem;
@@ -323,9 +336,15 @@
 
         .flex_controll__user {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap-reverse;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+
 
             .ResultCompareCompetitiveness_header {
+                flex: 1 1 8rem;
+
                 h3 {
                     font-size: 2rem;
                     color: #333;
@@ -352,10 +371,12 @@
                 display: flex;
                 align-items: center;
                 gap: 1rem;
+                height: 5rem;
 
                 .control {
                     svg {
-                        font-size: 1.7rem;
+                        width: 2.2rem;
+                        height: 1.8rem;
                         cursor: pointer;
                         margin-right: 2rem;
                     }
@@ -365,6 +386,7 @@
                     display: flex;
                     align-items: center;
                     gap: 1rem;
+                    cursor: pointer;
 
                     .name {
                         font-size: 1.4rem;
@@ -395,6 +417,42 @@
                     max-width: 100%;
                     flex: 1 1 100%;
                     transition: max-width 2s ease;
+
+                    .search_preview {
+                        padding: 10px;
+                        background: #f9f9f9;
+                        border-radius: 8px;
+                        max-height: 70rem;
+                        overflow: hidden;
+
+                        h4 {
+                            font-size: 1.5rem;
+                            margin-bottom: 1rem;
+                        }
+
+                        iframe {
+                            width: 100% !important;
+                            height: 70rem !important;
+                            border: none;
+                            border-radius: 5px;
+                        }
+                    }
+
+
+
+                    button {
+                        margin-top: 10px;
+                        padding: 5px 10px;
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+
+                        &:hover {
+                            background-color: #0056b3;
+                        }
+                    }
                 }
 
                 .flex_right {
@@ -407,9 +465,30 @@
 
             &.partial_width {
                 .flex_left {
-                    max-width: 50rem;
-                    flex: 1 1 30rem;
+                    max-width: 100%;
+                    flex: 1 1 40rem;
                     transition: max-width 2s ease;
+
+                    .search_preview {
+                        padding: 1rem;
+                        background: #f9f9f9;
+                        border-radius: 8px;
+                        height: 100%;
+                        overflow: hidden;
+
+                        h4 {
+                            font-size: 1.7rem;
+                            margin-bottom: 1rem;
+                            padding: 1rem 0;
+                        }
+
+                        iframe {
+                            width: 100% !important;
+                            height: 100% !important;
+                            border: none;
+                            border-radius: 5px;
+                        }
+                    }
                 }
 
                 .flex_right {
@@ -422,7 +501,6 @@
 
         .AI_reply_text {
             padding: 0.8rem 1.5rem 1.5rem 1.5rem;
-            margin-top: 1rem;
             font-size: 1.4rem;
             background: #f0efef;
             border-radius: 0.5rem;
@@ -468,6 +546,11 @@
                     font-size: 1.5rem;
                     color: #007bff;
                     animation: spin 1s linear infinite;
+                }
+
+                svg {
+                    width: 1.8rem;
+                    height: 1.8rem;
                 }
             }
 
@@ -568,7 +651,7 @@
                     }
 
                     .progressValue {
-                        font-size: 20px;
+                        font-size: 1.8rem;
                         font-weight: bold;
                         fill: #5b5bff;
                     }
@@ -576,7 +659,7 @@
                     span {
                         display: block;
                         margin-top: 2rem;
-                        font-size: 2rem;
+                        font-size: 1.8rem;
                         font-weight: var(--weight550);
                         line-height: 1.8;
                     }

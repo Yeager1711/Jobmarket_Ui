@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ApiProvider>
                     {/* Notifycation */}
                     <>
-                        <Notification />
+                        {/* <Notification /> */}
                         <Header />
                     </>
                     <main className="container">{children}</main>

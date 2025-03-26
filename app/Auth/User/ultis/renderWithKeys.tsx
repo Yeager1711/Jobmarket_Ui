@@ -30,7 +30,7 @@ export const renderWithKeys = ({ text, onKeywordClick, className = 'keyword' }: 
             <span
                 key={endIndex}
                 className={className}
-                style={{cursor: onKeywordClick ? 'pointer' : 'default' }}
+                
                 onClick={() => onKeywordClick && onKeywordClick(keyword)}
             >
                 {keyword}

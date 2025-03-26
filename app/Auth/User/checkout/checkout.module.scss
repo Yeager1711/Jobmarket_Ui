@@ -28,14 +28,16 @@
         margin: 0 auto;
         gap: 2rem;
         background: #f3f3f4;
+        // background: #fff;
         position: absolute;
         top: 60%;
         left: 5%;
         right: 5%;
         border-radius: 1rem;
+        align-items: baseline;
 
         .paymentSection {
-            flex: 5 5 40rem;
+            flex: 5 5 50rem;
             background: #fff;
             border-radius: 0.5rem;
             padding: 2rem;
@@ -75,12 +77,13 @@
                 padding-top: .5rem;
                 border-top: .1rem solid var(--border);
 
-                .orderDetails__row {
+                .orderDetails__row__1,
+                .orderDetails__row__2 {
                     display: grid;
-                    grid-template-columns: 2fr 1fr 1fr 1fr;
+                    grid-template-columns: 3fr 1fr 1fr 1fr;
                     gap: 1rem;
                     padding: 0.5rem 0;
-                    border-bottom: 1px solid #eee;
+                    border-bottom: .1rem solid #eee;
 
                     &:first-child {
                         font-weight: bold;
@@ -268,10 +271,10 @@
         }
 
         .summarySection {
-            flex: 1 1 40rem;
+            flex: 1 1 35rem;
             background: #fff;
             border-radius: 0.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            // box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 2rem;
 
             .summarySection__title {
@@ -293,10 +296,12 @@
 
                     span {
                         font-weight: var(--weight550);
+                        font-size: 1.4rem;
 
                         p {
                             margin-top: .5rem;
                             font-weight: var(--weight400);
+                            font-size: 1.4rem;
                             display: block;
                         }
                     }
@@ -304,13 +309,13 @@
                     .summaryDetails__price {
                         font-weight: bold;
                         color: var(--colorBlackText) !important;
-                        font-size: 1.5rem;
+                        font-size: 1.4rem;
                     }
 
                     .summaryDetails__price__final {
                         font-weight: bold;
                         color: #ff6200;
-                        font-size: 2rem;
+                        font-size: 1.8rem;
                     }
 
                     .summaryDetails__checkbox {
@@ -342,9 +347,9 @@
                 background: #ff6200;
                 color: #fff;
                 border: none;
-                padding: 1.3rem 2rem;
+                padding: 1rem 2rem;
                 border-radius: 0.5rem;
-                font-size: 1.35rem;
+                font-size: 1.25rem;
                 width: 100%;
                 cursor: pointer;
                 transition: background 0.3s;

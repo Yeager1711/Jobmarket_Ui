@@ -16,6 +16,11 @@
                 font-weight: 500;
             }
 
+            .orderHistory {
+                max-height: 40rem;
+                overflow-y: scroll;
+            }
+
             .personalInfo,
             .orderHistory {
                 background: #fff;
@@ -41,8 +46,8 @@
                         align-items: center;
                         background: #f1f3f5;
                         border-radius: 0.25rem;
-                        padding: 0.5rem 1rem;
-                        font-size: 0.875rem;
+                        padding: 1rem 2.5rem;
+                        font-size: 1.3rem;
                         color: #333;
                         cursor: pointer;
 
@@ -74,6 +79,7 @@
                         font-size: 1.3rem;
                         color: #333;
                         padding: 0.5rem 0;
+                        font-weight: var(--weight550);
                     }
                 }
             }
@@ -101,14 +107,103 @@
         font-weight: 600;
         color: #333;
         background: #f7f8fa;
+
+        &:nth-child(2) {
+            text-align: end;
+        }
+
+        &:nth-child(3) {
+            text-align: end;
+        }
+
+        &:nth-child(4) {
+            text-align: end;
+        }
+
+        &:nth-child(5) {
+            text-align: end;
+        }
+
+       
     }
 
     td {
         color: #666;
+        padding: 1.5rem 1rem;
+
+        &:nth-child(1) {
+            font-weight: var(--weight600);
+            color: var(--colorBlackText);
+        }
+
+        &:nth-child(2) {
+            text-align: end;
+        }
+
+        &:nth-child(3) {
+            text-align: end;
+            font-weight: var(--weight550);
+            color: var(--viewDetails);
+        }
+
+        &:nth-child(4) {
+            text-align: end;
+        }
+
+        &:nth-child(5) {
+            text-align: end;
+        }
+
+
+
+        .analyticsButton {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            border: .1rem solid #5195dd;
+            color: #333;
+            border: none;
+            padding: .5rem 1rem;
+            border-radius: .4rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+            height: 2.5rem;
+            max-width: 15rem;
+            width: 100%;
+            margin: auto;
+            text-align: center;
+
+            &:hover {
+                border: .1rem solid #5195dd;
+                transition: .3s linear;
+
+            }
+        }
+
+        .not_completed {
+            display: flex;
+            align-items: center;
+            background-color: #dedede;
+            color: white;
+            border: none;
+            padding: .5rem 1rem;
+            border-radius: .4rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+            height: 2.5rem;
+            max-width: 15rem;
+            width: 100%;
+            margin: auto;
+            text-align: center;
+        }
     }
 
     // Responsive design
-    @media (max-width: 48rem) { // 768px
+    @media (max-width: 48rem) {
+
+        // 768px
         thead {
             display: none;
         }
@@ -148,6 +243,8 @@
 
     svg {
         margin-right: 0.5rem;
+        width: 2rem;
+        height: 2rem;
     }
 }
 

@@ -4,13 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera, faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 import type { User } from '../../../interface/User';
 import styles from './UserControl.module.scss';
-import { useParams, usePathname } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { showToastError, showToastSuccess } from 'app/Ultils/toast';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { jwtDecode } from 'jwt-decode';
 import UserController_Skeleton from './UserController_skeleton';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
+import Link from 'next/link';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
@@ -22,6 +23,7 @@ export default function UserControl() {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [timeLeft, setTimeLeft] = useState<string>('0:00');
+    const router = useRouter();
 
     const pathname = usePathname();
     const { fetchUser, isReady, accessToken } = useApi();
