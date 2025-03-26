@@ -16,7 +16,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, .7);
+  background: #0a0a0a80;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -26,13 +26,24 @@
     background: #1d1e20;
     max-width: 150rem;
     width: 95%;
-    height: 58rem;
+    height: 65rem;
     border-radius: 2rem;
     position: relative;
     padding: 2rem;
     color: #fff;
     font-family: Arial, sans-serif;
     animation: zoomIn 0.25s ease-out forwards;
+    position: relative;
+    overflow: hidden;
+    transition: max-width 0.3s ease;
+
+    &.collapsed {
+      max-width: 60rem; // Collapsed size
+
+      .chatList {
+        border-right: none !important;
+      }
+    }
 
     .keyword {
       font-weight: var(--weight500);
@@ -85,7 +96,7 @@
       .chatList {
         flex: 1 1 37rem;
         border-right: .1rem solid #6f6f6f;
-        height: 49rem;
+        height: 53.7rem;
         overflow-y: auto;
         padding-right: 2rem;
 
@@ -97,8 +108,8 @@
         }
 
         .histroyList {
-          height: 20rem;
-          overflow-y: scroll;
+          // height: 20rem;
+          // overflow-y: scroll;
 
           &::-webkit-scrollbar {
             width: 0.4rem;
@@ -146,14 +157,16 @@
         flex: 1 1 60rem;
 
         .chatList_item {
-          height: 56rem;
-          padding: 1.5rem;
+          height: 60rem;
+          padding: 0 1.5rem 1.5rem 1.5rem;
           display: flex;
 
           .AI_wrapper__reply {
-            height: 45rem;
+            height: 52rem;
+            border-radius: 1rem;
             overflow: auto;
             padding-right: 1rem;
+
 
             &::-webkit-scrollbar {
               width: 0.4rem;
@@ -166,11 +179,11 @@
 
             .AI_rep__text {
               .text {
-                padding: 1rem 0 1rem 1rem;
-                background: #727171;
+                background: rgba(0, 0, 0, .7);
                 border-radius: 1rem;
                 line-height: 1.5;
                 font-size: 1.3rem;
+                padding: 1.5rem;
               }
 
               .box_item {
@@ -186,12 +199,17 @@
                   line-height: 1.5;
                   font-size: 1.3rem;
                   background: rgba(0, 0, 0, .7);
+                  display: block;
 
                   p {
                     color: var(--viewDetails);
                     display: inline;
-                    margin-left: 0.5rem;
+                    margin-top: .8rem;
+                    display: block;
+
                   }
+
+
                 }
               }
             }
@@ -235,7 +253,7 @@
                   }
 
                   .title_r3 {
-                    color: #446ebc;
+                    color: #dbdbdb;
                     font-weight: var(--weight600);
                   }
                 }
@@ -247,6 +265,41 @@
             margin: auto;
             font-size: 1.3rem;
           }
+        }
+      }
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      padding: 1rem 2rem;
+      background: #2d2d2d;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .btn_expend {
+        cursor: pointer;
+        padding: .3rem 1rem;
+
+        svg {
+          width: 1.2em;
+          height: 1.2rem;
+        }
+      }
+
+      .btn_delete {
+        cursor: pointer;
+        padding: .5rem 1rem;
+        border: .1rem solid var(--border);
+        border-radius: 1rem;
+
+        svg {
+          width: 1rem;
+          height: 1rem;
+          margin-right: .5rem;
         }
       }
     }

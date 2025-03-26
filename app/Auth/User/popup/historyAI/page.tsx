@@ -3,7 +3,12 @@ import { useState, useEffect, useCallback } from 'react';
 import styles from './historyAI.module.scss';
 import { useApi } from '../../../../Context/ApiContext/ApiContext';
 import { renderWithKeys } from '../../ultis/renderWithKeys';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faTrash,
+    faUpRightAndDownLeftFromCenter,
+    faDownLeftAndUpRightToCenter,
+} from '@fortawesome/free-solid-svg-icons';
 // Define the interface for a single chat item
 interface ChatItem {
     title: string;
@@ -32,6 +37,12 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
     const [hoveredOrderCode, setHoveredOrderCode] = useState<string | null>(null);
     const [isRightPanelHovered, setIsRightPanelHovered] = useState(false);
     const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
+    const [isExpanded, setIsExpanded] = useState(true);
+
+    // Toggle the size of the popup
+    const handleToggleSize = () => {
+        setIsExpanded((prev) => !prev);
+    };
 
     // Function to fetch and map orders to chat items
     const fetchChats = useCallback(async () => {
@@ -68,20 +79,28 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                     purchaseDate.getMonth() === yesterday.getMonth() &&
                     purchaseDate.getFullYear() === yesterday.getFullYear();
 
+                // Calculate time difference in hours and days
+                const diffInHours = Math.floor(diffInSeconds / 3600); // Convert seconds to hours
+                const diffInDays = Math.floor(diffInSeconds / 86400); // Convert seconds to days
+
                 if (isToday) {
                     if (diffInSeconds < 60) {
                         time = `${diffInSeconds} seconds ago`;
                     } else if (diffInSeconds < 3600) {
                         time = `${Math.floor(diffInSeconds / 60)} minutes ago`;
                     } else {
-                        time = `${Math.floor(diffInSeconds / 3600)} hours ago`;
+                        time = `${diffInHours} hours ago`; // Show hours if less than 24 hours
                     }
                     category = 'Today';
                 } else if (isYesterday) {
-                    time = `${Math.floor(diffInSeconds / 86400)} days ago`;
+                    if (diffInHours < 24) {
+                        time = `${diffInHours} hours ago`; // Show hours if less than 24 hours
+                    } else {
+                        time = '1 day ago'; // Exactly 24 hours or slightly more
+                    }
                     category = 'Yesterday';
                 } else {
-                    time = `${Math.floor(diffInSeconds / 86400)} days ago`;
+                    time = `${diffInDays} days ago`; // Show days for older dates
                     category = 'Older';
                 }
 
@@ -295,9 +314,16 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
         // Parse "Gợi ý cải thiện"
         const suggestions = parsedSections['Gợi ý cải thiện'] || '';
         const suggestionItems = suggestions
-            .split('\n')
+            .split('\n') // Tách thành mảng các dòng
             .filter((item) => item.trim().match(/^\d+\.\s/))
-            .map((item) => item.replace(/^\d+\.\s/, '').trim());
+            .map(
+                (item) =>
+                    item
+                        .replace(/^-+\s*/, '') // Loại bỏ dấu gạch ngang ở đầu (nếu có)
+                        .replace(/\*\*/g, '') // Loại bỏ tất cả các ký tự ** trong chuỗi
+                        .replace(/^\d+\.\s/, '') // Loại bỏ số thứ tự (ví dụ: "1. ")
+                        .trim() // Loại bỏ khoảng trắng thừa
+            );
 
         // Parse "Kết luận"
         const conclusion = parsedSections['Kết luận'] || '';
@@ -448,8 +474,8 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
     };
 
     return (
-        <div className={styles.overlay}>
-            <div className={styles.popup} onClick={handlePopupClick}>
+        <div className={styles.overlay} onClick={onClose}>
+            <div className={`${styles.popup} ${isExpanded ? '' : styles.collapsed}`} onClick={handlePopupClick}>
                 <div className={styles.header}>
                     <input type="text" placeholder="Search..." className={styles.searchInput} />
                     <div className={styles.actions}></div>
@@ -495,6 +521,17 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                                 <p className={styles.empty_Chats}>Hover chuột vào phân tích để xem nhanh</p>
                             )}
                         </div>
+                    </div>
+                </div>
+
+                <div className={styles.footer}>
+                    <div className={styles.btn_expend} onClick={handleToggleSize}>
+                        <FontAwesomeIcon
+                            icon={isExpanded ? faDownLeftAndUpRightToCenter : faUpRightAndDownLeftFromCenter}
+                        />
+                    </div>
+                    <div className={styles.btn_delete}>
+                        <FontAwesomeIcon icon={faTrash} /> Xóa
                     </div>
                 </div>
             </div>

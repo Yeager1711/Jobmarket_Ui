@@ -166,42 +166,110 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
 
         // Parse "Đánh giá mức độ phù hợp của Huỳnh Nam"
         const appropriateLevel = parsedSections['Đánh giá mức độ phù hợp của Huỳnh Nam'] || '';
-        const appropriateLevelItems = appropriateLevel.split('\n- ').filter(item => item.trim());
-        const suitabilityMatch = appropriateLevelItems.find(item => item.includes('Mức độ phù hợp với công việc'));
-        const comparisonMatch = appropriateLevelItems.find(item => item.includes('So sánh với ứng viên khác'));
-        const salaryMatch = appropriateLevelItems.find(item => item.includes('Mức lương thị trường'));
+        const appropriateLevelItems = appropriateLevel.split('\n- ').filter((item) => item.trim());
+        const suitabilityMatch = appropriateLevelItems.find((item) => item.includes('Mức độ phù hợp với công việc'));
+        const comparisonMatch = appropriateLevelItems.find((item) => item.includes('So sánh với ứng viên khác'));
+        const salaryMatch = appropriateLevelItems.find((item) => item.includes('Mức lương thị trường'));
 
-        const suitability = suitabilityMatch ? suitabilityMatch.replace('**Mức độ phù hợp với công việc**: ', '').replace(/\[.*?\]/, '').trim() : '';
-        const comparison = comparisonMatch ? comparisonMatch.replace('**So sánh với ứng viên khác**: ', '').replace(/\[.*?\]/, '').trim() : '';
-        const salary = salaryMatch ? salaryMatch.replace('**Mức lương thị trường**: ', '').replace(/\[.*?\]/, '').trim() : '';
+        const suitability = suitabilityMatch
+            ? suitabilityMatch
+                  .replace('**Mức độ phù hợp với công việc**: ', '')
+                  .replace(/\[.*?\]/, '')
+                  .replace(/^-+\s*/, '')
+                  .trim()
+            : '';
+        const comparison = comparisonMatch
+            ? comparisonMatch
+                  .replace('**So sánh với ứng viên khác**: ', '')
+                  .replace(/\[.*?\]/, '')
+                  .trim()
+            : '';
+        const salary = salaryMatch
+            ? salaryMatch
+                  .replace('**Mức lương thị trường**: ', '')
+                  .replace(/\[.*?\]/, '')
+                  .trim()
+            : '';
 
         // Parse "So sánh mức độ cạnh tranh"
         const competitionLevel = parsedSections['So sánh mức độ cạnh tranh'] || '';
-        const competitionItems = competitionLevel.split('\n- ').filter(item => item.trim());
-        const techStrengths = competitionItems.find(item => item.includes('Điểm mạnh kỹ thuật'))?.replace('**Điểm mạnh kỹ thuật**: ', '').trim() || '';
-        const techWeaknesses = competitionItems.find(item => item.includes('Điểm yếu kỹ thuật'))?.replace('**Điểm yếu kỹ thuật**: ', '').trim() || '';
-        const expStrengths = competitionItems.find(item => item.includes('Điểm mạnh kinh nghiệm'))?.replace('**Điểm mạnh kinh nghiệm**: ', '').trim() || '';
-        const expWeaknesses = competitionItems.find(item => item.includes('Điểm yếu kinh nghiệm'))?.replace('**Điểm yếu kinh nghiệm**: ', '').trim() || '';
-        const softSkillsStrengths = competitionItems.find(item => item.includes('Điểm mạnh kỹ năng mềm'))?.replace('**Điểm mạnh kỹ năng mềm**: ', '').trim() || '';
-        const softSkillsWeaknesses = competitionItems.find(item => item.includes('Điểm yếu kỹ năng mềm'))?.replace('**Điểm yếu kỹ năng mềm**: ', '').trim() || '';
+        const competitionItems = competitionLevel.split('\n- ').filter((item) => item.trim());
+        const techStrengths =
+            competitionItems
+                .find((item) => item.includes('Điểm mạnh kỹ thuật'))
+                ?.replace('**Điểm mạnh kỹ thuật**: ', '')
+                .replace(/^-+\s*/, '')
+                .trim() || '';
+        const techWeaknesses =
+            competitionItems
+                .find((item) => item.includes('Điểm yếu kỹ thuật'))
+                ?.replace('**Điểm yếu kỹ thuật**: ', '')
+                .trim() || '';
+        const expStrengths =
+            competitionItems
+                .find((item) => item.includes('Điểm mạnh kinh nghiệm'))
+                ?.replace('**Điểm mạnh kinh nghiệm**: ', '')
+                .trim() || '';
+        const expWeaknesses =
+            competitionItems
+                .find((item) => item.includes('Điểm yếu kinh nghiệm'))
+                ?.replace('**Điểm yếu kinh nghiệm**: ', '')
+                .trim() || '';
+        const softSkillsStrengths =
+            competitionItems
+                .find((item) => item.includes('Điểm mạnh kỹ năng mềm'))
+                ?.replace('**Điểm mạnh kỹ năng mềm**: ', '')
+                .trim() || '';
+        const softSkillsWeaknesses =
+            competitionItems
+                .find((item) => item.includes('Điểm yếu kỹ năng mềm'))
+                ?.replace('**Điểm yếu kỹ năng mềm**: ', '')
+                .trim() || '';
 
         // Parse "Học vấn"
         const education = parsedSections['Học vấn'] || '';
-        const educationItems = education.split('\n- ').filter(item => item.trim());
-        const academicBackground = educationItems.find(item => item.includes('Nền tảng học vấn'))?.replace('**Nền tảng học vấn**: ', '').trim() || '';
-        const certificates = educationItems.find(item => item.includes('Chứng chỉ và khóa học'))?.replace('**Chứng chỉ và khóa học**: ', '').trim() || '';
-        const potential = educationItems.find(item => item.includes('Tiềm năng phát triển'))?.replace('**Tiềm năng phát triển**: ', '').trim() || '';
+        const educationItems = education.split('\n- ').filter((item) => item.trim());
+        const academicBackground =
+            educationItems
+                .find((item) => item.includes('Nền tảng học vấn'))
+                ?.replace('**Nền tảng học vấn**: ', '')
+                .trim() || '';
+        const certificates =
+            educationItems
+                .find((item) => item.includes('Chứng chỉ và khóa học'))
+                ?.replace('**Chứng chỉ và khóa học**: ', '')
+                .trim() || '';
+        const potential =
+            educationItems
+                .find((item) => item.includes('Tiềm năng phát triển'))
+                ?.replace('**Tiềm năng phát triển**: ', '')
+                .trim() || '';
 
         // Parse "Phân tích kinh nghiệm"
         const experienceAnalysis = parsedSections['Phân tích kinh nghiệm'] || '';
-        const experienceItems = experienceAnalysis.split('\n- ').filter(item => item.trim());
-        const practicalExperience = experienceItems.find(item => item.includes('Kinh nghiệm thực tế'))?.replace('**Kinh nghiệm thực tế**: ', '').trim() || '';
-        const requirementComparison = experienceItems.find(item => item.includes('So sánh với yêu cầu'))?.replace('**So sánh với yêu cầu**: ', '').trim() || '';
-        const candidateComparison = experienceItems.find(item => item.includes('So sánh với ứng viên khác'))?.replace('**So sánh với ứng viên khác**: ', '').trim() || '';
+        const experienceItems = experienceAnalysis.split('\n- ').filter((item) => item.trim());
+        const practicalExperience =
+            experienceItems
+                .find((item) => item.includes('Kinh nghiệm thực tế'))
+                ?.replace('**Kinh nghiệm thực tế**: ', '')
+                .trim() || '';
+        const requirementComparison =
+            experienceItems
+                .find((item) => item.includes('So sánh với yêu cầu'))
+                ?.replace('**So sánh với yêu cầu**: ', '')
+                .trim() || '';
+        const candidateComparison =
+            experienceItems
+                .find((item) => item.includes('So sánh với ứng viên khác'))
+                ?.replace('**So sánh với ứng viên khác**: ', '')
+                .trim() || '';
 
         // Parse "Gợi ý cải thiện"
         const suggestions = parsedSections['Gợi ý cải thiện'] || '';
-        const suggestionItems = suggestions.split('\n').filter(item => item.trim().match(/^\d+\.\s/)).map(item => item.replace(/^\d+\.\s/, '').trim());
+        const suggestionItems = suggestions
+            .split('\n')
+            .filter((item) => item.trim().match(/^\d+\.\s/))
+            .map((item) => item.replace(/^\d+\.\s/, '').trim());
 
         // Parse "Kết luận"
         const conclusion = parsedSections['Kết luận'] || '';
@@ -258,10 +326,16 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                         <div className={styles.box_item}>
                             <h4>Điểm mạnh / Điểm yếu Kỹ năng mềm</h4>
                             <span className={styles.strengths}>
-                                {renderWithKeys({ text: `- ${softSkillsStrengths}`, onKeywordClick: handleKeywordClick })}
+                                {renderWithKeys({
+                                    text: `- ${softSkillsStrengths}`,
+                                    onKeywordClick: handleKeywordClick,
+                                })}
                             </span>
                             <span className={styles.weakness}>
-                                {renderWithKeys({ text: `- ${softSkillsWeaknesses}`, onKeywordClick: handleKeywordClick })}
+                                {renderWithKeys({
+                                    text: `- ${softSkillsWeaknesses}`,
+                                    onKeywordClick: handleKeywordClick,
+                                })}
                             </span>
                         </div>
                     </div>
@@ -382,7 +456,9 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
 
                     <div className={styles.chat_List__item}>
                         <div className={styles.chatList_item}>
-                            {hoveredChat ? renderAnalyzeText(hoveredChat.analyze_text) : (
+                            {hoveredChat ? (
+                                renderAnalyzeText(hoveredChat.analyze_text)
+                            ) : (
                                 <p className={styles.empty_Chats}>Hover chuột vào phân tích để xem nhanh</p>
                             )}
                         </div>
