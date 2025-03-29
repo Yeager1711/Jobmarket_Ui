@@ -4,11 +4,14 @@ import styles from './historyAI.module.scss';
 import { useApi } from '../../../../Context/ApiContext/ApiContext';
 import { renderWithKeys } from '../../ultis/renderWithKeys';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRouter } from 'next/navigation';
 import {
     faTrash,
     faUpRightAndDownLeftFromCenter,
     faDownLeftAndUpRightToCenter,
+    faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+
 // Define the interface for a single chat item
 interface ChatItem {
     title: string;
@@ -16,6 +19,9 @@ interface ChatItem {
     category: string;
     orderCode: string;
     analyze_text: string;
+    orderId?: string;
+    jobId?: string;
+    resumeCvId?: string;
 }
 
 // Define the interface for the grouped chats
@@ -30,7 +36,7 @@ interface ChatPopupProps {
 }
 
 const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
-    const { fetchOrdersByUserId } = useApi();
+    const { fetchOrdersByUserId, disableOrder } = useApi(); // Added disableOrder
     const [chats, setChats] = useState<ChatItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -38,6 +44,8 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
     const [isRightPanelHovered, setIsRightPanelHovered] = useState(false);
     const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
     const [isExpanded, setIsExpanded] = useState(true);
+    const [showDeleteIcons, setShowDeleteIcons] = useState(false);
+    const router = useRouter();
 
     // Toggle the size of the popup
     const handleToggleSize = () => {
@@ -110,6 +118,9 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                     category,
                     orderCode: order.orderCode,
                     analyze_text: order.orderDetails.analyze_text,
+                    orderId: order.orderId || order.orderCode,
+                    jobId: order.jobId || '',
+                    resumeCvId: order.resumeCvId || '',
                 };
             });
 
@@ -128,6 +139,24 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
             fetchChats();
         }
     }, [isOpen, fetchChats]);
+
+    // New function to handle disabling an order
+    const handleDeleteOrder = async (orderId: string) => {
+        if (!orderId) {
+            setError('Không tìm thấy orderId để vô hiệu hóa.');
+            return;
+        }
+        if (confirm('Bạn có chắc chắn muốn vô hiệu hóa đơn hàng này không?')) {
+            try {
+                await disableOrder(orderId);
+                setChats((prevChats) => prevChats.filter((chat) => chat.orderId !== orderId));
+                setError(null); // Clear any previous errors
+            } catch (err) {
+                console.error('Error disabling order:', err);
+                setError('Không thể vô hiệu hóa đơn hàng. Vui lòng thử lại sau.');
+            }
+        }
+    };
 
     // Group chats by category with type safety
     const groupedChats: GroupedChats = chats.reduce((acc: GroupedChats, chat: ChatItem) => {
@@ -498,8 +527,39 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                                             onMouseEnter={() => handleMouseEnterChatItem(chat.orderCode)}
                                             onMouseLeave={handleMouseLeaveChatItem}
                                         >
-                                            <p className={styles.chatTitle}>{chat.title}</p>
-                                            <span className={styles.chatTime}>{chat.time}</span>
+                                            <div
+                                                onClick={() =>
+                                                    router.push(
+                                                        `/Auth/User/chatAI/result/compareCompetitiveness?orderId=${chat.orderId}&jobId=${chat.jobId}&resumeCVId=${chat.resumeCvId}`
+                                                    )
+                                                }
+
+                                                className={styles.space_betwwen}
+                                            >
+                                                <p className={styles.chatTitle}>{chat.title}</p>
+                                                {showDeleteIcons ? (
+                                                    <div className={styles.iconWrapper}>
+                                                        <FontAwesomeIcon
+                                                            icon={faXmark}
+                                                            className={styles.xmarkIcon}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Ngăn click lan sang router.push
+                                                                setShowDeleteIcons(false); // Ẩn icons khi nhấn xmark
+                                                            }}
+                                                        />
+                                                        <FontAwesomeIcon
+                                                            icon={faTrash}
+                                                            className={styles.trashIcon}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Ngăn click lan sang router.push
+                                                                handleDeleteOrder(chat.orderId!); // Gọi hàm xóa
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <span className={styles.chatTime}>{chat.time}</span>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -518,7 +578,7 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                             {hoveredChat ? (
                                 renderAnalyzeText(hoveredChat.analyze_text)
                             ) : (
-                                <p className={styles.empty_Chats}>Hover chuột vào phân tích để xem nhanh</p>
+                                <p className={styles.empty_Chats}>Hover chuột vào phân tích trước đó để xem nhanh</p>
                             )}
                         </div>
                     </div>
@@ -530,7 +590,15 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                             icon={isExpanded ? faDownLeftAndUpRightToCenter : faUpRightAndDownLeftFromCenter}
                         />
                     </div>
-                    <div className={styles.btn_delete}>
+                    {/* Footer delete button for bulk deletion */}
+                    <div
+                        className={styles.btn_delete}
+                        onClick={() => {
+                            if (chats.length > 0) {
+                                setShowDeleteIcons(true);
+                            }
+                        }}
+                    >
                         <FontAwesomeIcon icon={faTrash} /> Xóa
                     </div>
                 </div>

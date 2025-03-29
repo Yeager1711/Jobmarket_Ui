@@ -27,8 +27,9 @@ interface ApiContextType {
     addFavoriteJob: (jobId: number) => Promise<any>;
     getUserFavoriteJobs: () => Promise<any>;
     deleteAccountCurrent: () => Promise<boolean>;
-    analyzeCompetitiveness: (jobId: number, resumeCVId: number) => Promise<any>;
+    analyzeCompetitiveness: (jobId: number, resumeCVId: number, orderId: number) => Promise<any>;
     fetchOrdersByUserId: () => Promise<any>; // New function to fetch orders
+    disableOrder: (orderId: string) => Promise<void>;
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -155,6 +156,43 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             throw error;
         }
     }, [accessToken, isReady]);
+
+    const disableOrder = useCallback(
+        async (orderId: string) => {
+            if (!isReady) {
+                console.warn('disableOrder: Context chưa sẵn sàng, bỏ qua fetch.');
+                throw new Error('Context not ready');
+            }
+
+            if (!accessToken) {
+                console.warn('disableOrder: Không có accessToken, bỏ qua fetch.');
+                showToastError('Vui lòng đăng nhập để tiếp tục');
+                throw new Error('No access token');
+            }
+
+            if (!orderId) {
+                showToastError('Order ID không hợp lệ');
+                throw new Error('Invalid orderId');
+            }
+
+            console.log("orderId: ", orderId);
+
+            try {
+                const headers = getAuthHeaders();
+                const response = await axios.patch(`${apiUrl}/orders/${orderId}/disable`, {}, { headers });
+                showToastSuccess(response.data.message || `Đơn hàng ${orderId} đã được vô hiệu hóa thành công`);
+            } catch (error: any) {
+                console.error('Lỗi khi vô hiệu hóa đơn hàng:', {
+                    message: error.message,
+                    status: error.response?.status,
+                    data: error.response?.data,
+                });
+                showToastError(error.response?.data?.message || 'Không thể vô hiệu hóa đơn hàng');
+                throw error;
+            }
+        },
+        [accessToken, isReady]
+    );
 
     // Các API khác giữ nguyên
     const fetchCVs = useCallback(
@@ -373,7 +411,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     // API AI: Hàm mới để phân tích mức độ cạnh tranh
     const analyzeCompetitiveness = useCallback(
-        async (jobId: number, resumeCVId: number) => {
+        async (jobId: number, resumeCVId: number, orderId: number) => {
             if (!isReady) {
                 console.warn('analyzeCompetitiveness: Context chưa sẵn sàng, bỏ qua fetch.');
                 throw new Error('Context not ready');
@@ -385,10 +423,15 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 throw new Error('No access token');
             }
 
+            if (!orderId || orderId === 0) {
+                showToastError('Order ID không hợp lệ');
+                throw new Error('Invalid orderId');
+            }
+
             try {
                 const headers = getAuthHeaders();
                 const response = await axios.post(
-                    `${apiUrl}/users/analyze-competitiveness/${jobId}/${resumeCVId}`,
+                    `${apiUrl}/users/analyze-competitiveness/${orderId}/${jobId}/${resumeCVId}`,
                     {},
                     { headers }
                 );
@@ -434,6 +477,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 deleteAccountCurrent,
                 analyzeCompetitiveness,
                 fetchOrdersByUserId,
+                disableOrder,
             }}
         >
             {children}

@@ -73,34 +73,59 @@
                     }
                 }
 
-                .control_user {
-                    border: 0.2rem solid #9494ff;
-                    padding: 0.5rem 0.5rem 0.5rem 1rem;
-                    border-radius: 5rem;
+                .flex_viewChartAndUser {
                     display: flex;
                     align-items: center;
-                    gap: 1rem;
-                    height: 5rem;
+                    gap: 1.5rem;
 
-                    .control {
-                        svg {
-                            font-size: 1.7rem;
-                            cursor: pointer;
-                            margin-right: 2rem;
-                            transition: .3s linear;
-                            color: #fff;
+                    .btn_viewChart {
+                        border: 0.2rem solid #9494ff;
+                        padding: 0.5rem 0.5rem 0.5rem 1rem;
+                        border-radius: 5rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        height: 5rem;
+                        font-size: 1.4rem;
+                        cursor: pointer;
+                        color: #fff;
+
+                        .sectionIcon {
+                            margin-left: .5rem;
+                            width: 2rem;
+                            width: 2rem;
                         }
                     }
 
-                    .user {
-                        .name {
-                            transition: .3s linear;
-                            color: #e0e0e0;
+                    .control_user {
+                        border: 0.2rem solid #9494ff;
+                        padding: 0.5rem 0.5rem 0.5rem 1rem;
+                        border-radius: 5rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        height: 5rem;
+
+                        .control {
+                            svg {
+                                font-size: 1.7rem;
+                                cursor: pointer;
+                                margin-right: 2rem;
+                                transition: .3s linear;
+                                color: #fff;
+                            }
                         }
 
-                        img {
-                            transition: .3s linear;
-                            border: 0.2rem solid #6b6bff;
+                        .user {
+                            .name {
+                                transition: .3s linear;
+                                color: #e0e0e0;
+                            }
+
+                            img {
+                                transition: .3s linear;
+                                border: 0.2rem solid #6b6bff;
+                            }
                         }
                     }
                 }
@@ -147,6 +172,8 @@
                             color: #6b6bff;
                         }
                     }
+
+
 
                     .cursor {
                         transition: .3s linear;
@@ -364,44 +391,70 @@
                 }
             }
 
-            .control_user {
-                border: 0.2rem solid #9494ff;
-                padding: 0.5rem 0.5rem 0.5rem 1rem;
-                border-radius: 5rem;
+            .flex_viewChartAndUser {
                 display: flex;
                 align-items: center;
-                gap: 1rem;
-                height: 5rem;
+                gap: 1.5rem;
 
-                .control {
-                    svg {
-                        width: 2.2rem;
-                        height: 1.8rem;
-                        cursor: pointer;
-                        margin-right: 2rem;
-                    }
-                }
-
-                .user {
+                .btn_viewChart {
+                    border: 0.2rem solid #9494ff;
+                    padding: 0.5rem 0.5rem 0.5rem 1rem;
+                    border-radius: 5rem;
                     display: flex;
                     align-items: center;
                     gap: 1rem;
+                    height: 5rem;
+                    font-size: 1.4rem;
                     cursor: pointer;
 
-                    .name {
-                        font-size: 1.4rem;
+                    .sectionIcon {
+                        margin-left: .5rem;
+                        width: 2rem;
+                        width: 2rem;
+                    }
+                }
+
+                .control_user {
+                    border: 0.2rem solid #9494ff;
+                    padding: 0.5rem 0.5rem 0.5rem 1rem;
+                    border-radius: 5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                    height: 5rem;
+
+                    .control {
+                        svg {
+                            width: 2.2rem;
+                            height: 1.8rem;
+                            cursor: pointer;
+                            margin-right: 2rem;
+                        }
                     }
 
-                    img {
-                        width: 4rem;
-                        height: 4rem;
-                        border-radius: 50%;
-                        overflow: hidden;
-                        object-fit: cover;
-                        border: 0.2rem solid #9494ff;
+                    .user {
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        cursor: pointer;
+
+                        .name {
+                            font-size: 1.4rem;
+                        }
+
+                        img {
+                            width: 4rem;
+                            height: 4rem;
+                            border-radius: 50%;
+                            overflow: hidden;
+                            object-fit: cover;
+                            border: 0.2rem solid #9494ff;
+                        }
                     }
                 }
             }
+
+
         }
 
         .wrapper_flex {
@@ -495,6 +548,7 @@
                     max-width: 100%;
                     flex: 1 1 70rem;
                     transition: max-width 2s ease;
+                    margin-bottom: 9rem;
                 }
             }
         }
@@ -789,5 +843,42 @@
 @keyframes blink {
     50% {
         opacity: 0;
+    }
+}
+
+
+.Headline {
+    font-size: 1.6rem;
+    /* Tăng kích thước chữ */
+    font-weight: 400;
+    /* Làm đậm */
+    color: #9b98f1;
+    /* Màu chữ đậm hơn */
+    line-height: 1.5;
+    /* Tăng độ cao dòng */
+}
+
+/* Dark mode adjustments */
+.dark-theme {
+    .Headline {
+        color: #e0e0e0;
+        /* Màu chữ sáng hơn trong dark mode */
+    }
+}
+
+.Headline_content {
+    // margin-left: 3rem; /* Thụt lề để phân cấp */
+    font-size: 1.4rem;
+    /* Kích thước chữ nhỏ hơn tiêu đề */
+    color: #555;
+    /* Màu chữ nhạt hơn */
+
+}
+
+.experience {
+    margin-top: 2rem;
+
+    .Headline {
+        margin-bottom: -2rem;
     }
 }

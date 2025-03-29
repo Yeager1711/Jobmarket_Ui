@@ -41,19 +41,40 @@
                         color: #333;
                     }
 
-                    .filter {
+                    .flex_control {
                         display: flex;
                         align-items: center;
-                        background: #f1f3f5;
-                        border-radius: 0.25rem;
-                        padding: 1rem 2.5rem;
-                        font-size: 1.3rem;
-                        color: #333;
-                        cursor: pointer;
+                        gap: 2.5rem;
 
-                        .dropdownIcon {
-                            margin-left: 0.5rem;
-                            font-size: 0.75rem;
+                        .status {
+                            
+                            span {
+                                padding: .5rem 1rem;
+                                font-size: 1.4rem;
+                                cursor: pointer;
+
+                                &.active {
+                                    background: #5195dd;
+                                    color: var(--colorWhiteText);
+                                    border-radius: .5rem;
+                                }
+                            }
+                        }
+
+                        .filter {
+                            display: flex;
+                            align-items: center;
+                            background: #f1f3f5;
+                            border-radius: 0.25rem;
+                            padding: 1rem 2.5rem;
+                            font-size: 1.3rem;
+                            color: #333;
+                            cursor: pointer;
+
+                            .dropdownIcon {
+                                margin-left: 0.5rem;
+                                font-size: 0.75rem;
+                            }
                         }
                     }
                 }
@@ -124,7 +145,7 @@
             text-align: end;
         }
 
-       
+
     }
 
     td {

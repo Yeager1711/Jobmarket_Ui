@@ -17,10 +17,11 @@ import {
     faSun,
     faMoon,
     faArrowLeft,
-    faChevronLeft
+    faChevronLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ChatPopup from 'app/Auth/User/popup/historyAI/page';
+import PopupViewChartResultAI from 'app/Auth/User/popup/popupViewChartResultAI/page';
 import { renderWithKeys } from '../../../ultis/renderWithKeys';
 import { User } from 'app/interface/User';
 
@@ -32,39 +33,38 @@ const ResultCompareCompetitiveness = () => {
     const router = useRouter();
     const { fetchUser, isReady, accessToken } = useApi();
     const [loading, setLoading] = useState(true);
-    // Thêm state để theo dõi trạng thái iframe
+    const [isPopupOpenHistoryAI, setIsPopupOpenHistoryAI] = useState(false);
+    const [isPopupOpenResultChartAI, setIsPopupOpenResultChartAI] = useState(false);
+
     const [searchQuery, setSearchQuery] = useState<string | null>(null);
     const [isIframeBlocked, setIsIframeBlocked] = useState<boolean>(false);
 
-    // Cập nhật handleKeywordClick
     const handleKeywordClick = (keyword: string) => {
         setSearchQuery(keyword);
-        setIsIframeBlocked(false); // Reset trạng thái kiểm tra
+        setIsIframeBlocked(false);
     };
 
     const searchParams = useSearchParams();
+    const orderId = searchParams.get('orderId') ? parseInt(searchParams.get('orderId') as string) : undefined;
     const jobId = searchParams.get('jobId') ? parseInt(searchParams.get('jobId') as string) : undefined;
     const resumeCVId = searchParams.get('resumeCVId') ? parseInt(searchParams.get('resumeCVId') as string) : undefined;
 
     const [status, setStatus] = useState<'loading' | 'typing' | 'suggestionsLoading' | 'completed'>('loading');
-    const [typedText, setTypedText] = useState<string>(''); // For suitability
+    const [typedText, setTypedText] = useState<string>('');
     const [introductionText, setIntroductionText] = useState<string>('');
     const [typedIntroduction, setTypedIntroduction] = useState<string>('');
     const [suggestionsReady, setSuggestionsReady] = useState<boolean>(false);
     const [fullTextContent, setFullTextContent] = useState<string>('');
     const [candidateName, setCandidateName] = useState<string>('Ứng viên');
-    const [isPopupOpenHistoryAI, setIsPopupOpenHistoryAI] = useState(false);
     const [user, setUser] = useState<User | null>(null);
 
-    // Chuyển đổi trạng thái ngày đêm
     const [isDarkMode, setIsDarkMode] = useState(false);
 
-    // Tải thông tin người dùng từ API /users/me
     const fetchUserData = useCallback(async () => {
         setLoading(true);
         try {
             const userData = await fetchUser();
-            console.log('Dữ liệu user từ fetchUser:', userData); // Thêm logging để kiểm tra
+            console.log('Dữ liệu user từ fetchUser:', userData);
             setUser(userData);
         } catch (error: any) {
             console.error('Lỗi khi lấy dữ liệu user:', {
@@ -79,7 +79,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [fetchUser]);
 
-    // Gọi fetchUserData khi component mount và khi isReady thay đổi
     useEffect(() => {
         if (isReady && accessToken) {
             fetchUserData();
@@ -89,20 +88,17 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [fetchUserData, isReady, accessToken]);
 
-    // Đọc giá trị từ session
     useEffect(() => {
         const savedMode = sessionStorage.getItem('darkMode');
         if (savedMode) {
             setIsDarkMode(JSON.parse(savedMode));
         }
-    }, []); // Chỉ chạy một lần khi component mount
+    }, []);
 
-    // Lưu isDarkMode vào sessionStorage mỗi khi nó thay đổi
     useEffect(() => {
         sessionStorage.setItem('darkMode', JSON.stringify(isDarkMode));
     }, [isDarkMode]);
 
-    // Hàm xử lý back page
     const handleBack = () => {
         if (jobId && resumeCVId) {
             router.push(`/Auth/User/checkout?jobId=${jobId}&resumeCVId=${resumeCVId}`);
@@ -131,10 +127,9 @@ const ResultCompareCompetitiveness = () => {
     const [typedConclusion, setTypedConclusion] = useState<string>('');
 
     const toggleDarkMode = () => {
-        setIsDarkMode((prev: any) => !prev); // Chuyển đổi giữa sáng và tối
+        setIsDarkMode((prev: any) => !prev);
     };
 
-    // Hàm loại bỏ dấu ** từ chuỗi
     const removeMarkdownBold = (text: string) => {
         return text.replace(/\*\*/g, '');
     };
@@ -152,8 +147,8 @@ const ResultCompareCompetitiveness = () => {
     }, [introductionText]);
 
     useEffect(() => {
-        if (!jobId || !resumeCVId) {
-            setTypedText('Error: jobId or resumeCVId not provided. Please check again!');
+        if (!jobId || !resumeCVId || !orderId) {
+            setTypedText('Error: jobId, resumeCVId, or orderId not provided. Please check again!');
             setStatus('completed');
             setCurrentSection('conclusion');
             return;
@@ -164,23 +159,36 @@ const ResultCompareCompetitiveness = () => {
             setCurrentSection('loading');
 
             try {
-                // Kiểm tra token trước khi gọi API
                 const accessToken = localStorage.getItem('access_token');
                 if (!accessToken) {
                     throw new Error('Access token not found. Please log in again.');
                 }
 
-                // Gọi API mới để phân tích mức độ cạnh tranh
-                const response = await fetch(`${apiUrl}/users/analyze-competitiveness/${jobId}/${resumeCVId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
+                const response = await fetch(
+                    `${apiUrl}/users/analyze-competitiveness/${orderId}/${jobId}/${resumeCVId}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    }
+                );
 
                 if (!response.ok) {
                     const errorData = await response.json();
+                    // Kiểm tra lỗi cụ thể từ backend
+                    if (response.status === 404) {
+                        if (errorData.message.includes('Order')) {
+                            throw new Error('Order ID không tồn tại trong hệ thống. Vui lòng kiểm tra lại.');
+                        } else if (errorData.message.includes('Job')) {
+                            throw new Error('Job ID không tồn tại trong hệ thống. Vui lòng kiểm tra lại.');
+                        } else if (errorData.message.includes('ResumeCV')) {
+                            throw new Error('ResumeCV ID không tồn tại trong hệ thống. Vui lòng kiểm tra lại.');
+                        }
+                    } else if (response.status === 401) {
+                        throw new Error('Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.');
+                    }
                     throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
                 }
 
@@ -189,7 +197,6 @@ const ResultCompareCompetitiveness = () => {
                     throw new Error('Invalid response data');
                 }
 
-                // Tách phần introduction và content từ dữ liệu trả về
                 const [intro, content] = result.data.split('---\n\n');
                 setIntroductionText(intro.trim());
                 setFullTextContent(content.trim());
@@ -204,9 +211,8 @@ const ResultCompareCompetitiveness = () => {
         };
 
         fetchData();
-    }, [jobId, resumeCVId]);
+    }, [jobId, resumeCVId, orderId]);
 
-    // Typing effect for introduction
     useEffect(() => {
         if (currentSection === 'introduction' && introductionText) {
             let cleanedText = introductionText.trim();
@@ -234,7 +240,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, introductionText]);
 
-    // Typing effect for suitability
     useEffect(() => {
         if (currentSection === 'suitability' && fullTextContent) {
             const suitabilityText = getEvaluation(fullTextContent);
@@ -253,7 +258,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, fullTextContent]);
 
-    // Typing effect for comparison
     useEffect(() => {
         if (currentSection === 'comparison') {
             const comparison = getComparison(fullTextContent);
@@ -286,7 +290,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, fullTextContent]);
 
-    // Typing effect for education
     useEffect(() => {
         if (currentSection === 'education') {
             const education = getEducation(fullTextContent);
@@ -308,7 +311,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, fullTextContent]);
 
-    // Typing effect for experience
     useEffect(() => {
         if (currentSection === 'experience') {
             const experience = getExperience(fullTextContent);
@@ -332,7 +334,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, fullTextContent]);
 
-    // Typing effect for suggestions
     useEffect(() => {
         if (currentSection === 'suggestions' && (status === 'suggestionsLoading' || status === 'completed')) {
             const suggestions = getSuggestions(fullTextContent);
@@ -371,7 +372,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, status, fullTextContent]);
 
-    // Typing effect for ranking
     useEffect(() => {
         if (currentSection === 'ranking') {
             const ranking = getRanking(fullTextContent);
@@ -393,7 +393,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, fullTextContent]);
 
-    // Typing effect for conclusion
     useEffect(() => {
         if (currentSection === 'conclusion' && status === 'completed') {
             const conclusion = getConclusion(fullTextContent);
@@ -412,7 +411,6 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [currentSection, status, fullTextContent]);
 
-    // Hàm phân tích dữ liệu
     const getEvaluation = (text: string) =>
         text.split('## 1. Đánh giá mức độ phù hợp')[1]?.split('## 2. So sánh mức độ cạnh tranh')[0]?.trim() || '';
     const getComparison = (text: string) =>
@@ -433,10 +431,9 @@ const ResultCompareCompetitiveness = () => {
         text.split('## 6. Xếp hạng chung')[1]?.split('## 7. Kết luận')[0]?.trim() || '';
     const getConclusion = (text: string) => text.split('## 7. Kết luận')[1]?.trim() || '';
 
-    // Hàm trích xuất dữ liệu cho phần "Đánh giá mức độ phù hợp"
     const getSuitabilityPercentage = (text: string) => {
-        const match = text.match(/- \*\*Mức độ phù hợp với công việc\*\*: (\d+)%/);
-        return match ? parseInt(match[1]) : 0;
+        const match = text.match(/- \*\*Mức độ phù hợp với công việc\*\*: (\d+\.?\d*)%/);
+        return match ? parseFloat(match[1]) : 0;
     };
 
     const getSuitabilityExplanation = (text: string) =>
@@ -453,43 +450,37 @@ const ResultCompareCompetitiveness = () => {
     const comparisonWithOthers = removeMarkdownBold(getComparisonWithOthers(typedText));
     const marketSalary = removeMarkdownBold(getMarketSalary(typedText));
 
-    // Hàm render cho Comparison
     const renderComparisonLine = (content: React.ReactNode, originalLine: string) => {
         const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
         const hasYes = mainContent.toLowerCase().startsWith('có') || mainContent.toLowerCase().includes('khá tốt');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().startsWith('không');
+        const isHeadline =
+            originalLine.startsWith('- **Điểm mạnh kỹ thuật**') ||
+            originalLine.startsWith('- **Điểm yếu kỹ thuật**') ||
+            originalLine.startsWith('- **Điểm mạnh kinh nghiệm**') ||
+            originalLine.startsWith('- **Điểm yếu kinh nghiệm**') ||
+            originalLine.startsWith('- **Điểm mạnh kỹ năng mềm**') ||
+            originalLine.startsWith('- **Điểm yếu kỹ năng mềm**') ||
+            originalLine.startsWith('- **Học vấn**') ||
+            originalLine.startsWith('- **Kinh nghiệm thực tế**') ||
+            originalLine.startsWith('- **So sánh với yêu cầu**') ||
+            originalLine.startsWith('- **So sánh với ứng viên khác**');
 
-        return (
-            <p>
-                {hasYes ? (
-                    <FontAwesomeIcon icon={faCheck} className={styles.check} />
-                ) : hasNo ? (
-                    <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
-                ) : null}
-                {content}
-            </p>
-        );
+        return <p className={isHeadline ? styles.Headline : ''}>{content}</p>;
     };
 
-    // Hàm render cho Education
     const renderEducationLine = (content: React.ReactNode, originalLine: string) => {
         const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
         const hasYes = mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('khá tốt');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('chưa');
 
         return (
-            <p>
-                {hasYes ? (
-                    <FontAwesomeIcon icon={faCheck} className={styles.check} />
-                ) : hasNo ? (
-                    <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
-                ) : null}
+            <p className={originalLine.startsWith('- **Học vấn**') ? styles.Headline : styles.Headline_content}>
                 {content}
             </p>
         );
     };
 
-    // Hàm render cho Experience
     const renderExperienceLine = (content: React.ReactNode, originalLine: string) => {
         const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
         const hasYes =
@@ -497,16 +488,59 @@ const ResultCompareCompetitiveness = () => {
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('ngắn');
 
         return (
-            <p>
-                {hasYes ? (
-                    <FontAwesomeIcon icon={faCheck} className={styles.check} />
-                ) : hasNo ? (
-                    <FontAwesomeIcon icon={faXmark} className={styles.xmark} />
-                ) : null}
+            <p
+                className={
+                    originalLine.startsWith('- **Kinh nghiệm thực tế**') ? styles.Headline : styles.Headline_content
+                }
+            >
                 {content}
             </p>
         );
     };
+
+    // Trong ResultCompareCompetitiveness
+    // Thêm hàm trích xuất dữ liệu từ fullTextContent
+    const extractChartData = (text: string) => {
+        const suitabilityMatch = text.match(/- \*\*Mức độ phù hợp với công việc\*\*: (\d+\.?\d*)%/);
+        const technicalStrengthMatch = text.match(/- \*\*Điểm mạnh kỹ thuật\*\*: (\d+\.?\d*)%/);
+        const experienceStrengthMatch = text.match(/- \*\*Điểm mạnh kinh nghiệm\*\*: (\d+\.?\d*)%/);
+        const softSkillsStrengthMatch = text.match(/- \*\*Điểm mạnh kỹ năng mềm\*\*: (\d+\.?\d*)%/);
+        const educationMatch = text.match(/- \*\*Học vấn\*\*: (\d+\.?\d*)%/);
+        const practicalExperienceMatch = text.match(/- \*\*Kinh nghiệm thực tế\*\*: (\d+\.?\d*)%/);
+        const jobRequirementComparisonMatch = text.match(/- \*\*So sánh với yêu cầu\*\*: (\d+\.?\d*)%/);
+        const candidateComparisonMatch = text.match(/- \*\*So sánh với ứng viên khác\*\*: (\d+\.?\d*)%/);
+
+        return {
+            suitability: suitabilityMatch ? parseFloat(suitabilityMatch[1]) : 0,
+            technicalStrength: technicalStrengthMatch ? parseFloat(technicalStrengthMatch[1]) : 0,
+            experienceStrength: experienceStrengthMatch ? parseFloat(experienceStrengthMatch[1]) : 0,
+            softSkillsStrength: softSkillsStrengthMatch ? parseFloat(softSkillsStrengthMatch[1]) : 0,
+            education: educationMatch ? parseFloat(educationMatch[1]) : 0,
+            practicalExperience: practicalExperienceMatch ? parseFloat(practicalExperienceMatch[1]) : 0,
+            jobRequirementComparison: jobRequirementComparisonMatch ? parseFloat(jobRequirementComparisonMatch[1]) : 0,
+            candidateComparison: candidateComparisonMatch ? parseFloat(candidateComparisonMatch[1]) : 0,
+        };
+    };
+
+    // Thêm state để lưu trữ dữ liệu chart
+    const [chartData, setChartData] = useState({
+        suitability: 0,
+        technicalStrength: 0,
+        experienceStrength: 0,
+        softSkillsStrength: 0,
+        education: 0,
+        practicalExperience: 0,
+        jobRequirementComparison: 0,
+        candidateComparison: 0,
+    });
+
+    // Cập nhật dữ liệu chart khi fullTextContent thay đổi
+    useEffect(() => {
+        if (fullTextContent) {
+            const extractedData = extractChartData(fullTextContent);
+            setChartData(extractedData);
+        }
+    }, [fullTextContent]);
 
     return (
         <div className={`${styles.ResultCompareCompetitiveness} ${isDarkMode ? styles['dark-theme'] : ''}`}>
@@ -564,19 +598,32 @@ const ResultCompareCompetitiveness = () => {
                         </span>
                     </div>
                     <ChatPopup isOpen={isPopupOpenHistoryAI} onClose={() => setIsPopupOpenHistoryAI(false)} />
-                    <div className={styles.control_user}>
-                        <div className={styles.control}>
-                            <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} onClick={toggleDarkMode} />
-                            <FontAwesomeIcon icon={faList} onClick={() => setIsPopupOpenHistoryAI(true)} />
+                    <PopupViewChartResultAI
+                        isOpen={isPopupOpenResultChartAI}
+                        onClose={() => setIsPopupOpenResultChartAI(false)}
+                        chartData={chartData}
+                    />
+                    <div className={styles.flex_viewChartAndUser}>
+                        <div className={styles.btn_viewChart} onClick={() => setIsPopupOpenResultChartAI(true)}>
+                            {' '}
+                            Xem nhanh dưới dạng biểu đồ{' '}
+                            <FontAwesomeIcon icon={faChartLine} className={styles.sectionIcon} />
                         </div>
-                        <div className={styles.user} onClick={() => router.push(`/Auth/User/tong_quan_tai_khoan`)}>
-                            <span className={styles.name}>
-                                {user?.firstName} {user?.lastName}
-                            </span>
-                            <img
-                                src={user?.image ? `${apiUrl}${user?.image}` : '/images/user/user_default.png'}
-                                alt={`${user?.firstName} ${user?.lastName}`}
-                            />
+                        <div className={styles.control_user}>
+                            <div className={styles.control}>
+                                <FontAwesomeIcon icon={isDarkMode ? faMoon : faSun} onClick={toggleDarkMode} />
+                                <FontAwesomeIcon icon={faList} onClick={() => setIsPopupOpenHistoryAI(true)} />
+                            </div>
+
+                            <div className={styles.user} onClick={() => router.push(`/Auth/User/tong_quan_tai_khoan`)}>
+                                <span className={styles.name}>
+                                    {user?.firstName} {user?.lastName}
+                                </span>
+                                <img
+                                    src={user?.image ? `${apiUrl}${user?.image}` : '/images/user/user_default.png'}
+                                    alt={`${user?.firstName} ${user?.lastName}`}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -601,12 +648,14 @@ const ResultCompareCompetitiveness = () => {
                             (searchQuery ? (
                                 <div className={styles.search_preview}>
                                     <h4>
-                                        <button onClick={() => setSearchQuery(null)} style={{marginRight: '1rem', background: 'none'}}>
+                                        <button
+                                            onClick={() => setSearchQuery(null)}
+                                            style={{ marginRight: '1rem', background: 'none' }}
+                                        >
                                             <FontAwesomeIcon icon={faChevronLeft} />
                                         </button>
                                         AI Google Search: {searchQuery}
                                     </h4>
-                                    {/* Giao diện tìm kiếm thu nhỏ */}
                                     <iframe
                                         src={`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&igu=1`}
                                         title={`Tìm kiếm ${searchQuery}`}
@@ -746,18 +795,121 @@ const ResultCompareCompetitiveness = () => {
                                                 <div className={styles.AI_reply_text}>
                                                     <div className={styles.typingText}>
                                                         {typedComparison.length > 0 ? (
-                                                            typedComparison.map((line, index) => (
-                                                                <div key={index} className={styles.comparison_item}>
-                                                                    {renderComparisonLine(
-                                                                        renderWithKeys({
-                                                                            text: line,
-                                                                            onKeywordClick: handleKeywordClick,
-                                                                            className: styles.keyword,
-                                                                        }),
-                                                                        line
-                                                                    )}
-                                                                </div>
-                                                            ))
+                                                            typedComparison
+                                                                .reduce(
+                                                                    (
+                                                                        acc: {
+                                                                            group: string;
+                                                                            items: {
+                                                                                title: string;
+                                                                                content: string[];
+                                                                            }[];
+                                                                        }[],
+                                                                        line,
+                                                                        index
+                                                                    ) => {
+                                                                        if (
+                                                                            line.startsWith(
+                                                                                '- **Điểm mạnh kỹ thuật**'
+                                                                            ) ||
+                                                                            line.startsWith(
+                                                                                '- **Điểm mạnh kinh nghiệm**'
+                                                                            ) ||
+                                                                            line.startsWith(
+                                                                                '- **Điểm mạnh kỹ năng mềm**'
+                                                                            ) ||
+                                                                            line.startsWith(
+                                                                                '- **So sánh với yêu cầu**'
+                                                                            ) ||
+                                                                            line.startsWith(
+                                                                                '- **So sánh với ứng viên khác**'
+                                                                            )
+                                                                        ) {
+                                                                            acc.push({
+                                                                                group: line.includes('kỹ thuật')
+                                                                                    ? 'technical'
+                                                                                    : line.includes('kinh nghiệm')
+                                                                                      ? 'experience'
+                                                                                      : line.includes('kỹ năng mềm')
+                                                                                        ? 'soft_skills'
+                                                                                        : 'comparison',
+                                                                                items: [{ title: line, content: [] }],
+                                                                            });
+                                                                        } else if (acc.length > 0) {
+                                                                            const lastGroup = acc[acc.length - 1];
+                                                                            if (
+                                                                                (lastGroup.group === 'technical' &&
+                                                                                    line.startsWith(
+                                                                                        '- **Điểm yếu kỹ thuật**'
+                                                                                    )) ||
+                                                                                (lastGroup.group === 'experience' &&
+                                                                                    line.startsWith(
+                                                                                        '- **Điểm yếu kinh nghiệm**'
+                                                                                    )) ||
+                                                                                (lastGroup.group === 'soft_skills' &&
+                                                                                    line.startsWith(
+                                                                                        '- **Điểm yếu kỹ năng mềm**'
+                                                                                    ))
+                                                                            ) {
+                                                                                lastGroup.items.push({
+                                                                                    title: line,
+                                                                                    content: [],
+                                                                                });
+                                                                            } else if (lastGroup.items.length > 0) {
+                                                                                lastGroup.items[
+                                                                                    lastGroup.items.length - 1
+                                                                                ].content.push(line);
+                                                                            }
+                                                                        }
+                                                                        return acc;
+                                                                    },
+                                                                    []
+                                                                )
+                                                                .map((group, groupIndex) => (
+                                                                    <div
+                                                                        key={groupIndex}
+                                                                        className={styles.comparison_group}
+                                                                    >
+                                                                        {group.items.map((section, index) => (
+                                                                            <div
+                                                                                key={index}
+                                                                                className={styles.comparison_section}
+                                                                            >
+                                                                                <div className={styles.comparison_item}>
+                                                                                    {renderComparisonLine(
+                                                                                        renderWithKeys({
+                                                                                            text: removeMarkdownBold(
+                                                                                                section.title
+                                                                                            ),
+                                                                                            onKeywordClick:
+                                                                                                handleKeywordClick,
+                                                                                            className: styles.keyword,
+                                                                                        }),
+                                                                                        section.title
+                                                                                    )}
+                                                                                    {section.content.map(
+                                                                                        (contentLine, contentIndex) => (
+                                                                                            <p
+                                                                                                key={contentIndex}
+                                                                                                className={
+                                                                                                    styles.Headline_content
+                                                                                                }
+                                                                                            >
+                                                                                                {renderWithKeys({
+                                                                                                    text: contentLine,
+                                                                                                    onKeywordClick:
+                                                                                                        handleKeywordClick,
+                                                                                                    className:
+                                                                                                        styles.keyword,
+                                                                                                })}
+                                                                                            </p>
+                                                                                        )
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                ))
                                                         ) : (
                                                             <p>Đang tải dữ liệu...</p>
                                                         )}
@@ -782,20 +934,103 @@ const ResultCompareCompetitiveness = () => {
                                                             Học vấn
                                                         </h4>
                                                         {typedEducation ? (
-                                                            typedEducation.split('\n').map((line, index) =>
-                                                                line.trim() ? (
-                                                                    <div key={index}>
-                                                                        {renderEducationLine(
-                                                                            renderWithKeys({
-                                                                                text: line,
-                                                                                onKeywordClick: handleKeywordClick,
-                                                                                className: styles.keyword,
-                                                                            }),
-                                                                            line
-                                                                        )}
+                                                            typedEducation
+                                                                .split('\n')
+                                                                .reduce(
+                                                                    (
+                                                                        acc: {
+                                                                            group: string;
+                                                                            items: {
+                                                                                title: string;
+                                                                                content: string[];
+                                                                            }[];
+                                                                        }[],
+                                                                        line,
+                                                                        index
+                                                                    ) => {
+                                                                        if (
+                                                                            line.startsWith('- **Học vấn**') ||
+                                                                            line.startsWith(
+                                                                                '- **Chứng chỉ và khóa học**'
+                                                                            ) ||
+                                                                            line.startsWith(
+                                                                                '- **Tiềm năng phát triển**'
+                                                                            )
+                                                                        ) {
+                                                                            acc.push({
+                                                                                group: 'education',
+                                                                                items: [{ title: line, content: [] }],
+                                                                            });
+                                                                        } else if (acc.length > 0) {
+                                                                            const lastGroup = acc[acc.length - 1];
+                                                                            if (
+                                                                                lastGroup.group === 'education' &&
+                                                                                (line.startsWith(
+                                                                                    '- **Chứng chỉ và khóa học**'
+                                                                                ) ||
+                                                                                    line.startsWith(
+                                                                                        '- **Tiềm năng phát triển**'
+                                                                                    ))
+                                                                            ) {
+                                                                                lastGroup.items.push({
+                                                                                    title: line,
+                                                                                    content: [],
+                                                                                });
+                                                                            } else if (lastGroup.items.length > 0) {
+                                                                                lastGroup.items[
+                                                                                    lastGroup.items.length - 1
+                                                                                ].content.push(line);
+                                                                            }
+                                                                        }
+                                                                        return acc;
+                                                                    },
+                                                                    []
+                                                                )
+                                                                .map((group, groupIndex) => (
+                                                                    <div
+                                                                        key={groupIndex}
+                                                                        className={styles.education_group}
+                                                                    >
+                                                                        {group.items.map((section, index) => (
+                                                                            <div
+                                                                                key={index}
+                                                                                className={styles.education_section}
+                                                                            >
+                                                                                <div className={styles.education_item}>
+                                                                                    {renderEducationLine(
+                                                                                        renderWithKeys({
+                                                                                            text: removeMarkdownBold(
+                                                                                                section.title
+                                                                                            ), // Loại bỏ ** trước khi render
+                                                                                            onKeywordClick:
+                                                                                                handleKeywordClick,
+                                                                                            className: styles.keyword,
+                                                                                        }),
+                                                                                        section.title
+                                                                                    )}
+                                                                                    {section.content.map(
+                                                                                        (contentLine, contentIndex) => (
+                                                                                            <p
+                                                                                                key={contentIndex}
+                                                                                                className={
+                                                                                                    styles.Headline_content
+                                                                                                }
+                                                                                            >
+                                                                                                {renderWithKeys({
+                                                                                                    text: contentLine,
+                                                                                                    onKeywordClick:
+                                                                                                        handleKeywordClick,
+                                                                                                    className:
+                                                                                                        styles.keyword,
+                                                                                                })}
+                                                                                            </p>
+                                                                                        )
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
                                                                     </div>
-                                                                ) : null
-                                                            )
+                                                                ))
                                                         ) : (
                                                             <p>Đang tải dữ liệu...</p>
                                                         )}
@@ -819,20 +1054,98 @@ const ResultCompareCompetitiveness = () => {
                                                         Phân tích kinh nghiệm
                                                     </h4>
                                                     {typedExperience ? (
-                                                        typedExperience.split('\n').map((line, index) =>
-                                                            line.trim() ? (
-                                                                <div key={index}>
-                                                                    {renderExperienceLine(
-                                                                        renderWithKeys({
-                                                                            text: line,
-                                                                            onKeywordClick: handleKeywordClick,
-                                                                            className: styles.keyword,
-                                                                        }),
-                                                                        line
-                                                                    )}
+                                                        typedExperience
+                                                            .split('\n')
+                                                            .reduce(
+                                                                (
+                                                                    acc: {
+                                                                        group: string;
+                                                                        items: { title: string; content: string[] }[];
+                                                                    }[],
+                                                                    line,
+                                                                    index
+                                                                ) => {
+                                                                    if (
+                                                                        line.startsWith('- **Kinh nghiệm thực tế**') ||
+                                                                        line.startsWith('- **So sánh với yêu cầu**') ||
+                                                                        line.startsWith(
+                                                                            '- **So sánh với ứng viên khác**'
+                                                                        )
+                                                                    ) {
+                                                                        acc.push({
+                                                                            group: 'experience',
+                                                                            items: [{ title: line, content: [] }],
+                                                                        });
+                                                                    } else if (acc.length > 0) {
+                                                                        const lastGroup = acc[acc.length - 1];
+                                                                        if (
+                                                                            lastGroup.group === 'experience' &&
+                                                                            (line.startsWith(
+                                                                                '- **So sánh với yêu cầu**'
+                                                                            ) ||
+                                                                                line.startsWith(
+                                                                                    '- **So sánh với ứng viên khác**'
+                                                                                ))
+                                                                        ) {
+                                                                            lastGroup.items.push({
+                                                                                title: line,
+                                                                                content: [],
+                                                                            });
+                                                                        } else if (lastGroup.items.length > 0) {
+                                                                            lastGroup.items[
+                                                                                lastGroup.items.length - 1
+                                                                            ].content.push(line);
+                                                                        }
+                                                                    }
+                                                                    return acc;
+                                                                },
+                                                                []
+                                                            )
+                                                            .map((group, groupIndex) => (
+                                                                <div
+                                                                    key={groupIndex}
+                                                                    className={styles.experience_group}
+                                                                >
+                                                                    {group.items.map((section, index) => (
+                                                                        <div
+                                                                            key={index}
+                                                                            className={styles.experience_section}
+                                                                        >
+                                                                            <div className={styles.experience_item}>
+                                                                                {renderExperienceLine(
+                                                                                    renderWithKeys({
+                                                                                        text: removeMarkdownBold(
+                                                                                            section.title
+                                                                                        ), // Loại bỏ ** trước khi render
+                                                                                        onKeywordClick:
+                                                                                            handleKeywordClick,
+                                                                                        className: styles.keyword,
+                                                                                    }),
+                                                                                    section.title
+                                                                                )}
+                                                                                {section.content.map(
+                                                                                    (contentLine, contentIndex) => (
+                                                                                        <p
+                                                                                            key={contentIndex}
+                                                                                            className={
+                                                                                                styles.Headline_content
+                                                                                            }
+                                                                                        >
+                                                                                            {renderWithKeys({
+                                                                                                text: contentLine,
+                                                                                                onKeywordClick:
+                                                                                                    handleKeywordClick,
+                                                                                                className:
+                                                                                                    styles.keyword,
+                                                                                            })}
+                                                                                        </p>
+                                                                                    )
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
-                                                            ) : null
-                                                        )
+                                                            ))
                                                     ) : (
                                                         <p>Đang tải dữ liệu...</p>
                                                     )}

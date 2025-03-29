@@ -15,20 +15,6 @@ interface CompanyImage {
     image_company: string;
 }
 
-// interface Job {
-//     jobId: number;
-//     title: string;
-//     salary_from: number;
-//     salary_to: number;
-//     company: {
-//         name: string;
-//         images: CompanyImage[];
-//     };
-//     workLocation: {
-//         address_name: string; // Sửa từ district.name thành address_name
-//     };
-// }
-
 interface FavoriteJob {
     favoriteId: number;
     job: Job;
