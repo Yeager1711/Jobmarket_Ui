@@ -20,7 +20,7 @@ import {
     faChevronLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { useSearchParams, useRouter } from 'next/navigation';
-import ChatPopup from 'app/Auth/User/popup/historyAI/page';
+import HistoryChatPopup from 'app/Auth/User/popup/historyAI/page';
 import PopupViewChartResultAI from 'app/Auth/User/popup/popupViewChartResultAI/page';
 import { renderWithKeys } from '../../../ultis/renderWithKeys';
 import { User } from 'app/interface/User';
@@ -28,6 +28,28 @@ import { User } from 'app/interface/User';
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 import { useApi } from '../../../../../Context/ApiContext/ApiContext';
 import { showToastError } from 'app/Ultils/toast';
+
+interface Metrics {
+    competitivenessFit: number;
+    technicalStrength: number;
+    experienceStrength: number;
+    softSkillsStrength: number;
+    educationScore: number;
+    realExperienceScore: number;
+    jobRequirementMatch: number;
+    competitorComparison: number;
+}
+
+interface ChartData {
+    suitability: number;
+    technicalStrength: number;
+    experienceStrength: number;
+    softSkillsStrength: number;
+    education: number;
+    practicalExperience: number;
+    jobRequirementComparison: number;
+    candidateComparison: number;
+}
 
 const ResultCompareCompetitiveness = () => {
     const router = useRouter();
@@ -57,6 +79,7 @@ const ResultCompareCompetitiveness = () => {
     const [fullTextContent, setFullTextContent] = useState<string>('');
     const [candidateName, setCandidateName] = useState<string>('Ứng viên');
     const [user, setUser] = useState<User | null>(null);
+    const [metrics, setMetrics] = useState<Metrics | null>(null);
 
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -146,6 +169,17 @@ const ResultCompareCompetitiveness = () => {
         }
     }, [introductionText]);
 
+    const [chartData, setChartData] = useState<ChartData>({
+        suitability: 0,
+        technicalStrength: 0,
+        experienceStrength: 0,
+        softSkillsStrength: 0,
+        education: 0,
+        practicalExperience: 0,
+        jobRequirementComparison: 0,
+        candidateComparison: 0,
+    });
+
     useEffect(() => {
         if (!jobId || !resumeCVId || !orderId) {
             setTypedText('Error: jobId, resumeCVId, or orderId not provided. Please check again!');
@@ -177,7 +211,6 @@ const ResultCompareCompetitiveness = () => {
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    // Kiểm tra lỗi cụ thể từ backend
                     if (response.status === 404) {
                         if (errorData.message.includes('Order')) {
                             throw new Error('Order ID không tồn tại trong hệ thống. Vui lòng kiểm tra lại.');
@@ -193,13 +226,30 @@ const ResultCompareCompetitiveness = () => {
                 }
 
                 const result = await response.json();
-                if (!result.data) {
-                    throw new Error('Invalid response data');
+                // Kiểm tra dữ liệu trả về
+                if (!result.data || !result.data.data || !result.data.metrics) {
+                    throw new Error('Invalid response data: Missing data or metrics');
                 }
 
-                const [intro, content] = result.data.split('---\n\n');
-                setIntroductionText(intro.trim());
-                setFullTextContent(content.trim());
+                // Tách chuỗi data thành introduction và content
+                const [intro, content] = result.data.data.split('---\n\n');
+                setIntroductionText(intro ? intro.trim() : '');
+                setFullTextContent(content ? content.trim() : '');
+
+                // Lưu metrics vào state
+                setMetrics(result.data.metrics);
+
+                // Cập nhật chartData trực tiếp từ metrics
+                setChartData({
+                    suitability: result.data.metrics.competitivenessFit,
+                    technicalStrength: result.data.metrics.technicalStrength,
+                    experienceStrength: result.data.metrics.experienceStrength,
+                    softSkillsStrength: result.data.metrics.softSkillsStrength,
+                    education: result.data.metrics.educationScore,
+                    practicalExperience: result.data.metrics.realExperienceScore,
+                    jobRequirementComparison: result.data.metrics.jobRequirementMatch,
+                    candidateComparison: result.data.metrics.competitorComparison,
+                });
 
                 setStatus('typing');
                 setCurrentSection('introduction');
@@ -429,29 +479,33 @@ const ResultCompareCompetitiveness = () => {
             .filter((item) => item) || [];
     const getRanking = (text: string) =>
         text.split('## 6. Xếp hạng chung')[1]?.split('## 7. Kết luận')[0]?.trim() || '';
-    const getConclusion = (text: string) => text.split('## 7. Kết luận')[1]?.trim() || '';
 
-    const getSuitabilityPercentage = (text: string) => {
-        const match = text.match(/- \*\*Mức độ phù hợp với công việc\*\*: (\d+\.?\d*)%/);
-        return match ? parseFloat(match[1]) : 0;
+    const getConclusion = (text: string) => {
+        const conclusionSection = text.split('## 7. Kết luận')[1]?.trim() || '';
+        const conclusionWithoutJson = conclusionSection.split('```json')[0]?.trim() || '';
+        return conclusionWithoutJson;
     };
 
     const getSuitabilityExplanation = (text: string) =>
         text.match(/- \*\*Giải thích chi tiết:\*\* ([\s\S]+?)(?=- \*\*So sánh|\n## 2\.)/)?.[1]?.trim() || '';
 
     const getComparisonWithOthers = (text: string) =>
-        text.match(/- \*\*So sánh với ứng viên khác\*\*: (Xếp hạng \d\/\d)/)?.[1]?.trim() || 'Chưa có dữ liệu';
+        text.match(/- \*\*So sánh với ứng viên khác\*\*: (Xếp hạng \d\/\d)/)?.[1]?.trim() || 'Đang xếp hạng';
 
     const getMarketSalary = (text: string) =>
-        text.match(/- \*\*Mức lương thị trường\*\*: (.*?\/năm)/)?.[1]?.trim() || 'Chưa có dữ liệu';
+        text.match(/- \*\*Mức lương thị trường\*\*: (.*?\/năm)/)?.[1]?.trim() ||
+        'Đang cập nhật mức lương thị trường cho vị trí này';
 
-    const suitabilityPercentage = getSuitabilityPercentage(typedText);
+    const suitabilityPercentage = metrics ? metrics.competitivenessFit : 0;
     const suitabilityExplanation = removeMarkdownBold(getSuitabilityExplanation(typedText));
     const comparisonWithOthers = removeMarkdownBold(getComparisonWithOthers(typedText));
     const marketSalary = removeMarkdownBold(getMarketSalary(typedText));
 
     const renderComparisonLine = (content: React.ReactNode, originalLine: string) => {
-        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
+        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim()).replace(
+            /\b\d+\.\d+%\b/g,
+            ''
+        ); // Loại bỏ các giá trị như 60.0%, 75.0%, v.v.
         const hasYes = mainContent.toLowerCase().startsWith('có') || mainContent.toLowerCase().includes('khá tốt');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().startsWith('không');
         const isHeadline =
@@ -470,19 +524,23 @@ const ResultCompareCompetitiveness = () => {
     };
 
     const renderEducationLine = (content: React.ReactNode, originalLine: string) => {
-        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
-        const hasYes = mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('khá tốt');
-        const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('chưa');
-
+        const cleanedContent = removeMarkdownBold(originalLine).replace(/\b\d+\.\d+%\b/g, '');
         return (
             <p className={originalLine.startsWith('- **Học vấn**') ? styles.Headline : styles.Headline_content}>
-                {content}
+                {renderWithKeys({
+                    text: cleanedContent,
+                    onKeywordClick: handleKeywordClick,
+                    className: styles.keyword,
+                })}
             </p>
         );
     };
 
     const renderExperienceLine = (content: React.ReactNode, originalLine: string) => {
-        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim());
+        const mainContent = removeMarkdownBold(originalLine.split(': ')[1]?.trim() || originalLine.trim()).replace(
+            /\b\d+\.\d+%\b/g,
+            ''
+        ); // Loại bỏ các giá trị như 60.0%, 75.0%, v.v.
         const hasYes =
             mainContent.toLowerCase().startsWith('đáp ứng') || mainContent.toLowerCase().includes('ấn tượng');
         const hasNo = mainContent.toLowerCase().startsWith('thiếu') || mainContent.toLowerCase().includes('ngắn');
@@ -497,50 +555,6 @@ const ResultCompareCompetitiveness = () => {
             </p>
         );
     };
-
-    // Trong ResultCompareCompetitiveness
-    // Thêm hàm trích xuất dữ liệu từ fullTextContent
-    const extractChartData = (text: string) => {
-        const suitabilityMatch = text.match(/- \*\*Mức độ phù hợp với công việc\*\*: (\d+\.?\d*)%/);
-        const technicalStrengthMatch = text.match(/- \*\*Điểm mạnh kỹ thuật\*\*: (\d+\.?\d*)%/);
-        const experienceStrengthMatch = text.match(/- \*\*Điểm mạnh kinh nghiệm\*\*: (\d+\.?\d*)%/);
-        const softSkillsStrengthMatch = text.match(/- \*\*Điểm mạnh kỹ năng mềm\*\*: (\d+\.?\d*)%/);
-        const educationMatch = text.match(/- \*\*Học vấn\*\*: (\d+\.?\d*)%/);
-        const practicalExperienceMatch = text.match(/- \*\*Kinh nghiệm thực tế\*\*: (\d+\.?\d*)%/);
-        const jobRequirementComparisonMatch = text.match(/- \*\*So sánh với yêu cầu\*\*: (\d+\.?\d*)%/);
-        const candidateComparisonMatch = text.match(/- \*\*So sánh với ứng viên khác\*\*: (\d+\.?\d*)%/);
-
-        return {
-            suitability: suitabilityMatch ? parseFloat(suitabilityMatch[1]) : 0,
-            technicalStrength: technicalStrengthMatch ? parseFloat(technicalStrengthMatch[1]) : 0,
-            experienceStrength: experienceStrengthMatch ? parseFloat(experienceStrengthMatch[1]) : 0,
-            softSkillsStrength: softSkillsStrengthMatch ? parseFloat(softSkillsStrengthMatch[1]) : 0,
-            education: educationMatch ? parseFloat(educationMatch[1]) : 0,
-            practicalExperience: practicalExperienceMatch ? parseFloat(practicalExperienceMatch[1]) : 0,
-            jobRequirementComparison: jobRequirementComparisonMatch ? parseFloat(jobRequirementComparisonMatch[1]) : 0,
-            candidateComparison: candidateComparisonMatch ? parseFloat(candidateComparisonMatch[1]) : 0,
-        };
-    };
-
-    // Thêm state để lưu trữ dữ liệu chart
-    const [chartData, setChartData] = useState({
-        suitability: 0,
-        technicalStrength: 0,
-        experienceStrength: 0,
-        softSkillsStrength: 0,
-        education: 0,
-        practicalExperience: 0,
-        jobRequirementComparison: 0,
-        candidateComparison: 0,
-    });
-
-    // Cập nhật dữ liệu chart khi fullTextContent thay đổi
-    useEffect(() => {
-        if (fullTextContent) {
-            const extractedData = extractChartData(fullTextContent);
-            setChartData(extractedData);
-        }
-    }, [fullTextContent]);
 
     return (
         <div className={`${styles.ResultCompareCompetitiveness} ${isDarkMode ? styles['dark-theme'] : ''}`}>
@@ -597,7 +611,11 @@ const ResultCompareCompetitiveness = () => {
                             JobMarket AI
                         </span>
                     </div>
-                    <ChatPopup isOpen={isPopupOpenHistoryAI} onClose={() => setIsPopupOpenHistoryAI(false)} />
+                    <HistoryChatPopup
+                        isOpen={isPopupOpenHistoryAI}
+                        suitability={chartData.suitability.toString() + '%'}
+                        onClose={() => setIsPopupOpenHistoryAI(false)}
+                    />
                     <PopupViewChartResultAI
                         isOpen={isPopupOpenResultChartAI}
                         onClose={() => setIsPopupOpenResultChartAI(false)}
@@ -880,7 +898,10 @@ const ResultCompareCompetitiveness = () => {
                                                                                         renderWithKeys({
                                                                                             text: removeMarkdownBold(
                                                                                                 section.title
-                                                                                            ),
+                                                                                            ).replace(
+                                                                                                /\b\d+\.\d+%\b/g,
+                                                                                                ''
+                                                                                            ), // Loại bỏ phần trăm
                                                                                             onKeywordClick:
                                                                                                 handleKeywordClick,
                                                                                             className: styles.keyword,
@@ -896,7 +917,12 @@ const ResultCompareCompetitiveness = () => {
                                                                                                 }
                                                                                             >
                                                                                                 {renderWithKeys({
-                                                                                                    text: contentLine,
+                                                                                                    text: removeMarkdownBold(
+                                                                                                        contentLine
+                                                                                                    ).replace(
+                                                                                                        /\b\d+\.\d+%\b/g,
+                                                                                                        ''
+                                                                                                    ), // Loại bỏ phần trăm triệt để
                                                                                                     onKeywordClick:
                                                                                                         handleKeywordClick,
                                                                                                     className:
@@ -1001,7 +1027,10 @@ const ResultCompareCompetitiveness = () => {
                                                                                         renderWithKeys({
                                                                                             text: removeMarkdownBold(
                                                                                                 section.title
-                                                                                            ), // Loại bỏ ** trước khi render
+                                                                                            ).replace(
+                                                                                                /\b\d+\.\d+%\b/g,
+                                                                                                ''
+                                                                                            ), // Loại bỏ phần trăm
                                                                                             onKeywordClick:
                                                                                                 handleKeywordClick,
                                                                                             className: styles.keyword,
@@ -1017,7 +1046,12 @@ const ResultCompareCompetitiveness = () => {
                                                                                                 }
                                                                                             >
                                                                                                 {renderWithKeys({
-                                                                                                    text: contentLine,
+                                                                                                    text: removeMarkdownBold(
+                                                                                                        contentLine
+                                                                                                    ).replace(
+                                                                                                        /\b\d+\.\d+%\b/g,
+                                                                                                        ''
+                                                                                                    ), // Loại bỏ phần trăm triệt để
                                                                                                     onKeywordClick:
                                                                                                         handleKeywordClick,
                                                                                                     className:
@@ -1116,7 +1150,7 @@ const ResultCompareCompetitiveness = () => {
                                                                                     renderWithKeys({
                                                                                         text: removeMarkdownBold(
                                                                                             section.title
-                                                                                        ), // Loại bỏ ** trước khi render
+                                                                                        ).replace(/\b\d+\.\d+%\b/g, ''), // Loại bỏ phần trăm
                                                                                         onKeywordClick:
                                                                                             handleKeywordClick,
                                                                                         className: styles.keyword,
@@ -1132,7 +1166,12 @@ const ResultCompareCompetitiveness = () => {
                                                                                             }
                                                                                         >
                                                                                             {renderWithKeys({
-                                                                                                text: contentLine,
+                                                                                                text: removeMarkdownBold(
+                                                                                                    contentLine
+                                                                                                ).replace(
+                                                                                                    /\b\d+\.\d+%\b/g,
+                                                                                                    ''
+                                                                                                ), // Loại bỏ phần trăm triệt để
                                                                                                 onKeywordClick:
                                                                                                     handleKeywordClick,
                                                                                                 className:
@@ -1176,7 +1215,10 @@ const ResultCompareCompetitiveness = () => {
                                                         typedSuggestions.map((suggestion, index) => (
                                                             <p key={index} className={styles.suggestion_item}>
                                                                 {renderWithKeys({
-                                                                    text: removeMarkdownBold(suggestion),
+                                                                    text: removeMarkdownBold(suggestion).replace(
+                                                                        /\b\d+\.\d+%\b/g,
+                                                                        ''
+                                                                    ), // Loại bỏ phần trăm
                                                                     onKeywordClick: handleKeywordClick,
                                                                     className: styles.keyword,
                                                                 })}
@@ -1194,19 +1236,81 @@ const ResultCompareCompetitiveness = () => {
                                                 <FontAwesomeIcon icon={faTrophy} className={styles.sectionIcon} />
                                                 Xếp hạng chung
                                             </h4>
-                                            <div className={styles.AI_reply_text}>
+                                            <div className={styles.Rank_AI_reply_text}>
                                                 <div className={styles.logo_AI}>AI</div>
-                                                <div className={styles.typingText}>
-                                                    {typedRanking.split('\n').map((rank, index) =>
-                                                        rank.trim() ? (
-                                                            <p key={index}>
-                                                                {renderWithKeys({
-                                                                    text: removeMarkdownBold(rank),
-                                                                    onKeywordClick: handleKeywordClick,
-                                                                    className: styles.keyword,
-                                                                })}
-                                                            </p>
-                                                        ) : null
+                                                <div className={styles.Rank_typingText}>
+                                                    {typedRanking ? (
+                                                        <div style={{width: '100%', padding: '.5rem 1.5rem', border: '.15rem solid var(--hoverBoxBd)', borderRadius: '1rem'}}>
+                                                            {/* Hiển thị bảng xếp hạng */}
+                                                            <table className={styles.rankingTable}>
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>Xếp hạng chung</th>
+                                                                        <th>Tổng</th>
+                                                                        <th>Kỹ năng</th>
+                                                                        <th>Kinh nghiệm</th>
+                                                                        <th>Kỹ năng mềm</th>
+                                                                        <th>Học vấn</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {typedRanking
+                                                                        .split('\n')
+                                                                        .filter(
+                                                                            (line) =>
+                                                                                line.includes('|') &&
+                                                                                !line.includes('Xếp hạng chung')
+                                                                        ) // Lọc các dòng chứa dữ liệu bảng
+                                                                        .map((row, index) => {
+                                                                            const cells = row
+                                                                                .split('|')
+                                                                                .map((cell) => cell.trim())
+                                                                                .filter((cell) => cell); // Tách các cột
+                                                                            if (cells.length === 6) {
+                                                                                return (
+                                                                                    <tr key={index}>
+                                                                                        <td>
+                                                                                            {cells[0].includes(
+                                                                                                'Bạn'
+                                                                                            ) ? (
+                                                                                                <span
+                                                                                                    className={
+                                                                                                        styles.userHighlight
+                                                                                                    }
+                                                                                                >
+                                                                                                    {renderWithKeys({
+                                                                                                        text: cells[0],
+                                                                                                        onKeywordClick:
+                                                                                                            handleKeywordClick,
+                                                                                                        className:
+                                                                                                            styles.keyword,
+                                                                                                    })}
+                                                                                                </span>
+                                                                                            ) : (
+                                                                                                renderWithKeys({
+                                                                                                    text: cells[0],
+                                                                                                    onKeywordClick:
+                                                                                                        handleKeywordClick,
+                                                                                                    className:
+                                                                                                        styles.keyword,
+                                                                                                })
+                                                                                            )}
+                                                                                        </td>
+                                                                                        <td>{cells[1]}</td>
+                                                                                        <td>{cells[2]}</td>
+                                                                                        <td>{cells[3]}</td>
+                                                                                        <td>{cells[4]}</td>
+                                                                                        <td>{cells[5]}</td>
+                                                                                    </tr>
+                                                                                );
+                                                                            }
+                                                                            return null;
+                                                                        })}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    ) : (
+                                                        <p>Đang tải dữ liệu...</p>
                                                     )}
                                                 </div>
                                             </div>
@@ -1229,7 +1333,10 @@ const ResultCompareCompetitiveness = () => {
                                                         line.trim() ? (
                                                             <p className={styles.conclude_text} key={index}>
                                                                 {renderWithKeys({
-                                                                    text: removeMarkdownBold(line),
+                                                                    text: removeMarkdownBold(line).replace(
+                                                                        /\b\d+\.\d+%\b/g,
+                                                                        ''
+                                                                    ), // Loại bỏ phần trăm
                                                                     onKeywordClick: handleKeywordClick,
                                                                     className: styles.keyword,
                                                                 })}

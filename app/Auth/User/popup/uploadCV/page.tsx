@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 
 import styles from './uploadCV.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCloudUploadAlt, faEllipsisV, faPaperclip, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCloudUploadAlt, faPaperclip, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { showToastError, showToastSuccess } from '../../../../Ultils/toast';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
@@ -50,18 +50,18 @@ function ModelUploadCV({ isOpen, onClose }: ResumeCvModalProps) {
             showToastError('Vui lòng chọn file và đăng nhập lại!');
             return;
         }
-    
+
         const formData = new FormData();
-        formData.append('file', selectedFile);
-        formData.append('fileName', selectedFile.name)
-    
+        formData.append('file', selectedFile); // Chỉ gửi file, không cần gửi fileName riêng
+
         try {
             const response = await axios.post(`${apiUrl}/users/${userId}/upload-cv`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
+                    // Đảm bảo UTF-8 encoding (thường không cần thiết vì trình duyệt tự xử lý)
                 },
             });
-    
+
             showToastSuccess('Tải lên thành công!');
             setSelectedFile(null);
             onClose();
@@ -74,7 +74,6 @@ function ModelUploadCV({ isOpen, onClose }: ResumeCvModalProps) {
             }
         }
     };
-    
 
     if (!isOpen) return null;
 

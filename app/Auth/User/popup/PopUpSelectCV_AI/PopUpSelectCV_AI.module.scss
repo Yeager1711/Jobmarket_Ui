@@ -22,7 +22,7 @@
 
     animation: slideIn 0.3s ease-in-out;
 
-    .PaymentPopup_header {
+    .PopUpSelectCV_AI_header {
         background: linear-gradient(90deg, #6b0fff, #a964d2, #ff9a00);
         padding: 2rem;
 
@@ -50,6 +50,7 @@
         h3 {
             font-size: 1.6rem;
             text-transform: capitalize;
+            color: #333;
         }
 
         .options {
@@ -101,7 +102,7 @@
         }
     }
 
-    .PaymentPopup_footers {
+    .PopUpSelectCV_AI_footers {
         padding: 2rem;
 
         .payButton {

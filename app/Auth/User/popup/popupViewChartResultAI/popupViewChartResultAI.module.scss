@@ -5,22 +5,26 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 1);
+    background: rgba(0, 0, 0, .5);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    backdrop-filter: blur(.8rem);
 
     .popup {
         // background: #1a3c34;
         background: rgba(0, 0, 0, .3);
-        border-radius: 0.625rem;
+        border-radius: 2rem;
         padding: 2rem;
         width: 85rem;
         transition: width .6s ease-in-out;
         color: #fff;
+        backdrop-filter: blur(.5rem);
         box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
-     
+        overflow: hidden;
+        animation: .3s zoomIn ease-in-out;
+
 
         &.expanded {
             width: 140rem !important;
@@ -49,6 +53,7 @@
 
         .content {
             display: flex;
+            flex-wrap: wrap;
             gap: 3rem;
             margin-top: 4rem;
 
@@ -75,6 +80,7 @@
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
+            padding: 2rem;
 
             .suitabilityCircle {
                 display: flex;
@@ -112,12 +118,37 @@
                     stroke-width: 0.625rem;
                     stroke-linecap: round;
                     transition: stroke-dashoffset .3s ease;
+                    animation: progress 2s ease-in-out forwards;
                 }
 
                 .progressValue {
                     fill: #fff;
                     font-size: 2.7rem;
                     font-weight: bold;
+                }
+            }
+
+            @keyframes progress {
+                from {
+                    stroke-dashoffset: 345;
+                    /* Bắt đầu từ 0% */
+                }
+
+                to {
+                    stroke-dashoffset: var(--dashoffset);
+                    /* Kết thúc tại giá trị được set qua CSS variable */
+                }
+            }
+
+            @keyframes zoomIn {
+                from {
+                  opacity: 0;
+                  transform: scale(.9);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: scale(1);
                 }
             }
 
@@ -157,14 +188,17 @@
                             background: #00ff99;
                             border-radius: 0.3125rem;
                             transition: width .5s ease;
+                            font-size: 1.4rem;
                         }
 
                         .sliderValue {
                             position: absolute;
                             right: 0;
                             top: -1.25rem;
-                            font-size: 0.9rem;
-                            color: #00ff99;
+                            font-size: 1.5rem;
+                            color: #fff;
+                            margin-top: -1rem;
+                            font-weight: var(--weight550);
                         }
                     }
                 }

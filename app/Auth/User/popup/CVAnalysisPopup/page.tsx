@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from './CVAnalysisPopup.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import PaymentPopup from '../PaymentPopup/page';
+import PopUpSelectCV_AI from '../PopUpSelectCV_AI/page';
 import { Job } from '../../../../interface/Job';
 
 interface CVAnalysisPopupProps {
@@ -40,6 +40,7 @@ const CVAnalysisPopup = ({ isOpen, jobTitle, jobId, job, onClose }: CVAnalysisPo
     // Khi đóng PaymentPopup
     const handlePaymentClose = () => {
         setIsPaymentOpen(false);
+        setIsHidden(false)
     };
 
     if (!isOpen && !isPaymentOpen) return null;
@@ -83,7 +84,14 @@ const CVAnalysisPopup = ({ isOpen, jobTitle, jobId, job, onClose }: CVAnalysisPo
                                     </div>
                                     <div className={styles.analysisItem}>
                                         <span className={styles.checkmark}>✔</span>
-                                        <p>Giá {process.env.NEXT_PUBLIC_APP_PRICE_AI} VNĐ / Lượt</p>
+                                        <p>
+                                            Giá{' '}
+                                            {Number(process.env.NEXT_PUBLIC_APP_PRICE_AI).toLocaleString('vi-VN', {
+                                                style: 'currency',
+                                                currency: 'VND',
+                                            })}{' '}
+                                            / lượt
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -94,8 +102,11 @@ const CVAnalysisPopup = ({ isOpen, jobTitle, jobId, job, onClose }: CVAnalysisPo
                                 </p>
 
                                 <button className={styles.applyButton} onClick={handleApplyClick}>
-                                    {process.env.NEXT_PUBLIC_APP_PRICE_AI} VNĐ / Lượt xem đánh giá{' '}
-                                    <FontAwesomeIcon icon={faArrowRight} />
+                                    {Number(process.env.NEXT_PUBLIC_APP_PRICE_AI).toLocaleString('vi-VN', {
+                                        style: 'currency',
+                                        currency: 'VND',
+                                    })}{' '}
+                                    / Lượt xem đánh giá <FontAwesomeIcon icon={faArrowRight} />
                                 </button>
                             </div>
                         </div>
@@ -103,7 +114,7 @@ const CVAnalysisPopup = ({ isOpen, jobTitle, jobId, job, onClose }: CVAnalysisPo
                 </div>
             )}
             {isPaymentOpen && savedJobId && (
-                <PaymentPopup isOpen={isPaymentOpen} onClose={handlePaymentClose} job={job} jobId={savedJobId} />
+                <PopUpSelectCV_AI isOpen={isPaymentOpen} onClose={handlePaymentClose} job={job} jobId={savedJobId} />
             )}
         </>
     );

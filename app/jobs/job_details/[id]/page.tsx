@@ -11,6 +11,8 @@ import {
     faLocationDot,
     faIndustry,
     faHeart,
+    faChevronDown,
+    faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
@@ -19,6 +21,10 @@ import JobDetails_Skeleton from './jobDetail__Skeleton';
 import HotJob from 'app/Ultils/HotJob/HotJob';
 import { Job } from '../../../interface/Job';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
+
+// layout import
+import ExtendAI from './extend_AI/page';
+import CVAnalysisPopup from 'app/Auth/User/popup/CVAnalysisPopup/page';
 
 const apiUrl = process.env.NEXT_PUBLIC_APP_API_BASE_URL;
 
@@ -29,6 +35,7 @@ function JobDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isFavorited, setIsFavorited] = useState(false);
+    const [isBenefitsExpanded, setIsBenefitsExpanded] = useState(false);
 
     const { fetchJobDetails, fetchAllJobs, addFavoriteJob } = useApi();
 
@@ -41,8 +48,8 @@ function JobDetail() {
 
     const handleAddFavorite = async () => {
         try {
-            await addFavoriteJob(jobId); 
-            setIsFavorited(true); 
+            await addFavoriteJob(jobId);
+            setIsFavorited(true);
         } catch (err) {
             // Lỗi đã được xử lý trong context (showToastError), không cần alert thêm
             console.error('Error in handleAddFavorite:', err);
@@ -198,7 +205,7 @@ function JobDetail() {
                                 <div
                                     className={styles.btn_favorite__job}
                                     onClick={handleAddFavorite}
-                                    style={{ color: isFavorited ? 'red' : '#fff' }} 
+                                    style={{ color: isFavorited ? 'red' : '#fff' }}
                                 >
                                     <FontAwesomeIcon icon={faHeart} />
                                     {isFavorited ? 'Đã yêu thích' : 'Yêu thích'}
@@ -238,8 +245,23 @@ function JobDetail() {
                             </span>
                         </div>
 
-                        <div className={styles.basic_infomation_benifet}>
-                            <h3>Phúc lợi</h3>
+                        <div
+                            className={classNames(styles.basic_infomation_benifet, {
+                                [styles.expanded]: isBenefitsExpanded,
+                            })}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <h3>Phúc lợi</h3>
+                                <button
+                                    onClick={() => setIsBenefitsExpanded(!isBenefitsExpanded)}
+                                    className={styles.btn_Expanded_Content}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={isBenefitsExpanded ? faChevronUp : faChevronDown}
+                                        style={{ fontSize: '1.5rem', color: '#333' }}
+                                    />
+                                </button>
+                            </div>
                             <span>
                                 {jobDetails.benefits.split(/\n|•/).map(
                                     (item, index) =>
@@ -265,6 +287,8 @@ function JobDetail() {
                                     )}
                             </span>
                         </div>
+
+                        <ExtendAI jobId={jobId} jobTitle={jobDetails?.title}/>
                     </div>
                 </div>
 
@@ -278,7 +302,7 @@ function JobDetail() {
                             </span>
 
                             <span className={styles.generalInformation_item}>
-                                Cấp bậc: <p>{jobDetails.jobLevel.name.join(', ')}</p>
+                                Cấp bậc: <p>{jobDetails.jobLevel.name?.join(', ')}</p>
                             </span>
 
                             <span className={styles.generalInformation_item}>
@@ -309,7 +333,7 @@ function JobDetail() {
                             <span className={styles.generalInformation_itemTech_Stack}>
                                 <p> Công nghệ sử dụng:</p>
                                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                                    {jobDetails.generalInformation.tech_stack.map((tech, index) => (
+                                    {jobDetails.generalInformation.tech_stack?.map((tech, index) => (
                                         <p
                                             onClick={() => router.push(`/skill_tag/${tech}`)}
                                             key={index}
@@ -329,7 +353,7 @@ function JobDetail() {
                         </h3>
                         {Object.entries(jobData).map(([companyName, jobs]) => (
                             <div key={companyName} className={styles.companyJobs}>
-                                {jobs.map((job, index) => (
+                                {jobs?.map((job, index) => (
                                     <div
                                         onClick={() => router.push(`/jobs/job_details/${job.jobId}`)}
                                         key={job.jobId}
@@ -359,7 +383,9 @@ function JobDetail() {
                                                     <> {formatSalary(job.salary)}</>
                                                 )}
                                             </p>
-                                            <p className={styles.company__location}>{job.workLocation.district.name}</p>
+                                            <p className={styles.company__location}>
+                                                {job.workLocation?.district?.name}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}

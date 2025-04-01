@@ -1,0 +1,126 @@
+.ExtendAI {
+    background: #1f3348;
+    border: 0.1rem solid #e1eeff;
+    border-radius: 1rem;
+    padding: 2rem;
+    max-width: 100%;
+    height: 36rem;
+    font-family: Arial, sans-serif;
+    margin-top: 2rem;
+    position: relative;
+    overflow: hidden;
+    display: block;
+
+    .postion_img1 {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    .postion_img2 {
+        position: absolute;
+        bottom: -1rem;
+        left: 0;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    h3 {
+        font-size: 1.7rem;
+        color: var(--colorWhiteText);
+    }
+
+    .contentBox {
+        margin-top: 2rem;
+        background: #fff;
+        border-radius: 1rem;
+
+        .content_first {
+            padding: 2rem;
+            background: #fff;
+            max-width: 55rem;
+            width: 100%;
+            border-radius: 1rem;
+            position: relative;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 1rem;
+                left: 1rem;
+                width: 2rem;
+                height: 2rem;
+                border-top: 0.3rem solid var(--viewDetails);
+                border-left: 0.3rem solid var(--viewDetails);
+            }
+
+
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 1rem;
+                right: 1rem;
+                width: 2rem;
+                height: 2rem;
+                border-bottom: 0.3rem solid var(--viewDetails);
+                border-right: 0.3rem solid var(--viewDetails);
+            }
+
+            svg {
+                margin-right: .3rem;
+            }
+
+            span {
+                display: block;
+                line-height: 1.5;
+                font-size: 1.3rem;
+                padding: .7rem 0;
+
+                &:first-child {
+                    padding-top: 0;
+                }
+
+                &:last-child {
+                    padding-bottom: 0;
+                }
+            }
+        }
+    }
+
+    .footer {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, .8);
+        padding: 1.5rem 4rem;
+
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: var(--weight550);
+            color: var(--colorWhiteText);
+        }
+
+        .btn_tryNow {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            padding: .8rem 4rem;
+            background: #ff8b38;
+            color: var(--colorWhiteText);
+            font-size: 1.3rem;
+            border-top-left-radius: 5rem;
+            border-bottom-right-radius: 5rem;
+
+            &:hover {
+                transition: .3s ease;
+                background: var(--viewDetails);
+            }
+        }
+    }
+
+
+}

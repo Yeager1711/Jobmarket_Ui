@@ -175,7 +175,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 throw new Error('Invalid orderId');
             }
 
-            console.log("orderId: ", orderId);
+            console.log('orderId: ', orderId);
 
             try {
                 const headers = getAuthHeaders();
@@ -435,10 +435,62 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     {},
                     { headers }
                 );
-                if (!response.data) {
+
+                // Kiểm tra dữ liệu trả về từ API
+                if (!response.data.data || typeof response.data.data !== 'object') {
                     throw new Error('Dữ liệu trả về từ API không hợp lệ');
                 }
-                return response.data;
+
+                const { message, data, metrics } = response.data.data;
+
+                // Kiểm tra các trường cần thiết
+                if (!data || typeof data !== 'string') {
+                    throw new Error('Trường "data" không hợp lệ trong phản hồi API');
+                }
+
+                if (!metrics || typeof metrics !== 'object') {
+                    throw new Error('Trường "metrics" không hợp lệ trong phản hồi API');
+                }
+
+                const {
+                    competitivenessFit,
+                    technicalStrength,
+                    experienceStrength,
+                    softSkillsStrength,
+                    educationScore,
+                    realExperienceScore,
+                    jobRequirementMatch,
+                    competitorComparison,
+                } = metrics;
+
+                // Kiểm tra các giá trị trong metrics
+                if (
+                    typeof competitivenessFit !== 'number' ||
+                    typeof technicalStrength !== 'number' ||
+                    typeof experienceStrength !== 'number' ||
+                    typeof softSkillsStrength !== 'number' ||
+                    typeof educationScore !== 'number' ||
+                    typeof realExperienceScore !== 'number' ||
+                    typeof jobRequirementMatch !== 'number' ||
+                    typeof competitorComparison !== 'number'
+                ) {
+                    throw new Error('Một hoặc nhiều giá trị trong "metrics" không hợp lệ');
+                }
+
+                // Trả về đối tượng chứa cả chuỗi phân tích và các giá trị phần trăm
+                return {
+                    analysisResult: data, // Chuỗi phân tích
+                    metrics: {
+                        competitivenessFit,
+                        technicalStrength,
+                        experienceStrength,
+                        softSkillsStrength,
+                        educationScore,
+                        realExperienceScore,
+                        jobRequirementMatch,
+                        competitorComparison,
+                    },
+                };
             } catch (error: any) {
                 console.error('Lỗi khi phân tích mức độ cạnh tranh:', {
                     message: error.message,

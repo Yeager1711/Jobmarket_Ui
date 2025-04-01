@@ -163,6 +163,8 @@
                 }
 
                 .typingText {
+                    width: 100%;
+
                     p {
                         transition: .3s linear;
                         color: #e0e0e0;
@@ -196,8 +198,7 @@
             }
 
             .appropriate_slevel,
-            .Compare_the_level_of_competition,
-            .ranking {
+            .Compare_the_level_of_competition {
                 .sectionTitle {
                     color: #e0e0e0;
                     transition: .3s linear;
@@ -297,7 +298,6 @@
 
                 .suggests_good_argument,
                 .conclude,
-                .ranking,
                 .education,
                 .experience_analysis {
                     .conclude_text {
@@ -313,6 +313,12 @@
                     }
                 }
             }
+
+
+
+
+
+
         }
     }
 
@@ -553,7 +559,12 @@
             }
         }
 
-        .AI_reply_text {
+        .Rank_AI_reply_text {
+            background: none !important;
+        }
+
+        .AI_reply_text,
+        .Rank_AI_reply_text {
             padding: 0.8rem 1.5rem 1.5rem 1.5rem;
             font-size: 1.4rem;
             background: #f0efef;
@@ -608,8 +619,13 @@
                 }
             }
 
+            .Rank_typingText {
+                width: 100%;
+            }
+
             .typingText {
                 position: relative;
+                width: 100%;
 
                 p {
                     font-size: 1.4rem;
@@ -652,8 +668,7 @@
         }
 
         .appropriate_slevel,
-        .Compare_the_level_of_competition,
-        .ranking {
+        .Compare_the_level_of_competition {
             margin-top: 2.5rem;
 
             .sectionTitle {
@@ -810,7 +825,6 @@
 
             .suggests_good_argument,
             .conclude,
-            .ranking,
             .education,
             .experience_analysis {
                 margin-top: 2rem;
@@ -826,6 +840,113 @@
                     }
                 }
             }
+
+            .ranking {
+                margin-top: 2rem;
+
+                .rankingTable {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 1.4rem;
+                    padding: 2rem;
+                }
+
+                .rankingTable th,
+                .rankingTable td {
+                    border: .15rem solid var(--hoverBoxBd);
+                    border-left: none;
+                    border-right: none;
+                    padding: 1.2rem;
+                    text-align: center;
+                }
+
+                .rankingTable th {
+
+
+                    &:nth-child(1) {
+                        border-top: none;
+                    }
+
+                    
+                    &:nth-child(2) {
+                        border-top: none;
+                    }
+
+                    
+                    &:nth-child(3) {
+                        border-top: none;
+                    }
+
+                    
+                    &:nth-child(4) {
+                        border-top: none;
+                    }
+
+                    
+                    &:nth-child(5) {
+                        border-top: none;
+                    }
+
+                    &:nth-child(6) {
+                        border-top: none;
+                    }
+
+                }
+
+                .rankingTable td {
+
+
+                    &:nth-child(1) {
+                        border-bottom: none;
+                    }
+
+                    
+                    &:nth-child(2) {
+                        border-bottom: none;
+                    }
+
+                    
+                    &:nth-child(3) {
+                        border-bottom: none;
+                    }
+
+                    
+                    &:nth-child(4) {
+                        border-bottom: none;
+                    }
+
+                    
+                    &:nth-child(5) {
+                        border-bottom: none;
+                    }
+
+                    &:nth-child(6) {
+                        border-bottom: none;
+                    }
+
+                }
+
+                .rankingTable th {
+                    // background-color: var(--hoverBox);
+                    font-weight: bold;
+                    color: #333;
+                }
+
+                .rankingTable td {
+                    color: #555;
+                }
+
+                // .rankingTable tr:nth-child(even) {
+                //     background-color: #fafafa;
+                // }
+
+                .userHighlight {
+                    color: #ff6f61; //Dành cho ứng viên 
+                    font-weight: bold;
+                }
+            }
+
+
         }
     }
 }

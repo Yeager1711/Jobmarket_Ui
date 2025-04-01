@@ -8,7 +8,7 @@ import { useApi } from '../../../Context/ApiContext/ApiContext';
 import { formatSalary } from '../../../Ultils/formatSalary';
 import MyJob_Skeleton from './myJob_Skeleton';
 import CVAnalysisPopup from '../popup/CVAnalysisPopup/page';
-import PaymentPopup from '../popup/PaymentPopup/page';
+import PaymentPopup from '../popup/PopUpSelectCV_AI/page';
 import { Job } from '../../../interface/Job';
 // Define types for FavoriteJob
 interface CompanyImage {

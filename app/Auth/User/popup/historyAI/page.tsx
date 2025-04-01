@@ -22,6 +22,7 @@ interface ChatItem {
     orderId?: string;
     jobId?: string;
     resumeCvId?: string;
+    
 }
 
 // Define the interface for the grouped chats
@@ -29,13 +30,14 @@ interface GroupedChats {
     [key: string]: ChatItem[];
 }
 
-// Define the props interface for the ChatPopup component
-interface ChatPopupProps {
+// Define the props interface for the HistoryChatPopup component
+interface HistoryChatPopupProps {
     isOpen: boolean;
     onClose: () => void;
+    suitability?: string
 }
 
-const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
+const HistoryChatPopup: React.FC<HistoryChatPopupProps> = ({ isOpen, onClose, suitability }) => {
     const { fetchOrdersByUserId, disableOrder } = useApi(); // Added disableOrder
     const [chats, setChats] = useState<ChatItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -243,17 +245,9 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
         // Parse "Đánh giá mức độ phù hợp của Huỳnh Nam"
         const appropriateLevel = parsedSections['Đánh giá mức độ phù hợp của Huỳnh Nam'] || '';
         const appropriateLevelItems = appropriateLevel.split('\n- ').filter((item) => item.trim());
-        const suitabilityMatch = appropriateLevelItems.find((item) => item.includes('Mức độ phù hợp với công việc'));
         const comparisonMatch = appropriateLevelItems.find((item) => item.includes('So sánh với ứng viên khác'));
         const salaryMatch = appropriateLevelItems.find((item) => item.includes('Mức lương thị trường'));
 
-        const suitability = suitabilityMatch
-            ? suitabilityMatch
-                  .replace('**Mức độ phù hợp với công việc**: ', '')
-                  .replace(/\[.*?\]/, '')
-                  .replace(/^-+\s*/, '')
-                  .trim()
-            : '';
         const comparison = comparisonMatch
             ? comparisonMatch
                   .replace('**So sánh với ứng viên khác**: ', '')
@@ -354,8 +348,10 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
                         .trim() // Loại bỏ khoảng trắng thừa
             );
 
+
         // Parse "Kết luận"
-        const conclusion = parsedSections['Kết luận'] || '';
+        const conclusionSection = parsedSections['Kết luận'] || '';
+        const conclusion = conclusionSection.split('```json')[0]?.trim() || '';
 
         return (
             <div className={styles.AI_wrapper__reply}>
@@ -607,4 +603,4 @@ const ChatPopup: React.FC<ChatPopupProps> = ({ isOpen, onClose }) => {
     );
 };
 
-export default ChatPopup;
+export default HistoryChatPopup;

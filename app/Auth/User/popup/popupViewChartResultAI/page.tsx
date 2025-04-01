@@ -1,4 +1,3 @@
-// PopupViewChartResultAI.tsx
 import React, { useEffect, useState } from 'react';
 import styles from './popupViewChartResultAI.module.scss';
 import { Radar } from 'react-chartjs-2';
@@ -25,6 +24,8 @@ interface PopupViewChartResultAIProps {
 
 const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose, isOpen, chartData }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    // Thêm state để điều khiển giá trị hiển thị của vòng tròn
+    const [animatedPercentage, setAnimatedPercentage] = useState(0);
 
     useEffect(() => {
         if (isOpen) {
@@ -36,6 +37,32 @@ const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose
             setIsExpanded(false);
         }
     }, [isOpen]);
+
+    // Hiệu ứng chạy từ 0 đến suitabilityPercentage khi popup mở
+    useEffect(() => {
+        if (isOpen) {
+            let start = 0;
+            const end = chartData.suitability;
+            console.log('Target suitability:', end); // Kiểm tra giá trị end
+            const duration = 1000;
+            const increment = end / (duration / 20);
+
+            const animate = () => {
+                start += increment;
+                console.log('Current animatedPercentage:', start); // Kiểm tra giá trị hiện tại
+                if (start >= end) {
+                    setAnimatedPercentage(end);
+                    return;
+                }
+                setAnimatedPercentage(start);
+                setTimeout(animate, 20);
+            };
+
+            animate();
+        } else {
+            setAnimatedPercentage(0);
+        }
+    }, [isOpen, chartData.suitability]);
 
     const radarData = {
         labels: [
@@ -107,7 +134,7 @@ const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose
                 labels: {
                     color: '#ffffff',
                     font: {
-                        size: 12,
+                        size: 18,
                     },
                 },
             },
@@ -116,7 +143,7 @@ const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose
                     size: 14,
                 },
                 bodyFont: {
-                    size: 12,
+                    size: 13,
                 },
                 titleColor: '#ffffff',
                 bodyColor: '#ffffff',
@@ -128,27 +155,22 @@ const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose
     };
 
     const suitabilityData = [
-        { label: 'Kỹ thuật', value: chartData.technicalStrength, color: '#00FFB3' }, // Màu xanh nhạt
-        { label: 'Kinh nghiệm', value: chartData.experienceStrength, color: '#FF6F61' }, // Màu đỏ cam
-        { label: 'Kỹ năng mềm', value: chartData.softSkillsStrength, color: '#FFD700' }, // Màu vàng
-        { label: 'Học vấn', value: chartData.education, color: '#00CED1' }, // Màu xanh lam
-        { label: 'Thực tế', value: chartData.practicalExperience, color: '#FF4500' }, // Màu cam đậm
-        { label: 'Yêu cầu công việc', value: chartData.jobRequirementComparison, color: '#ADFF2F' }, // Màu xanh lá
-        { label: 'So với ứng viên khác', value: chartData.candidateComparison, color: '#FF69B4' }, // Màu hồng
+        { label: 'Kỹ thuật', value: chartData.technicalStrength, color: '#00FFB3' },
+        { label: 'Kinh nghiệm', value: chartData.experienceStrength, color: '#FF6F61' },
+        { label: 'Kỹ năng mềm', value: chartData.softSkillsStrength, color: '#FFD700' },
+        { label: 'Học vấn', value: chartData.education, color: '#00CED1' },
+        { label: 'Thực tế', value: chartData.practicalExperience, color: '#FF4500' },
+        { label: 'Yêu cầu công việc', value: chartData.jobRequirementComparison, color: '#ADFF2F' },
+        { label: 'So với ứng viên khác', value: chartData.candidateComparison, color: '#FF69B4' },
     ];
-
-    const suitabilityPercentage = chartData.suitability;
 
     if (!isOpen) return null;
 
     return (
-        <div className={styles.overlay}>
-            <div className={`${styles.popup} ${isExpanded ? styles.expanded : ''}`}>
+        <div className={styles.overlay} onClick={onClose}>
+            <div className={`${styles.popup} ${isExpanded ? styles.expanded : ''}`} onClick={(e) => e.stopPropagation}>
                 <div className={styles.header}>
                     <h3>Biểu đồ phân tích mức độ phù hợp của bạn với công việc</h3>
-                    <button className={styles.closeButton} onClick={onClose}>
-                        ✕
-                    </button>
                 </div>
                 <div className={styles.content}>
                     <div className={`${styles.chartContainer} ${isExpanded ? styles.chartExpanded : ''}`}>
@@ -169,19 +191,25 @@ const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose
                                         r="55"
                                         strokeWidth="10"
                                     />
-                                    <circle
-                                        className={styles.progressFill}
-                                        cx="60"
-                                        cy="60"
-                                        r="55"
-                                        strokeWidth="20"
-                                        style={{
-                                            strokeDasharray: 345,
-                                            strokeDashoffset: 345 - (345 * suitabilityPercentage) / 100,
-                                        }}
-                                    />
+                                    <g transform="rotate(-90 60 60)">
+                                        {' '}
+                                        <circle
+                                            className={styles.progressFill}
+                                            cx="60"
+                                            cy="60"
+                                            r="55"
+                                            strokeWidth="20"
+                                            style={
+                                                {
+                                                    strokeDasharray: 283,
+                                                    strokeDashoffset: 283, // Giá trị ban đầu (0%)
+                                                    '--finalDashoffset': 283 - (283 * chartData.suitability) / 100, // Giá trị cuối (69.1%)
+                                                } as React.CSSProperties
+                                            }
+                                        />
+                                    </g>
                                     <text x="60" y="60" textAnchor="middle" dy=".3em" className={styles.progressValue}>
-                                        {suitabilityPercentage}%
+                                        {animatedPercentage.toFixed(1)}%
                                     </text>
                                 </svg>
                             </div>

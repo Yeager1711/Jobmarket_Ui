@@ -41,7 +41,7 @@ const JobDetails_Skeleton = () => {
                                             Kinh nghiệm:
                                             <p>
                                                 {' '}
-                                                <Skeleton width={100} />
+                                                <Skeleton width={100}  />
                                             </p>
                                         </span>
                                     </div>
@@ -64,7 +64,7 @@ const JobDetails_Skeleton = () => {
                                 <div className={styles.basic_infomation_benifet}>
                                     <h3>Phúc lợi</h3>
                                     <span>
-                                        <Skeleton width={730} height={100} />
+                                        <Skeleton width={730} height={100}  style={{marginTop: '1.5rem'}}/>
                                     </span>
 
                                     <span>

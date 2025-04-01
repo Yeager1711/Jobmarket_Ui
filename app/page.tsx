@@ -148,10 +148,12 @@ function Home() {
                                 >
                                     <div className={styles['company']} title={company.company.name}>
                                         <div className={styles['img-company']}>
-                                            <img
-                                                src={company.company.images[0]?.image_company}
-                                                alt={company.company.name}
-                                            />
+                                            {company.company.images[0]?.image_company ? (
+                                                <img
+                                                    src={company.company.images[0]?.image_company}
+                                                    alt={company.company.name}
+                                                />
+                                            ) : null}
                                         </div>
                                         <div className={styles['content-company']}>
                                             <h3 className={styles['name-company']}>{company.company.name}</h3>

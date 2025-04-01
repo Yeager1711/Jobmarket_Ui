@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import styles from './PaymentPopup.module.scss';
+import styles from './PopUpSelectCV_AI.module.scss';
 import { useApi } from '../../../../Context/ApiContext/ApiContext';
 import { useRouter } from 'next/navigation';
 import { Job } from '../../../../interface/Job';
@@ -14,7 +14,7 @@ interface CV {
     updatedAt: string;
 }
 
-const PaymentPopup = ({
+const PopUpSelectCV_AI = ({
     isOpen,
     onClose,
     job,
@@ -70,8 +70,8 @@ const PaymentPopup = ({
     return (
         <div className={styles.popupOverlay} onClick={onClose}>
             <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
-                <div className={styles.PaymentPopup_header}>
-                    <h2>Lựa chọn hồ sơ để đánh giá với Job ID: {jobId || 'Không xác định'}</h2>
+                <div className={styles.PopUpSelectCV_AI_header}>
+                    <h2>Lựa chọn hồ sơ để đánh giá với</h2>
                 </div>
 
                 <div className={styles.wrapper_option}>
@@ -113,7 +113,7 @@ const PaymentPopup = ({
                     </div>
                 </div>
 
-                <div className={styles.PaymentPopup_footers}>
+                <div className={styles.PopUpSelectCV_AI_footers}>
                     <button className={styles.payButton} onClick={handlePayClick} disabled={!selectedCVId}>
                         Thanh toán để xem kết quả
                     </button>
@@ -123,4 +123,4 @@ const PaymentPopup = ({
     );
 };
 
-export default PaymentPopup;
+export default PopUpSelectCV_AI;
