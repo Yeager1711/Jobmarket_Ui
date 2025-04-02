@@ -22,7 +22,6 @@ interface ChatItem {
     orderId?: string;
     jobId?: string;
     resumeCvId?: string;
-    
 }
 
 // Define the interface for the grouped chats
@@ -34,7 +33,7 @@ interface GroupedChats {
 interface HistoryChatPopupProps {
     isOpen: boolean;
     onClose: () => void;
-    suitability?: string
+    suitability?: string;
 }
 
 const HistoryChatPopup: React.FC<HistoryChatPopupProps> = ({ isOpen, onClose, suitability }) => {
@@ -61,8 +60,10 @@ const HistoryChatPopup: React.FC<HistoryChatPopupProps> = ({ isOpen, onClose, su
         try {
             const orders = await fetchOrdersByUserId();
 
-            // Filter orders to only include those with status 'Đã thanh toán'
-            const paidOrders = orders.filter((order: any) => order.orderDetails.status === 'Đã thanh toán');
+            // Filter orders to only include those with status 'Đã thanh toán' and disable !== 1
+            const paidOrders = orders.filter(
+                (order: any) => order.orderDetails.status === 'Đã thanh toán' && order.disable !== true
+            );
 
             // Map paid orders to ChatItem format
             const mappedChats: ChatItem[] = paidOrders.map((order: any) => {
@@ -348,7 +349,6 @@ const HistoryChatPopup: React.FC<HistoryChatPopupProps> = ({ isOpen, onClose, su
                         .trim() // Loại bỏ khoảng trắng thừa
             );
 
-
         // Parse "Kết luận"
         const conclusionSection = parsedSections['Kết luận'] || '';
         const conclusion = conclusionSection.split('```json')[0]?.trim() || '';
@@ -529,7 +529,6 @@ const HistoryChatPopup: React.FC<HistoryChatPopupProps> = ({ isOpen, onClose, su
                                                         `/Auth/User/chatAI/result/compareCompetitiveness?orderId=${chat.orderId}&jobId=${chat.jobId}&resumeCVId=${chat.resumeCvId}`
                                                     )
                                                 }
-
                                                 className={styles.space_betwwen}
                                             >
                                                 <p className={styles.chatTitle}>{chat.title}</p>

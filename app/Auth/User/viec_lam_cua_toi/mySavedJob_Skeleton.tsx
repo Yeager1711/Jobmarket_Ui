@@ -1,7 +1,7 @@
 'use client';
 import styles from './myJob.module.scss'; // Sử dụng cùng styles với MyJob
 
-const MyJob_Skeleton = () => {
+const MySavedJob_Skeleton = () => {
     return (
         <section className={styles.myJob}>
             <div className={styles.wapper}>
@@ -63,4 +63,4 @@ const MyJob_Skeleton = () => {
     );
 };
 
-export default MyJob_Skeleton;
+export default MySavedJob_Skeleton;

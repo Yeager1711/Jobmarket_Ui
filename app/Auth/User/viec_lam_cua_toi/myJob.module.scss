@@ -67,8 +67,8 @@
                     margin: auto;
 
                     .placeholderImage {
-                        width: 150px;
-                        height: 150px;
+                        width: 15rem;
+                        height: 15rem;
                         margin-bottom: 1.5rem;
                     }
 
@@ -92,8 +92,8 @@
 
             .myJob__content {
                 background: var(--bg-White, #ffffff);
-                padding: 2rem;
-                height: 50rem;
+                padding: 2rem 2rem;
+                max-height: 70rem;
                 overflow: scroll;
                 border-radius: 0.5rem;
                 text-align: center;
@@ -105,8 +105,8 @@
                     margin: auto;
 
                     .placeholderImage {
-                        width: 150px;
-                        height: 150px;
+                        width: 15rem;
+                        height: 15rem;
                         margin-bottom: 1.5rem;
                     }
 
@@ -127,11 +127,16 @@
                     }
                 }
 
-                .job_favorite_lists {
+                .job_favorite_lists,
+                .job_applied_lists,
+                .job_applied_empty,
+                .job_favorite_empty {
                     display: inline-block;
                     width: 100%;
+                    max-height: 70rem;
 
-                    .box_favorite_job {
+                    .box_favorite_job,
+                    .box_applied_job {
                         display: flex;
                         gap: 1.5rem;
                         padding: 2rem;
@@ -139,6 +144,7 @@
                         border-radius: .5rem;
                         width: 100%;
                         align-items: center;
+                        cursor: pointer;
                         margin-bottom: 1.5rem;
 
                         &:hover {
@@ -156,7 +162,12 @@
                             }
                         }
 
-                        .job_favorite_content__company {
+                        .job_applied_content__company{
+                            max-width: 100% !important;
+                        }
+
+                        .job_favorite_content__company,
+                        .job_applied_content__company {
                             flex: 1 1 18rem;
                             max-width: 60rem;
                             width: 90%;
@@ -183,7 +194,7 @@
                                 .district_name,
                                 .salary {
                                     display: block;
-                                    padding: .3rem 0;
+                                    padding: .5rem 0;
                                     font-size: 1.4rem;
                                     color: #777;
                                 }
@@ -243,7 +254,7 @@
                                 border-radius: .5rem;
                             }
                         }
-                       
+
                     }
                 }
             }

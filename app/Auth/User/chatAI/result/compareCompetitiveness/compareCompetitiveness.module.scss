@@ -205,52 +205,95 @@
                 }
 
                 .appropriate_slevel__container {
-                    .appropriate_slevel__box {
-                        background: #3a3a3a;
-                        transition: .3s linear;
-                        color: var(--viewDetails);
+
+                    .appropriate_slevel {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        flex: 1 1;
+                        width: 100%;
+                        padding: 2rem;
+                        background: #fff;
+                        border-radius: 1rem;
+                        font-size: 1.5rem;
+                        font-weight: var(--weight550);
+
+                        .circularProgress {
+                            display: block;
+                        }
 
                         .progressBackground {
-                            transition: .3s linear;
-                            stroke: #555;
+                            fill: none;
+                            stroke: #e0e0e0;
+                            stroke-width: 10;
                         }
 
                         .progressFill {
-                            transition: .3s linear;
-                            stroke: #6b6bff;
+                            fill: none;
+                            stroke: #5b5bff;
+                            stroke-width: 10;
+                            stroke-linecap: round;
+                            transform: rotate(-90deg);
+                            transform-origin: 50% 50%;
+                            transition: stroke-dashoffset 1s ease-in-out;
                         }
 
                         .progressValue {
-                            transition: .3s linear;
-                            fill: #6b6bff;
+                            font-size: 1.8rem;
+                            font-weight: bold;
+                            fill: #5b5bff;
                         }
+                    }
 
-                        span {
-                            transition: .3s linear;
-                            color: #60ef6c;
-                        }
+                    .flex_wrapper {
+                        display: flex;
+                        align-items: center;
+                        gap: 1.5rem;
+                        margin-top: 2rem;
 
-                        .span_1 {
-                            transition: .3s linear;
-                            color: #6b6bff;
-                        }
+                        .appropriate_slevel__box {
+                            flex: 1 1 26rem;
+                            padding: 2rem;
+                            background: #fff;
+                            border-radius: 1rem;
+                            font-size: 1.5rem;
+                            font-weight: var(--weight550);
 
-                        .span_2,
-                        .span_3 {
-                            transition: .3s linear;
-                            color: #b0b0b0;
-                        }
+                            span {
+                                display: block;
+                                margin-top: 2rem;
+                                font-size: 1.8rem;
+                                font-weight: var(--weight550);
+                                line-height: 1.8;
+                            }
 
-                        .progressBar {
-                            transition: .3s linear;
-                            background: #555;
+                            .span_1 {
+                                color: #5b5bff;
+                            }
 
-                            .progressFill {
-                                transition: .3s linear;
-                                background: #6b6bff;
+                            .span_2,
+                            .span_3 {
+                                color: var(--viewDetails);
+                            }
+
+                            .progressBar {
+                                margin-top: 1rem;
+                                width: 100%;
+                                height: 1rem;
+                                background: #e0e0e0;
+                                border-radius: 0.5rem;
+                                overflow: hidden;
+
+                                .progressFill {
+                                    height: 100%;
+                                    background: #5b5bff;
+                                    transition: width 1s ease-in-out;
+                                }
                             }
                         }
                     }
+
+
                 }
 
                 .strengths_weaknesses {
@@ -312,6 +355,112 @@
                         }
                     }
                 }
+
+                .ranking {
+                    margin-top: 2rem;
+    
+                    .rankingTable {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 1.4rem;
+                        padding: 2rem;
+                    }
+    
+                    .rankingTable th,
+                    .rankingTable td {
+                        border: .15rem solid var(--hoverBoxBd);
+                        border-left: none;
+                        border-right: none;
+                        padding: 1.2rem;
+                        text-align: center;
+                    }
+    
+                    .rankingTable th {
+    
+    
+                        &:nth-child(1) {
+                            border-top: none;
+                        }
+    
+    
+                        &:nth-child(2) {
+                            border-top: none;
+                        }
+    
+    
+                        &:nth-child(3) {
+                            border-top: none;
+                        }
+    
+    
+                        &:nth-child(4) {
+                            border-top: none;
+                        }
+    
+    
+                        &:nth-child(5) {
+                            border-top: none;
+                        }
+    
+                        &:nth-child(6) {
+                            border-top: none;
+                        }
+    
+                    }
+    
+                    .rankingTable td {
+    
+    
+                        &:nth-child(1) {
+                            border-bottom: none;
+                        }
+    
+    
+                        &:nth-child(2) {
+                            border-bottom: none;
+                        }
+    
+    
+                        &:nth-child(3) {
+                            border-bottom: none;
+                        }
+    
+    
+                        &:nth-child(4) {
+                            border-bottom: none;
+                        }
+    
+    
+                        &:nth-child(5) {
+                            border-bottom: none;
+                        }
+    
+                        &:nth-child(6) {
+                            border-bottom: none;
+                        }
+    
+                    }
+    
+                    .rankingTable th {
+                        // background-color: var(--hoverBox);
+                        font-weight: bold;
+                        color: #fff;
+                    }
+    
+                    .rankingTable td {
+                        color: #fff;
+                    }
+    
+                    // .rankingTable tr:nth-child(even) {
+                    //     background-color: #fafafa;
+                    // }
+    
+                    .userHighlight {
+                        color: #ff6f61; //Dành cho ứng viên 
+                        font-weight: bold;
+                    }
+                }
+    
             }
 
 
@@ -555,6 +704,9 @@
                     flex: 1 1 70rem;
                     transition: max-width 2s ease;
                     margin-bottom: 9rem;
+                    border: .1rem solid var(--hoverBoxBd);
+                    padding: 1.5rem;
+                    border-radius: 1rem;
                 }
             }
         }
@@ -669,7 +821,7 @@
 
         .appropriate_slevel,
         .Compare_the_level_of_competition {
-            margin-top: 2.5rem;
+            margin-top: 1rem;
 
             .sectionTitle {
                 display: flex;
@@ -685,13 +837,13 @@
             }
 
             .appropriate_slevel__container {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 1.5rem;
-                margin-top: 1.5rem;
 
-                .appropriate_slevel__box {
-                    flex: 1 1 26rem;
+                .appropriate_slevel {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex: 1 1;
+                    width: 100%;
                     padding: 2rem;
                     background: #fff;
                     border-radius: 1rem;
@@ -700,7 +852,6 @@
 
                     .circularProgress {
                         display: block;
-                        margin: 10px auto;
                     }
 
                     .progressBackground {
@@ -724,39 +875,57 @@
                         font-weight: bold;
                         fill: #5b5bff;
                     }
+                }
 
-                    span {
-                        display: block;
-                        margin-top: 2rem;
-                        font-size: 1.8rem;
+                .flex_wrapper {
+                    display: flex;
+                    align-items: center;
+                    gap: 1.5rem;
+                    margin-top: 2rem;
+
+                    .appropriate_slevel__box {
+                        flex: 1 1 26rem;
+                        padding: 2rem;
+                        background: #fff;
+                        border-radius: 1rem;
+                        font-size: 1.5rem;
                         font-weight: var(--weight550);
-                        line-height: 1.8;
-                    }
 
-                    .span_1 {
-                        color: #5b5bff;
-                    }
+                        span {
+                            display: block;
+                            margin-top: 2rem;
+                            font-size: 1.8rem;
+                            font-weight: var(--weight550);
+                            line-height: 1.8;
+                        }
 
-                    .span_2,
-                    .span_3 {
-                        color: var(--viewDetails);
-                    }
+                        .span_1 {
+                            color: #5b5bff;
+                        }
 
-                    .progressBar {
-                        margin-top: 1rem;
-                        width: 100%;
-                        height: 1rem;
-                        background: #e0e0e0;
-                        border-radius: 0.5rem;
-                        overflow: hidden;
+                        .span_2,
+                        .span_3 {
+                            color: var(--viewDetails);
+                        }
 
-                        .progressFill {
-                            height: 100%;
-                            background: #5b5bff;
-                            transition: width 1s ease-in-out;
+                        .progressBar {
+                            margin-top: 1rem;
+                            width: 100%;
+                            height: 1rem;
+                            background: #e0e0e0;
+                            border-radius: 0.5rem;
+                            overflow: hidden;
+
+                            .progressFill {
+                                height: 100%;
+                                background: #5b5bff;
+                                transition: width 1s ease-in-out;
+                            }
                         }
                     }
                 }
+
+
             }
 
             .strengths_weaknesses {
@@ -867,22 +1036,22 @@
                         border-top: none;
                     }
 
-                    
+
                     &:nth-child(2) {
                         border-top: none;
                     }
 
-                    
+
                     &:nth-child(3) {
                         border-top: none;
                     }
 
-                    
+
                     &:nth-child(4) {
                         border-top: none;
                     }
 
-                    
+
                     &:nth-child(5) {
                         border-top: none;
                     }
@@ -900,22 +1069,22 @@
                         border-bottom: none;
                     }
 
-                    
+
                     &:nth-child(2) {
                         border-bottom: none;
                     }
 
-                    
+
                     &:nth-child(3) {
                         border-bottom: none;
                     }
 
-                    
+
                     &:nth-child(4) {
                         border-bottom: none;
                     }
 
-                    
+
                     &:nth-child(5) {
                         border-bottom: none;
                     }

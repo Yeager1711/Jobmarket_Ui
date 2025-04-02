@@ -716,12 +716,12 @@ const ResultCompareCompetitiveness = () => {
                                         Đánh giá mức độ phù hợp theo thang điểm 100%
                                     </h4>
                                     <div className={styles.appropriate_slevel__container}>
-                                        <div className={styles.appropriate_slevel__box}>
-                                            Mức độ phù hợp với công việc
+                                        <div className={styles.appropriate_slevel}>
+                                           <p> Mức độ phù hợp với công việc</p>
                                             <svg
                                                 className={styles.circularProgress}
-                                                width="100"
-                                                height="100"
+                                                width="60"
+                                                height="60"
                                                 viewBox="0 0 100 100"
                                             >
                                                 <circle
@@ -762,29 +762,31 @@ const ResultCompareCompetitiveness = () => {
                                                 </p>
                                             </span>
                                         </div>
-                                        <div className={styles.appropriate_slevel__box}>
-                                            Hạng ứng viên đã ứng tuyển
-                                            <span className={styles.span_2}>
-                                                <p>
-                                                    {renderWithKeys({
-                                                        text: comparisonWithOthers,
-                                                        onKeywordClick: handleKeywordClick,
-                                                        className: styles.keyword,
-                                                    })}
-                                                </p>
-                                            </span>
-                                        </div>
-                                        <div className={styles.appropriate_slevel__box}>
-                                            Mức lương thị trường đang trả
-                                            <span className={styles.span_3}>
-                                                <p>
-                                                    {renderWithKeys({
-                                                        text: marketSalary,
-                                                        onKeywordClick: handleKeywordClick,
-                                                        className: styles.keyword,
-                                                    })}
-                                                </p>
-                                            </span>
+                                        <div className={styles.flex_wrapper}>
+                                            <div className={styles.appropriate_slevel__box}>
+                                                Hạng ứng viên đã ứng tuyển
+                                                <span className={styles.span_2}>
+                                                    <p>
+                                                        {renderWithKeys({
+                                                            text: comparisonWithOthers,
+                                                            onKeywordClick: handleKeywordClick,
+                                                            className: styles.keyword,
+                                                        })}
+                                                    </p>
+                                                </span>
+                                            </div>
+                                            <div className={styles.appropriate_slevel__box}>
+                                                Mức lương thị trường đang trả
+                                                <span className={styles.span_3}>
+                                                    <p>
+                                                        {renderWithKeys({
+                                                            text: marketSalary,
+                                                            onKeywordClick: handleKeywordClick,
+                                                            className: styles.keyword,
+                                                        })}
+                                                    </p>
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1200,7 +1202,6 @@ const ResultCompareCompetitiveness = () => {
                                                 Gợi ý cải thiện
                                             </h4>
                                             <div className={styles.AI_reply_text}>
-                                                <div className={styles.logo_AI}>AI</div>
                                                 <div className={styles.suggests_good_argument__text}>
                                                     {status === 'suggestionsLoading' && !suggestionsReady ? (
                                                         <div className={styles.analyzing}>
@@ -1237,10 +1238,16 @@ const ResultCompareCompetitiveness = () => {
                                                 Xếp hạng chung
                                             </h4>
                                             <div className={styles.Rank_AI_reply_text}>
-                                                <div className={styles.logo_AI}>AI</div>
                                                 <div className={styles.Rank_typingText}>
                                                     {typedRanking ? (
-                                                        <div style={{width: '100%', padding: '.5rem 1.5rem', border: '.15rem solid var(--hoverBoxBd)', borderRadius: '1rem'}}>
+                                                        <div
+                                                            style={{
+                                                                width: '100%',
+                                                                padding: '.5rem 1.5rem',
+                                                                border: '.15rem solid var(--hoverBoxBd)',
+                                                                borderRadius: '1rem',
+                                                            }}
+                                                        >
                                                             {/* Hiển thị bảng xếp hạng */}
                                                             <table className={styles.rankingTable}>
                                                                 <thead>
@@ -1327,7 +1334,6 @@ const ResultCompareCompetitiveness = () => {
                                                 Kết luận
                                             </h4>
                                             <div className={styles.AI_reply_text}>
-                                                <div className={styles.logo_AI}>AI</div>
                                                 <div className={styles.typingText}>
                                                     {typedConclusion.split('\n').map((line, index) =>
                                                         line.trim() ? (

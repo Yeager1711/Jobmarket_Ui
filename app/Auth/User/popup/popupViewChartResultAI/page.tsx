@@ -166,9 +166,15 @@ const PopupViewChartResultAI: React.FC<PopupViewChartResultAIProps> = ({ onClose
 
     if (!isOpen) return null;
 
+    const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     return (
-        <div className={styles.overlay} onClick={onClose}>
-            <div className={`${styles.popup} ${isExpanded ? styles.expanded : ''}`} onClick={(e) => e.stopPropagation}>
+        <div className={styles.overlay} onClick={handleOverlayClick}>
+            <div className={`${styles.popup} ${isExpanded ? styles.expanded : ''}`}>
                 <div className={styles.header}>
                     <h3>Biểu đồ phân tích mức độ phù hợp của bạn với công việc</h3>
                 </div>

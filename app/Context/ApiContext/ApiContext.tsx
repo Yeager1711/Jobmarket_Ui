@@ -30,6 +30,8 @@ interface ApiContextType {
     analyzeCompetitiveness: (jobId: number, resumeCVId: number, orderId: number) => Promise<any>;
     fetchOrdersByUserId: () => Promise<any>; // New function to fetch orders
     disableOrder: (orderId: string) => Promise<void>;
+    applyJob: (jobId: number, resumeCVId: number, letterIntroduction?: string) => Promise<any>;
+    getUserAppliedJobs: () => Promise<any>;
 }
 
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
@@ -504,6 +506,60 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         [accessToken, isReady]
     );
 
+    //Apply job
+    const applyJob = useCallback(
+        async (jobId: number, resumeCVId: number, letterIntroduction?: string) => {
+            if (!isReady) {
+                console.warn('applyJob: Context chưa sẵn sàng, bỏ qua fetch.');
+                throw new Error('Context not ready');
+            }
+
+            if (!accessToken) {
+                console.warn('applyJob: Không có accessToken, bỏ qua fetch.');
+                showToastError('Vui lòng đăng nhập để ứng tuyển');
+                throw new Error('No access token');
+            }
+
+            try {
+                const headers = getAuthHeaders();
+                const response = await axios.post(
+                    `${apiUrl}/applied/apply-job`,
+                    { jobId, resumeCVId, letter_introduction: letterIntroduction },
+                    { headers }
+                );
+                return response.data; // Trả về dữ liệu từ API
+            } catch (error: any) {
+                console.error('Lỗi khi ứng tuyển:', error);
+                showToastError(error.response?.data?.message || 'Ứng tuyển thất bại');
+                throw error;
+            }
+        },
+        [accessToken, isReady]
+    );
+
+    const getUserAppliedJobs = useCallback(async () => {
+        if (!isReady) {
+            console.warn('applyJob: Context chưa sẵn sàng, bỏ qua fetch.');
+            throw new Error('Context not ready');
+        }
+
+        if (!accessToken) {
+            console.warn('applyJob: Không có accessToken, bỏ qua fetch.');
+            showToastError('Vui lòng đăng nhập để ứng tuyển');
+            throw new Error('No access token');
+        }
+        
+        try {
+            const headers = getAuthHeaders();
+            const response = await axios.get(`${apiUrl}/applied/user-applied`, { headers });
+            return response.data.data;
+        } catch (error: any) {
+            console.error('Lỗi khi lấy danh sách công việc đã ứng tuyển:', error);
+            showToastError('Không thể tải danh sách công việc đã ứng tuyển');
+            throw error;
+        }
+    }, [accessToken, isReady]);
+
     return (
         <ApiContext.Provider
             value={{
@@ -530,6 +586,8 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 analyzeCompetitiveness,
                 fetchOrdersByUserId,
                 disableOrder,
+                applyJob,
+                getUserAppliedJobs,
             }}
         >
             {children}

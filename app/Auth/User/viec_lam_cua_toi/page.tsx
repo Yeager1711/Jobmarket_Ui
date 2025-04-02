@@ -6,11 +6,15 @@ import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import UserControl from '../userControl/UserControl';
 import { useApi } from '../../../Context/ApiContext/ApiContext';
 import { formatSalary } from '../../../Ultils/formatSalary';
-import MyJob_Skeleton from './myJob_Skeleton';
+import MyAppliedJob_Skeleton from './myAppliedJob_Skeleton';
+import MySavedJob_Skeleton from './mySavedJob_Skeleton';
 import CVAnalysisPopup from '../popup/CVAnalysisPopup/page';
-import PaymentPopup from '../popup/PopUpSelectCV_AI/page';
+import PaymentPopup from '../popup/PopUp_SelectCV_AIAccessment/page';
 import { Job } from '../../../interface/Job';
-// Define types for FavoriteJob
+import { useRouter } from 'next/navigation';
+import Popup_selectCv_ApplyJob from 'app/pages/DefaultLayouts/Popup/Popup_selectCv_ApplyJob/page';
+
+// Define types for FavoriteJob and AppliedJob
 interface CompanyImage {
     image_company: string;
 }
@@ -20,9 +24,18 @@ interface FavoriteJob {
     job: Job;
 }
 
+interface AppliedJob {
+    appliedId: number; // Sửa từ favoriteId thành appliedId để khớp với API
+    letter_introduction: string;
+    applied_at: string;
+    job: Job;
+}
+
 function MyJob() {
-    const [activeTab, setActiveTab] = useState<'myJobs' | 'savedJobs'>('myJobs');
+    const router = useRouter();
+    const [activeTab, setActiveTab] = useState<'myJobsApplied' | 'savedJobs'>('myJobsApplied');
     const [favoriteJobs, setFavoriteJobs] = useState<FavoriteJob[]>([]);
+    const [appliedJobs, setappliedJobs] = useState<AppliedJob[]>([]);
     const [loading, setLoading] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState<{
         open: boolean;
@@ -30,8 +43,19 @@ function MyJob() {
         jobId?: number;
         job?: Job;
     }>({ open: false });
-    const { getUserFavoriteJobs } = useApi();
+    const { getUserFavoriteJobs, getUserAppliedJobs } = useApi();
 
+    const [isOpenSelectCv_ApplyJob, setIsOpenSelectCv_ApplyJob] = useState<{
+        open: boolean;
+        jobId?: number;
+        jobTitle?: string;
+    }>({ open: false });
+
+    const handleApplyJobClick = (jobId: number, jobTitle: string) => {
+        setIsOpenSelectCv_ApplyJob({ open: true, jobId, jobTitle });
+    };
+
+    // Fetch favorite jobs
     useEffect(() => {
         if (activeTab === 'savedJobs') {
             const fetchFavoriteJobs = async () => {
@@ -51,13 +75,146 @@ function MyJob() {
         }
     }, [activeTab, getUserFavoriteJobs]);
 
+    // Fetch applied jobs
+    useEffect(() => {
+        if (activeTab === 'myJobsApplied') {
+            const fetchAppliedJobs = async () => {
+                setLoading(true);
+                try {
+                    const data = await getUserAppliedJobs();
+                    console.log('Dữ liệu từ getUserAppliedJobs:', data);
+                    setappliedJobs(data || []);
+                } catch (error) {
+                    setappliedJobs([]);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchAppliedJobs();
+        }
+    }, [activeTab, getUserAppliedJobs]);
+
     const renderAppliedJobs = () => {
-        return <div className={styles.myJob__applied}></div>;
+       
+        
+        if (loading) {
+            return <MyAppliedJob_Skeleton />;
+        }
+        return (
+            <div className={styles.job_applied_lists}>
+                {appliedJobs.map((jobItem) => {
+                    // Tạo chuỗi salary từ salary_from và salary_to
+                    const salaryString =
+                        jobItem.job.salary_from && jobItem.job.salary_to
+                            ? `${jobItem.job.salary_from} to ${jobItem.job.salary_to} VND`
+                            : jobItem.job.salary_from
+                              ? `Up to ${jobItem.job.salary_from} VND`
+                              : 'Thỏa thuận';
+
+                    return (
+                        <div key={jobItem.appliedId} className={styles.box_applied_job}>
+                            <div
+                                className={styles.image_company}
+                                onClick={() => router.push(`/jobs/job_details/${jobItem.job.jobId}`)}
+                            >
+                                <img
+                                    src={
+                                        jobItem.job.company.images[0]?.image_company ||
+                                        'https://via.placeholder.com/150'
+                                    }
+                                    alt={jobItem.job.company.name}
+                                    onError={(e) => {
+                                        e.currentTarget.src = 'https://via.placeholder.com/150';
+                                    }}
+                                />
+                            </div>
+
+                            <div className={styles.job_applied_content__company}>
+                                <h3
+                                    className={styles.title}
+                                    onClick={() => router.push(`/jobs/job_details/${jobItem.job.jobId}`)}
+                                >
+                                    {jobItem.job.title}
+                                </h3>
+                                <div className={styles.box_marLeft}>
+                                    <span className={styles.company_name}>{jobItem.job.company.name}</span>
+                                    <span className={styles.district_name}>
+                                        {jobItem.job.workLocation.address_name}
+                                    </span>
+                                    <span className={styles['salary']} title={salaryString}>
+                                        {jobItem.job.salary_from === 0 && jobItem.job.salary_to === 0 ? (
+                                            <>Thỏa thuận</>
+                                        ) : (
+                                            <> {formatSalary(salaryString)}</>
+                                        )}
+                                    </span>
+                                    <span
+                                        className={styles.AI_analysis}
+                                        onClick={() =>
+                                            setIsPopupOpen({
+                                                open: true,
+                                                jobTitle: jobItem.job.title,
+                                                job: jobItem.job,
+                                                jobId: jobItem.job.jobId,
+                                            })
+                                        }
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="20"
+                                            height="15"
+                                            viewBox="0 0 32 24"
+                                            fill="none"
+                                        >
+                                            <path
+                                                d="M7.00212 3.07087C6.45598 3.25137 6.45598 4.0243 7.00212 4.20326C8.26102 4.61672 9.24839 5.60564 9.66339 6.86453C9.84389 7.41067 10.6168 7.41067 10.7958 6.86453C11.2092 5.60564 12.1981 4.61826 13.457 4.20326C14.0032 4.02276 14.0032 3.24983 13.457 3.07087C12.1981 2.65741 11.2108 1.6685 10.7958 0.409604C10.6153 -0.136535 9.84235 -0.136535 9.66339 0.409604C9.24839 1.67004 8.26102 2.65741 7.00212 3.07087ZM24.3366 2.14521C24.1237 1.49725 23.2058 1.49725 22.9929 2.14521L21.9963 5.17829C21.5057 6.67168 20.3332 7.84264 18.8413 8.33324L15.8082 9.32987C15.1603 9.54277 15.1603 10.4607 15.8082 10.6736L18.8413 11.6702C20.3347 12.1608 21.5057 13.3333 21.9963 14.8252L22.9929 17.8583C23.2058 18.5062 24.1237 18.5062 24.3366 17.8583L25.3348 14.8252C25.8254 13.3318 26.9964 12.1608 28.4898 11.6702L31.5228 10.6736C32.1708 10.4607 32.1708 9.54277 31.5228 9.32987L28.4898 8.3317C26.9964 7.8411 25.8254 6.67014 25.3348 5.17675L24.3366 2.14521ZM13.7301 14.873C13.5172 14.225 12.5993 14.225 12.3864 14.873L12.2645 15.2448C11.7739 16.7382 10.6029 17.9092 9.10954 18.3998L8.73773 18.5216C8.08977 18.7345 8.08977 19.6525 8.73773 19.8654L9.10954 19.9873C10.6029 20.4779 11.7739 21.6488 12.2645 23.1422L12.3864 23.514C12.5993 24.162 13.5172 24.162 13.7301 23.514L13.852 23.1422C14.3426 21.6488 15.5151 20.4779 17.007 19.9873L17.3788 19.8654C18.0267 19.6525 18.0267 18.7345 17.3788 18.5216L17.007 18.3998C15.5136 17.9092 14.3426 16.7367 13.852 15.2448L13.7301 14.873Z"
+                                                fill="url(#paint0_linear_35033_166622)"
+                                            />
+                                            <path
+                                                d="M0.409604 11.9911C-0.136535 12.1716 -0.136535 12.9446 0.409604 13.1235C1.6685 13.537 2.65587 14.5259 3.07087 15.7848C3.25138 16.3309 4.0243 16.3309 4.20326 15.7848C4.61672 14.5259 5.60563 13.5385 6.86453 13.1235C7.41067 12.943 7.41067 12.1701 6.86453 11.9911C5.60563 11.5777 4.61826 10.5888 4.20326 9.32987C4.02276 8.78373 3.24983 8.78373 3.07087 9.32987C2.65587 10.5903 1.6685 11.5777 0.409604 11.9911Z"
+                                                fill="url(#paint1_linear_35033_166622)"
+                                            />
+                                            <defs>
+                                                <linearGradient
+                                                    id="paint0_linear_35033_166622"
+                                                    x1="32.0088"
+                                                    y1="12"
+                                                    x2="0"
+                                                    y2="12"
+                                                    gradientUnits="userSpaceOnUse"
+                                                >
+                                                    <stop stopColor="#B900F6" />
+                                                    <stop offset="0.67" stopColor="#FF3C68" stopOpacity="0.3" />
+                                                    <stop offset="1" stopColor="#FF6200" stopOpacity="0" />
+                                                </linearGradient>
+                                                <linearGradient
+                                                    id="paint1_linear_35033_166622"
+                                                    x1="32.0088"
+                                                    y1="12"
+                                                    x2="0"
+                                                    y2="12"
+                                                    gradientUnits="userSpaceOnUse"
+                                                >
+                                                    <stop stopColor="#B900F6" />
+                                                    <stop offset="0.67" stopColor="#FF3C68" stopOpacity="0.3" />
+                                                    <stop offset="1" stopColor="#FF6200" stopOpacity="0" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        Phân tích mức độ cạnh tranh CV của bạn với các ứng viên khác
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
     };
 
     const renderSavedJobs = () => {
         if (loading) {
-            return <MyJob_Skeleton />;
+            return <MySavedJob_Skeleton />;
         }
 
         if (favoriteJobs.length === 0) {
@@ -79,16 +236,20 @@ function MyJob() {
         return (
             <div className={styles.job_favorite_lists}>
                 {favoriteJobs.map((jobItem) => {
+                    // Tạo chuỗi salary từ salary_from và salary_to
                     const salaryString =
                         jobItem.job.salary_from && jobItem.job.salary_to
                             ? `${jobItem.job.salary_from} to ${jobItem.job.salary_to} VND`
                             : jobItem.job.salary_from
-                            ? `Up to ${jobItem.job.salary_from} VND`
-                            : 'Thương lượng';
+                              ? `Up to ${jobItem.job.salary_from} VND`
+                              : 'Thỏa thuận';
 
                     return (
                         <div key={jobItem.favoriteId} className={styles.box_favorite_job}>
-                            <div className={styles.image_company}>
+                            <div
+                                className={styles.image_company}
+                                onClick={() => router.push(`/jobs/job_details/${jobItem.job.jobId}`)}
+                            >
                                 <img
                                     src={
                                         jobItem.job.company.images[0]?.image_company ||
@@ -102,16 +263,23 @@ function MyJob() {
                             </div>
 
                             <div className={styles.job_favorite_content__company}>
-                                <h3 className={styles.title}>{jobItem.job.title}</h3>
+                                <h3
+                                    className={styles.title}
+                                    onClick={() => router.push(`/jobs/job_details/${jobItem.job.jobId}`)}
+                                >
+                                    {jobItem.job.title}
+                                </h3>
                                 <div className={styles.box_marLeft}>
-                                    <span className={styles.company_name}>
-                                        {jobItem.job.company.name}
-                                    </span>
+                                    <span className={styles.company_name}>{jobItem.job.company.name}</span>
                                     <span className={styles.district_name}>
                                         {jobItem.job.workLocation.address_name}
                                     </span>
-                                    <span className={styles.salary}>
-                                        {formatSalary(salaryString)}
+                                    <span className={styles['salary']} title={salaryString}>
+                                        {jobItem.job.salary_from === 0 && jobItem.job.salary_to === 0 ? (
+                                            <>Thỏa thuận</>
+                                        ) : (
+                                            <> {formatSalary(salaryString)}</>
+                                        )}
                                     </span>
                                     <span
                                         className={styles.AI_analysis}
@@ -120,7 +288,7 @@ function MyJob() {
                                                 open: true,
                                                 jobTitle: jobItem.job.title,
                                                 job: jobItem.job,
-                                                jobId: jobItem.job.jobId
+                                                jobId: jobItem.job.jobId,
                                             })
                                         }
                                     >
@@ -174,7 +342,19 @@ function MyJob() {
                             <div className={styles.flex_control__button}>
                                 <div style={{ margin: 'auto', display: 'flex', alignItems: 'center' }}>
                                     <FontAwesomeIcon icon={faHeart} />
-                                    <button className={styles.btn_apply}>Ứng tuyển</button>
+                                    <button
+                                        className={styles.btn_apply}
+                                        onClick={() => handleApplyJobClick(jobItem.job.jobId, jobItem.job.title)}
+                                    >
+                                        Ứng tuyển
+                                    </button>
+
+                                    <Popup_selectCv_ApplyJob
+                                        isOpen={isOpenSelectCv_ApplyJob.open}
+                                        jobId={isOpenSelectCv_ApplyJob.jobId}
+                                        jobTitle={isOpenSelectCv_ApplyJob.jobTitle}
+                                        onClose={() => setIsOpenSelectCv_ApplyJob({ open: false })}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -195,8 +375,8 @@ function MyJob() {
 
                     <div className={styles.myJob__tabs}>
                         <button
-                            className={`${styles.tab} ${activeTab === 'myJobs' ? styles.active : ''}`}
-                            onClick={() => setActiveTab('myJobs')}
+                            className={`${styles.tab} ${activeTab === 'myJobsApplied' ? styles.active : ''}`}
+                            onClick={() => setActiveTab('myJobsApplied')} // Sửa: set thành 'myJobsApplied'
                         >
                             Việc đã ứng tuyển
                         </button>
@@ -209,7 +389,7 @@ function MyJob() {
                     </div>
 
                     <div className={styles.myJob__content}>
-                        {activeTab === 'myJobs' ? renderAppliedJobs() : renderSavedJobs()}
+                        {activeTab === 'myJobsApplied' ? renderAppliedJobs() : renderSavedJobs()}
                     </div>
                 </div>
             </div>

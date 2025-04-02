@@ -24,10 +24,12 @@
         box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2);
         overflow: hidden;
         animation: .3s zoomIn ease-in-out;
+        transition: width .6s ease, height .6s ease;
 
 
         &.expanded {
             width: 140rem !important;
+            transition: width .6s ease, height .6s ease;
         }
 
         .header {
@@ -62,13 +64,11 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
-                width: 50rem !important; // Kích thước ban đầu của radar chart
-                height: 50rem !important;
-                transition: width .6s ease, height .6s ease; // Thêm transition cho kích thước
+                transition: width .6s ease, height .6s ease;
 
                 &.chartExpanded {
-                    width: 55rem !important; // Kích thước lớn hơn khi expand
-                    height: 55rem !important;
+                    width: 52rem !important; 
+                    height: 52rem !important;
                     margin: auto;
 
                 }

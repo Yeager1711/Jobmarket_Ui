@@ -4,7 +4,7 @@ import styles from './extend_ai.module.scss';
 import { FaQuestionCircle } from 'react-icons/fa';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSnowflake } from '@fortawesome/free-solid-svg-icons';
-import PopUpSelectCV_AI from 'app/Auth/User/popup/PopUpSelectCV_AI/page';
+import PopUpSelectCV_AI_Accessment from 'app/Auth/User/popup/PopUp_SelectCV_AIAccessment/page';
 import { Job } from 'app/interface/Job';
 
 interface ExtendAIProps {
@@ -119,7 +119,7 @@ function ExtendAI({ jobId, jobTitle }: ExtendAIProps) {
                 </div>
             </div>
             {isOpenPopupCVAnalysisPopup.open && (
-                <PopUpSelectCV_AI
+                <PopUpSelectCV_AI_Accessment
                     isOpen={isOpenPopupCVAnalysisPopup.open}
                     jobId={isOpenPopupCVAnalysisPopup.jobId}
                     job={isOpenPopupCVAnalysisPopup.job}

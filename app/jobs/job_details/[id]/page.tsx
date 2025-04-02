@@ -17,6 +17,7 @@ import {
 
 const cx = classNames.bind(styles);
 import { formatSalary } from '../../../Ultils/formatSalary';
+import PopUpSelectCV_AI from 'app/Auth/User/popup/PopUp_SelectCV_AIAccessment/page';
 import JobDetails_Skeleton from './jobDetail__Skeleton';
 import HotJob from 'app/Ultils/HotJob/HotJob';
 import { Job } from '../../../interface/Job';
@@ -130,6 +131,23 @@ function JobDetail() {
         fetchJobs();
     }, [jobId, fetchJobDetails, fetchAllJobs]);
 
+    const [isOpenPopupCVAnalysisPopup, setIsOpenPopupCVAnalysisPopup] = useState<{
+        open: boolean;
+        jobId?: number;
+        jobTitle?: string;
+        job?: Job;
+    }>({ open: false });
+
+    const handleOpenPopup = () => {
+        if (!jobDetails) return;
+        setIsOpenPopupCVAnalysisPopup({
+            open: true,
+            jobId: jobId,
+            jobTitle: jobDetails.title,
+            job: undefined,
+        });
+    };
+
     if (!jobDetails) {
         return (
             <section className={styles.jobDetail + ' marTop'}>
@@ -137,7 +155,6 @@ function JobDetail() {
             </section>
         );
     }
-
     return (
         <section className={styles.jobDetail + ' marTop'}>
             <div className={styles.company}>
@@ -212,6 +229,27 @@ function JobDetail() {
                                 </div>
                             </div>
                         </div>
+
+                        <div className={styles.box_ads}>
+                            <div className={styles.box_ads_item_1}>
+                                <h3>Tối ưu lợi thế cạnh tranh trước khi ứng tuyển</h3>
+                                <p>Xem phân tích mức độ phù hợp và so sánh với ứng viên đã ứng tuyển</p>
+                            </div>
+
+                            <div className={styles.box_ads_item_2}>
+                                <span>83% đánh giá tích cực cho chức năng mới này</span>
+                                <button onClick={handleOpenPopup}>Xem phân tích ngay</button>
+                            </div>
+                        </div>
+
+                        {isOpenPopupCVAnalysisPopup.open && (
+                            <PopUpSelectCV_AI
+                                isOpen={isOpenPopupCVAnalysisPopup.open}
+                                jobId={isOpenPopupCVAnalysisPopup.jobId}
+                                job={isOpenPopupCVAnalysisPopup.job}
+                                onClose={() => setIsOpenPopupCVAnalysisPopup({ open: false })}
+                            />
+                        )}
 
                         <div className={styles.basic_infomation_description}>
                             <h3>Mô tả công việc</h3>
@@ -288,7 +326,7 @@ function JobDetail() {
                             </span>
                         </div>
 
-                        <ExtendAI jobId={jobId} jobTitle={jobDetails?.title}/>
+                        <ExtendAI jobId={jobId} jobTitle={jobDetails?.title} />
                     </div>
                 </div>
 
@@ -399,10 +437,3 @@ function JobDetail() {
 }
 
 export default JobDetail;
-
-const handleRedirect = (e: React.MouseEvent<HTMLAnchorElement>, url: string) => {
-    e.preventDefault();
-    if (url) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-    }
-};

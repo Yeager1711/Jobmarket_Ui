@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import styles from './CVAnalysisPopup.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
-import PopUpSelectCV_AI from '../PopUpSelectCV_AI/page';
+import PopUpSelectCV_AI_Accessment from '../PopUp_SelectCV_AIAccessment/page';
 import { Job } from '../../../../interface/Job';
 
 interface CVAnalysisPopupProps {
@@ -114,7 +114,7 @@ const CVAnalysisPopup = ({ isOpen, jobTitle, jobId, job, onClose }: CVAnalysisPo
                 </div>
             )}
             {isPaymentOpen && savedJobId && (
-                <PopUpSelectCV_AI isOpen={isPaymentOpen} onClose={handlePaymentClose} job={job} jobId={savedJobId} />
+                <PopUpSelectCV_AI_Accessment isOpen={isPaymentOpen} onClose={handlePaymentClose} job={job} jobId={savedJobId} />
             )}
         </>
     );

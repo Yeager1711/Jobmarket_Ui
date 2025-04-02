@@ -11,7 +11,7 @@ const JobDetails_Skeleton = () => {
                 <div key={index}>
                     <div className={styles.company} >
                         <div className={styles.image_company}>
-                            <Skeleton width={100} height={100} />
+                            <Skeleton width={80} height={80} borderRadius={50}/>
                         </div>
                         <div className={styles.name_company}>
                             <Skeleton width={600} height={30} />

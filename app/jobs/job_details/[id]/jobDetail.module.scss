@@ -5,7 +5,7 @@
 
     .company {
         background: var(--bg-White);
-        border-radius: 5rem;
+        border-radius: 1rem;
         display: flex;
         // flex-wrap: wrap;
         align-items: center;
@@ -226,6 +226,61 @@
                 }
             }
 
+            .box_ads {
+                margin-top: 2rem;
+                display: flex;
+                gap: 2rem;
+                padding: 2rem;
+                background: var(--hoverBox);
+                border: .1rem solid var(--hoverBoxBd);
+                border-radius: 1rem;
+
+                .box_ads_item_1 {
+                    flex: 1 1 32rem;
+
+                    h3 {
+                        font-size: 1.6rem;
+                    }
+
+                    p {
+                        max-width: 30rem;
+                        font-size: 1.35rem;
+                        margin-left: 2.7rem;
+                        line-height: 1.5;
+                        color: #777;
+                    }
+                }
+
+                .box_ads_item_2 {
+                    flex: 1 1 18rem;
+                    text-align: end;
+
+
+                    span {
+                        display: block;
+                        font-size: 1.35rem;
+                        margin-bottom: 1rem;
+                        color:  #c006e9;
+                    }
+
+                    button {
+                        display: inline-block;
+                        padding: .8rem 4rem;
+                        background: #ff8b38;
+                        color: var(--colorWhiteText);
+                        font-size: 1.3rem;
+                        border-top-left-radius: 5rem;
+                        margin-top: 1rem;
+                        border-bottom-right-radius: 5rem;
+
+                        &:hover {
+                            transition: .3s ease;
+                            background: var(--viewDetails);
+                        }
+                    }
+                }
+            }
+
             .basic_infomation_description,
             .basic_infomation_requesment,
             .basic_infomation_benifet {
@@ -252,21 +307,23 @@
             }
 
             .basic_infomation_benifet {
-                height: 6rem; /* Chiều cao mặc định */
+                height: 6rem;
+                /* Chiều cao mặc định */
                 overflow: hidden;
-                transition: height 0.3s ease-in-out; 
-            
+                transition: height 0.3s ease-in-out;
+
                 &.expanded {
-                    height: 100%; /* Chiều cao khi mở rộng */
+                    height: 100%;
+                    /* Chiều cao khi mở rộng */
                     /* Không cần lặp lại transition ở đây */
                 }
-            
+
                 .btn_Expanded_Content {
                     padding: .7rem;
                     margin-top: -1rem;
                     background: none;
                     cursor: pointer;
-            
+
                     svg {
                         font-size: 1.7rem;
                         cursor: pointer;
